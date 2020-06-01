@@ -13,6 +13,9 @@ public:
 		if (m_GPUBuffer) m_GPUBuffer.Reset();
 	}
 
+	void SetCPUBuffer(Microsoft::WRL::ComPtr<ID3D12Resource> _pBuffer) { m_CPUBuffer = _pBuffer; }
+	void SetGPUBuffer(Microsoft::WRL::ComPtr<ID3D12Resource> _pBuffer) { m_GPUBuffer = _pBuffer; }
+
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetCPUBuffer(void) { return m_CPUBuffer; }
 	Microsoft::WRL::ComPtr<ID3D12Resource> GetGPUBuffer(void) { return m_GPUBuffer; }
 

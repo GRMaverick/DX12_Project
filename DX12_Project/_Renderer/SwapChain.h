@@ -24,7 +24,9 @@ public:
 		CommandQueue* _pCommandQueue,
 		UINT _backBuffers,
 		DescriptorHeap* _pDescHeapRTV,
+		DescriptorHeap* _pDescHeapDSV,
 		CoreWindow* _pWindow);
+
 	bool Present(void);
 	void Swap(void);
 
@@ -38,9 +40,12 @@ private:
 	BOOL											m_bAllowTearing = false;
 
 	DescriptorHeap*									m_pDescHeapRTV;
+	DescriptorHeap*									m_pDescHeapDSV;
+
 	Microsoft::WRL::ComPtr<IDXGIAdapter4>			m_pDxgiAdapter = nullptr;
 	Microsoft::WRL::ComPtr<IDXGISwapChain4>			m_pSwapChain = nullptr;
 
-	Microsoft::WRL::ComPtr<ID3D12Resource>			m_BackBuffers[BACK_BUFFERS];
+	Microsoft::WRL::ComPtr<ID3D12Resource>			m_pDepthBuffer;
+	Microsoft::WRL::ComPtr<ID3D12Resource>			m_pBackBuffers[BACK_BUFFERS];
 };
 #endif // __SwapChain_h__

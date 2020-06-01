@@ -75,10 +75,9 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 	if (!m_Device.CreateCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT, &m_pGFXCommandList))
 		return false;
 
-
-	if (!m_Device.CreateCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT, &m_pCopyCommandQueue))
+	if (!m_Device.CreateCommandQueue(D3D12_COMMAND_LIST_TYPE_COPY, &m_pCopyCommandQueue))
 		return false;
-	if (!m_Device.CreateCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT, &m_pCopyCommandList))
+	if (!m_Device.CreateCommandList(D3D12_COMMAND_LIST_TYPE_COPY, &m_pCopyCommandList))
 		return false;
 
 	if (!m_Device.CreateSwapChain(&m_pSwapChain, _pWindow, BACK_BUFFERS, m_pGFXCommandQueue))
@@ -87,17 +86,29 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 	if (!LoadCube())
 		return false;
 
+	if (!LoadShaders())
+		return false;
+
 	return true;
 }
 
 bool RendererD3D12::LoadCube(void)
 {	
-	if (m_Device.CreateVertexBufferResource(m_pCopyCommandList, _countof(g_Vertices), sizeof(VertexPosColor), (void*)g_Vertices, &m_pVertexBuffer))
+	m_pCopyCommandList->Reset();
+
+	if (m_Device.CreateVertexBufferResource(m_pCopyCommandList, _countof(g_Vertices), sizeof(VertexPosColor), D3D12_RESOURCE_FLAG_NONE, (void*)g_Vertices, &m_pVertexBuffer))
 		return false;
 
-	if (m_Device.CreateIndexBufferResource(m_pCopyCommandList, _countof(g_Vertices), sizeof(WORD), (void*)g_Indicies, &m_pIndexBuffer))
+	if (m_Device.CreateIndexBufferResource(m_pCopyCommandList, _countof(g_Indicies), sizeof(WORD), D3D12_RESOURCE_FLAG_NONE, (void*)g_Indicies, &m_pIndexBuffer))
 		return false;
 
+	m_pCopyCommandQueue->ExecuteCommandLists(m_pCopyCommandList, 1);
+
+	return true;
+}
+
+bool RendererD3D12::LoadShaders(void)
+{
 	return true;
 }
 

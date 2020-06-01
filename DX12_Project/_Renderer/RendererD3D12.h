@@ -38,6 +38,7 @@ private:
 	IndexBufferResource*		m_pIndexBuffer;
 
 	bool LoadCube();
+	bool LoadShaders();
 };
 
 #endif // __RendererD3D12_h__

@@ -1,13 +1,11 @@
 #include "Defines.h"
 
-#define _CRT_SECURE_NO_WARNINGS
-
 #include "ShaderCompiler.h"
 
 #include <d3dcompiler.h>
 #include <dxcapi.h>
 
-#include <assert.h>
+#include <stdlib.h>
 
 
 #pragma comment(lib, "d3dcompiler.lib")
@@ -32,8 +30,9 @@ ShaderData ShaderCompiler::Compile(const char* _pFilename, const char* _pFunctio
 		ID3DBlob* pError = nullptr;
 		ID3DBlob* pByteCode = nullptr;
 
+		size_t numRead = 0;
 		wchar_t* pFilenameWstr = new wchar_t[strlen(_pFilename)];
-		mbstowcs(pFilenameWstr, _pFilename, strlen(_pFilename));
+		mbstowcs_s(&numRead, pFilenameWstr, strlen(_pFilename), _pFilename, strlen(_pFilename));
 
 		UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 		HRESULT hr = D3DCompileFromFile(pFilenameWstr, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, _pFunctionName,
@@ -43,13 +42,13 @@ ShaderData ShaderCompiler::Compile(const char* _pFilename, const char* _pFunctio
 		{
 			assert(!_pError && "_pError is a pointer to something, this is will leak the memory that was previously assigned to it");
 			_pError = new char[pError->GetBufferSize()];
-			strncpy(_pError, (const char*)pError->GetBufferPointer(), pError->GetBufferSize());
+			strncpy_s(_pError, pError->GetBufferSize(), (const char*)pError->GetBufferPointer(), pError->GetBufferSize());
 		}
 		else
 		{
 			ShaderData d;
-			strncpy(d.ShaderName, _pFilename, ARRAYSIZE(d.ShaderName) - 1);
-			strncpy(d.ShaderByteCode, (const char*)pByteCode->GetBufferPointer(), pByteCode->GetBufferSize());
+			strncpy_s(d.ShaderName, ARRAYSIZE(d.ShaderName) - 1, _pFilename, ARRAYSIZE(d.ShaderName) - 1);
+			strncpy_s(d.ShaderByteCode, pByteCode->GetBufferSize(), (const char*)pByteCode->GetBufferPointer(), pByteCode->GetBufferSize());
 			d.ShaderByteCodeSize = pByteCode->GetBufferSize();
 			return d;
 		}

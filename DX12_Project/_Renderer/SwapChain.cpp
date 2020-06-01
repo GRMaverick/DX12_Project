@@ -23,7 +23,7 @@ SwapChain::~SwapChain(void)
 }
 
 bool SwapChain::Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, Microsoft::WRL::ComPtr<IDXGIFactory5> _pFactory,
-	CommandQueue* _pCommandQueue, UINT _backBuffers, DescriptorHeap* _pDescHeapRTV,	CoreWindow* _pWindow)
+	CommandQueue* _pCommandQueue, UINT _backBuffers, DescriptorHeap* _pDescHeapRTV,	DescriptorHeap* _pDescHeapDSV, CoreWindow* _pWindow)
 {
 	HRESULT hr = S_OK;
 
@@ -87,17 +87,45 @@ bool SwapChain::Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, Micros
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_pDescHeapRTV->GetCPUStartHandle());
 		for (UINT rtvIndex = 0; rtvIndex < BACK_BUFFERS; ++rtvIndex)
 		{
-			ComPtr<ID3D12Resource> pBackBuffer;
+			ComPtr<ID3D12Resource> pBackBuffer = nullptr;
 			m_pSwapChain->GetBuffer(rtvIndex, IID_PPV_ARGS(&pBackBuffer));
 
 			_pDevice->CreateRenderTargetView(pBackBuffer.Get(), nullptr, rtvHandle);
-			m_BackBuffers[rtvIndex] = pBackBuffer;
+			m_pBackBuffers[rtvIndex] = pBackBuffer;
 
 			rtvHandle.Offset(m_pDescHeapRTV->GetIncrementSize());
 		}
 	}
 	_pWindow->AddOnResizeDelegate(std::bind(&SwapChain::OnResize, this, std::placeholders::_1, std::placeholders::_2));
 
+	// Create DSV
+	{
+		m_pDescHeapDSV = _pDescHeapDSV;
+		CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_pDescHeapDSV->GetCPUStartHandle());
+
+		D3D12_CLEAR_VALUE optimizedClearValue = {};
+		ZeroMemory(&optimizedClearValue, sizeof(D3D12_CLEAR_VALUE));
+		optimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+		optimizedClearValue.DepthStencil = { 1.0f, 0 };
+
+		_pDevice->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, _pWindow->GetDimensions().WindowWidth, _pWindow->GetDimensions().WindowHeight,
+				1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
+			D3D12_RESOURCE_STATE_DEPTH_WRITE,
+			&optimizedClearValue,
+			IID_PPV_ARGS(m_pDepthBuffer.GetAddressOf())
+		);
+
+		D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {  };
+		dsv.Format = DXGI_FORMAT_D32_FLOAT;
+		dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+		dsv.Texture2D.MipSlice = 0;
+		dsv.Flags = D3D12_DSV_FLAG_NONE;
+
+		_pDevice->CreateDepthStencilView(m_pDepthBuffer.Get(), &dsv, dsvHandle);
+	}
 	return true;
 }
 
@@ -119,16 +147,18 @@ void SwapChain::OnResize(UINT32 _width, UINT32 _height)
 
 void SwapChain::PrepareForRendering(CommandList* _cmdList)
 {
-	_cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_BackBuffers[m_CurrentBackBuffer].Get(),
+	_cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pBackBuffers[m_CurrentBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, 0));
 
 	FLOAT clearColour[] = { 0.4f, 0.6f, 0.9f, 1.0f };
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtv(m_pDescHeapRTV->GetCPUStartHandle(), m_CurrentBackBuffer, m_pDescHeapRTV->GetIncrementSize());
+	CD3DX12_CPU_DESCRIPTOR_HANDLE dsv(m_pDescHeapDSV->GetCPUStartHandle(), 0, m_pDescHeapDSV->GetIncrementSize());
 
 	_cmdList->ClearRenderTargetView(rtv, clearColour, 0, nullptr);
+	_cmdList->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 }
 void SwapChain::PrepareForPresentation(CommandList* _cmdList)
 {
-	_cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_BackBuffers[m_CurrentBackBuffer].Get(),
+	_cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pBackBuffers[m_CurrentBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, 0));
 }

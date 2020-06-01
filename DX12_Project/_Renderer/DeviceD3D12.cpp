@@ -155,47 +155,45 @@ bool DeviceD3D12::CreateSwapChain(SwapChain** _ppSwapChain, CoreWindow* _pWindow
 	if (!CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, &descHeapRTV, _numBackBuffers))
 		return false;
 
+	DescriptorHeap* descHeapDSV;
+	if (!CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, &descHeapDSV, 1))
+		return false;
+
 	*_ppSwapChain = new SwapChain();
-	if (!(*_ppSwapChain)->Initialise(m_pDevice, m_pDxgiFactory, _pCommandQueue, _numBackBuffers, descHeapRTV, _pWindow))
+	if (!(*_ppSwapChain)->Initialise(m_pDevice, m_pDxgiFactory, _pCommandQueue, _numBackBuffers, descHeapRTV, descHeapDSV, _pWindow))
 		return false;
 
 	return true;
 }
 
-bool DeviceD3D12::CreateBufferResource(CommandList* _pCommandList, SIZE_T _sizeInBytes, SIZE_T _strideInBytes, void* _pData, IBufferResource** _ppResource)
+bool DeviceD3D12::UploadResource(CommandList* _pCommandList, SIZE_T _sizeInBytes, SIZE_T _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData,IBufferResource** _ppResource)
 {
 	HRESULT hr = S_OK;
 
 	SIZE_T bufferSize = _sizeInBytes * _strideInBytes;
-	hr = m_pDevice->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(bufferSize),
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		nullptr,
-		IID_PPV_ARGS((*_ppResource)->GetGPUBuffer().GetAddressOf())
-	);
+	ComPtr<ID3D12Resource> pDestination = nullptr;
+	hr = m_pDevice->CreateCommittedResource( &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(bufferSize, _flags),
+		D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(pDestination.GetAddressOf()));
 	if (FAILED(hr))
 	{
 		assert(false && "Destination Buffer Setup Failed");
 		return false;
 	}
+	if (pDestination.Get())
+		(*_ppResource)->SetGPUBuffer(pDestination);
 
 	if (_pData)
 	{
-		hr = m_pDevice->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-			D3D12_HEAP_FLAG_NONE,
-			& CD3DX12_RESOURCE_DESC::Buffer(bufferSize),
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS((*_ppResource)->GetCPUBuffer().GetAddressOf())
-		);
+		ComPtr<ID3D12Resource> pIntermediate = nullptr;
+		hr = m_pDevice->CreateCommittedResource( &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(bufferSize),
+			D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(pIntermediate.GetAddressOf()));
 		if (FAILED(hr))
 		{
 			assert(false && "Upload Buffer Setup Failed");
 			return false;
 		}
+		if (pIntermediate.Get())
+			(*_ppResource)->SetCPUBuffer(pIntermediate);
 
 		D3D12_SUBRESOURCE_DATA srData = {};
 		ZeroMemory(&srData, sizeof(D3D12_SUBRESOURCE_DATA));
@@ -208,10 +206,10 @@ bool DeviceD3D12::CreateBufferResource(CommandList* _pCommandList, SIZE_T _sizeI
 
 	return true;
 }
-bool DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, SIZE_T _sizeInBytes, SIZE_T _strideInBytes, void* _pData, VertexBufferResource** _ppResource)
+bool DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, SIZE_T _sizeInBytes, SIZE_T _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, VertexBufferResource** _ppResource)
 {
 	*_ppResource = new VertexBufferResource();
-	if (CreateBufferResource(_pCommandList, _sizeInBytes, _strideInBytes, _pData, (IBufferResource**)_ppResource))
+	if (UploadResource(_pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, (IBufferResource**)_ppResource))
 		return false;
 
 	D3D12_VERTEX_BUFFER_VIEW vbv = { };
@@ -223,10 +221,10 @@ bool DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, SIZE_T 
 	(*_ppResource)->SetView(vbv);
 	return true;
 }
-bool DeviceD3D12::CreateIndexBufferResource(CommandList* _pCommandList, SIZE_T _sizeInBytes, SIZE_T _strideInBytes, void* _pData, IndexBufferResource** _ppResource)
+bool DeviceD3D12::CreateIndexBufferResource(CommandList* _pCommandList, SIZE_T _sizeInBytes, SIZE_T _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, IndexBufferResource** _ppResource)
 {
 	*_ppResource = new IndexBufferResource();
-	if (CreateBufferResource(_pCommandList, _sizeInBytes, _strideInBytes, _pData, (IBufferResource**)_ppResource))
+	if (UploadResource(_pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, (IBufferResource**)_ppResource))
 		return false;
 
 	D3D12_INDEX_BUFFER_VIEW ibv = { };
