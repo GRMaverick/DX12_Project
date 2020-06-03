@@ -16,6 +16,8 @@ using namespace DirectX;
 
 PRAGMA_TODO("VSync Support")
 PRAGMA_TODO("Test Interleaved Vertex Format v Packed Vertex Format")
+PRAGMA_TODO("PIX Profile Markers")
+PRAGMA_TODO("Integrate ImGUI")
 
 #define SHADER_CACHE_LOCATION "C:\\Users\\Maverick\\Source\\Repos\\DX12_Project\\DX12_Project\\_Shaders\\*"
 
@@ -182,6 +184,7 @@ bool RendererD3D12::Render(void)
 			m_pGFXCommandList->SetIAVertexBuffers(0, 1, &m_pVertexBuffer->GetView());
 			m_pGFXCommandList->SetIAIndexBuffer(&m_pIndexBuffer->GetView());
 
+PRAGMA_TODO("Constant Buffer objects")
 			// Constant Buffer Information    
 			XMMATRIX mvpMatrix = XMMatrixMultiply(m_ModelMatrix, m_ViewMatrix);
 			mvpMatrix = XMMatrixMultiply(mvpMatrix, m_ProjectionMatrix);
