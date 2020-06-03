@@ -10,12 +10,15 @@
 #include "IndexBufferResource.h"
 
 #include <assert.h>
+#include <DirectXMath.h>
 
+using namespace DirectX;
 using namespace Microsoft::WRL;
 
 PRAGMA_TODO("Debug Flags for Device Creation")
 PRAGMA_TODO("\tDRED Features")
 PRAGMA_TODO("\tInfo Queue Features");
+
 
 DeviceD3D12::DeviceD3D12(void)
 {
@@ -115,13 +118,26 @@ bool DeviceD3D12::Initialise(bool _bDebugging)
 #endif
 	}
 
+	// --------------------------------------------------------------------------------------------------------------------------------
+	// Experimental Feature: D3D12ExperimentalShaderModels
+	//
+	// Use with D3D12EnableExperimentalFeatures to enable experimental shader model support,
+	// meaning shader models that haven't been finalized for use in retail.
+	//
+	// Enabling D3D12ExperimentalShaderModels needs no configuration struct, pass NULL in the pConfigurationStructs array.
+	//
+	// --------------------------------------------------------------------------------------------------------------------------------
+	static const UUID D3D12ExperimentalShaderModels = { /* 76f5573e-f13a-40f5-b297-81ce9e18933f */
+		0x76f5573e,
+		0xf13a,
+		0x40f5,
+		{ 0xb2, 0x97, 0x81, 0xce, 0x9e, 0x18, 0x93, 0x3f }
+	};
+	VALIDATE_D3D(D3D12EnableExperimentalFeatures(1, &D3D12ExperimentalShaderModels, nullptr, nullptr));
+
 	// Create Device
-	hr = D3D12CreateDevice(m_pDxgiAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(m_pDevice.GetAddressOf()));
-	if (FAILED(hr))
-	{
-		assert(false && "Device Creation Failed");
-		return false;
-	}
+	VALIDATE_D3D(D3D12CreateDevice(m_pDxgiAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(m_pDevice.GetAddressOf())));
+
 	return true;
 }
 
@@ -234,5 +250,62 @@ bool DeviceD3D12::CreateIndexBufferResource(CommandList* _pCommandList, UINT _si
 	ibv.Format = DXGI_FORMAT_R16_UINT;
 
 	(*_ppResource)->SetView(ibv);
+	return true;
+}
+bool DeviceD3D12::CreateRootSignature(D3D12_ROOT_PARAMETER1* _pRootParameters, UINT _numParameters, ID3D12RootSignature** _ppRootSignature)
+{
+	D3D12_ROOT_SIGNATURE_FLAGS rootSigFlags =
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
+
+	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
+	ZeroMemory(&featureData, sizeof(D3D12_FEATURE_DATA_ROOT_SIGNATURE));
+	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
+	VALIDATE_D3D(m_pDevice->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(D3D12_FEATURE_DATA_ROOT_SIGNATURE)));
+
+	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSigDesc;
+	rootSigDesc.Init_1_1(_numParameters, _pRootParameters, 0, nullptr, rootSigFlags);
+
+	ComPtr<ID3DBlob> pRootSigBlob;
+	ComPtr<ID3DBlob> pErrorBlob;
+	VALIDATE_D3D(D3DX12SerializeVersionedRootSignature(&rootSigDesc, featureData.HighestVersion, &pRootSigBlob, &pErrorBlob));
+	VALIDATE_D3D(m_pDevice->CreateRootSignature(0, pRootSigBlob->GetBufferPointer(), pRootSigBlob->GetBufferSize(), IID_PPV_ARGS(_ppRootSignature)));
+
+	return true;
+}
+bool DeviceD3D12::CreatePipelineState(PipelineStateDesc _psDesc, ID3D12PipelineState** _ppPipelineState)
+{
+	D3D12_RT_FORMAT_ARRAY rtvFormats = {};
+	ZeroMemory(&rtvFormats, sizeof(D3D12_RT_FORMAT_ARRAY));
+	rtvFormats.NumRenderTargets = 1;
+	rtvFormats.RTFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+	struct PipelineStateStream
+	{
+		CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE pRootSignature;
+		CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT InputLayout;
+		CD3DX12_PIPELINE_STATE_STREAM_PRIMITIVE_TOPOLOGY PrimitiveTopologyType;
+		CD3DX12_PIPELINE_STATE_STREAM_VS VS;
+		CD3DX12_PIPELINE_STATE_STREAM_PS PS;
+		CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT DSVFormat;
+		CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS RTVFormats;
+	} pipelineStateStream;
+	
+	pipelineStateStream.VS = _psDesc.VertexShader;
+	pipelineStateStream.PS = _psDesc.PixelShader;
+	pipelineStateStream.InputLayout = _psDesc.InputLayout;
+	pipelineStateStream.pRootSignature = _psDesc.RootSignature;
+	pipelineStateStream.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	pipelineStateStream.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+	pipelineStateStream.RTVFormats = rtvFormats;
+
+	D3D12_PIPELINE_STATE_STREAM_DESC pipelineStateStreamDesc = {
+		sizeof(PipelineStateStream), &pipelineStateStream
+	};
+	VALIDATE_D3D(m_pDevice->CreatePipelineState(&pipelineStateStreamDesc, IID_PPV_ARGS(_ppPipelineState)));
+
 	return true;
 }

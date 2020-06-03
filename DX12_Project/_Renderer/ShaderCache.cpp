@@ -18,7 +18,7 @@ ShaderCache::ShaderCache(const char* _pShaderPaths)
 
 ShaderCache::~ShaderCache(void)
 {
-
+	float x = 1e-6f;
 }
 
 void ShaderCache::Load(const char* _pShadersPath)

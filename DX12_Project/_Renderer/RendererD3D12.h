@@ -15,6 +15,7 @@
 #include "ShaderCache.h"
 #include "SwapChain.h"
 #include "VertexBufferResource.h"
+#include "ShaderCache.h"
 
 class RendererD3D12 : public IRenderer
 {
@@ -26,22 +27,25 @@ public:
 	virtual bool Render(void) override final;
 
 private:
-	DeviceD3D12			m_Device;
-	SwapChain*			m_pSwapChain;
+	DeviceD3D12										m_Device;
+	SwapChain*										m_pSwapChain;
 
-	CommandList*		m_pGFXCommandList;
-	CommandList*		m_pCopyCommandList;
+	CommandList*									m_pGFXCommandList;
+	CommandList*									m_pCopyCommandList;
 
-	CommandQueue*		m_pCopyCommandQueue;
-	CommandQueue*		m_pGFXCommandQueue;
+	CommandQueue*									m_pCopyCommandQueue;
+	CommandQueue*									m_pGFXCommandQueue;
 
-	VertexBufferResource*		m_pVertexBuffer;
-	IndexBufferResource*		m_pIndexBuffer;
+	VertexBufferResource*							m_pVertexBuffer;
+	IndexBufferResource*							m_pIndexBuffer;
 
-	ShaderCache					m_ShaderCache;
+	ShaderCache										m_ShaderCache;
+
+	Microsoft::WRL::ComPtr<ID3D12RootSignature>		m_pRootSignature = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState>		m_pBasicPipelineState = nullptr;
 
 	bool LoadCube();
-	bool LoadShaders();
+	bool CreatePipelineState();
 };
 
 #endif // __RendererD3D12_h__

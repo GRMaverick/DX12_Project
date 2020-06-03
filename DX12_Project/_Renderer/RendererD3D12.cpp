@@ -72,6 +72,8 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 	if (!m_Device.Initialise(true))
 		return false;
 
+	m_ShaderCache = ShaderCache(SHADER_CACHE_LOCATION);
+
 	if (!m_Device.CreateCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT, &m_pGFXCommandQueue))
 		return false;
 	if (!m_Device.CreateCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT, &m_pGFXCommandList))
@@ -88,7 +90,7 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 	if (!LoadCube())
 		return false;
 
-	if (!LoadShaders())
+	if (!CreatePipelineState())
 		return false;
 
 	return true;
@@ -109,12 +111,31 @@ bool RendererD3D12::LoadCube(void)
 	return true;
 }
 
-bool RendererD3D12::LoadShaders(void)
+bool RendererD3D12::CreatePipelineState(void)
 {
-	m_ShaderCache = ShaderCache(SHADER_CACHE_LOCATION);
+	// Create Root Sig (once?)
+	CD3DX12_ROOT_PARAMETER1 rootParameters[1];
+	rootParameters[0].InitAsConstants(sizeof(XMMATRIX) / 4, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 
-	D3D12_SHADER_BYTECODE basicVS = m_ShaderCache.GetShader("BasicVS.vs");
-	D3D12_SHADER_BYTECODE basicPS = m_ShaderCache.GetShader("BasicPS.ps");
+	if (!m_Device.CreateRootSignature(rootParameters, _countof(rootParameters), m_pRootSignature.GetAddressOf()))
+		return false;
+
+	// Create PSOs
+	D3D12_INPUT_ELEMENT_DESC inputLayout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+	};
+
+	PipelineStateDesc psDesc;
+	ZeroMemory(&psDesc, sizeof(PipelineStateDesc));
+	psDesc.VertexShader = m_ShaderCache.GetShader("BasicVS.vs");
+	psDesc.PixelShader = m_ShaderCache.GetShader("BasicPS.ps");
+	psDesc.InputLayout = { inputLayout, _countof(inputLayout) };
+	psDesc.RootSignature = m_pRootSignature.Get();
+
+	if (!m_Device.CreatePipelineState(psDesc, m_pBasicPipelineState.GetAddressOf()))
+		return false;
 
 	return true;
 }
@@ -123,19 +144,22 @@ bool RendererD3D12::Render(void)
 {
 	m_pGFXCommandList->Reset();
 	
-	m_pSwapChain->PrepareForRendering(m_pGFXCommandList);
-	
-	m_pSwapChain->PrepareForPresentation(m_pGFXCommandList);
+	// Rendering
+	{
+		m_pSwapChain->PrepareForRendering(m_pGFXCommandList);
+		m_pGFXCommandList->SetPipelineState(m_pBasicPipelineState.Get());
+		m_pGFXCommandList->SetGraphicsRootSignature(m_pRootSignature.Get());
+	}
 
-	m_pGFXCommandQueue->ExecuteCommandLists(m_pGFXCommandList, 1);
-	
-	m_pSwapChain->Present();
-		
-	m_pGFXCommandQueue->Signal();
-	
-	m_pSwapChain->Swap();
-	
-	m_pGFXCommandQueue->Wait();
+	// Presentation
+	{
+		m_pSwapChain->PrepareForPresentation(m_pGFXCommandList);
+		m_pGFXCommandQueue->ExecuteCommandLists(m_pGFXCommandList, 1);
+		m_pSwapChain->Present();
+		m_pGFXCommandQueue->Signal();
+		m_pSwapChain->Swap();
+		m_pGFXCommandQueue->Wait();
+	}
 
 	return true;
 }

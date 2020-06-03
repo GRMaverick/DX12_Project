@@ -11,6 +11,8 @@
 #include "CommandQueue.h"
 #include "DescriptorHeap.h"
 
+PRAGMA_TODO("Resize Handling")
+
 using namespace Microsoft::WRL;
 
 SwapChain::SwapChain(void)
@@ -126,6 +128,12 @@ bool SwapChain::Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, Micros
 
 		_pDevice->CreateDepthStencilView(m_pDepthBuffer.Get(), &dsv, dsvHandle);
 	}
+
+	// Crete Viewport 
+	{
+		m_Viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, (FLOAT)_pWindow->GetDimensions().WindowWidth, (FLOAT)_pWindow->GetDimensions().WindowHeight);
+		m_ScissorRect = CD3DX12_RECT(0, 0, LONG_MAX, LONG_MAX);
+	}
 	return true;
 }
 
@@ -156,6 +164,8 @@ void SwapChain::PrepareForRendering(CommandList* _cmdList)
 
 	_cmdList->ClearRenderTargetView(rtv, clearColour, 0, nullptr);
 	_cmdList->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+	_cmdList->SetRSViewports(1, &m_Viewport);
+	_cmdList->SetRSScissorRects(1, &m_ScissorRect);
 }
 void SwapChain::PrepareForPresentation(CommandList* _cmdList)
 {

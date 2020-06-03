@@ -62,15 +62,38 @@ void CommandList::ResourceBarrier(UINT32 _numBarriers, CD3DX12_RESOURCE_BARRIER*
 {
 	m_pList->ResourceBarrier(_numBarriers, _pBarrier);
 }
+
 void CommandList::UpdateSubresource(ID3D12Resource* _pGPU, ID3D12Resource* _pCPU, UINT _intermediateOffset, UINT _firstSubresource, UINT _numSubresources, D3D12_SUBRESOURCE_DATA* _pSubresourceData)
 {
 	UpdateSubresources(m_pList.Get(), _pGPU, _pCPU, _intermediateOffset, _firstSubresource, _numSubresources, _pSubresourceData);
 }
+
 void CommandList::ClearRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, FLOAT _pColor[4], UINT _numRects, D3D12_RECT* _pRects)
 {
 	m_pList->ClearRenderTargetView(_cpuHandle, _pColor, _numRects, _pRects);
 }
+
 void CommandList::ClearDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, D3D12_CLEAR_FLAGS _clearFlags, FLOAT _depth, UINT8 _stencil, UINT _numRects, D3D12_RECT* _pRects)
 {
 	m_pList->ClearDepthStencilView(_cpuHandle, _clearFlags, _depth, _stencil, _numRects, _pRects);
+}
+
+void CommandList::SetPipelineState(ID3D12PipelineState* _pPipelineState)
+{
+	m_pList->SetPipelineState(_pPipelineState);
+}
+
+void CommandList::SetGraphicsRootSignature(ID3D12RootSignature* _pRootSignature)
+{
+	m_pList->SetGraphicsRootSignature(_pRootSignature);
+}
+
+void CommandList::SetRSViewports(UINT _numViewports, D3D12_VIEWPORT* _pViewport)
+{
+	m_pList->RSSetViewports(_numViewports, _pViewport);
+}
+
+void CommandList::SetRSScissorRects(UINT _numRects, D3D12_RECT* _pScissorRects)
+{
+	m_pList->RSSetScissorRects(_numRects, _pScissorRects);
 }

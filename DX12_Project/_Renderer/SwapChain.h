@@ -42,6 +42,9 @@ private:
 	DescriptorHeap*									m_pDescHeapRTV;
 	DescriptorHeap*									m_pDescHeapDSV;
 
+	D3D12_VIEWPORT									m_Viewport;
+	D3D12_RECT										m_ScissorRect;
+
 	Microsoft::WRL::ComPtr<IDXGIAdapter4>			m_pDxgiAdapter = nullptr;
 	Microsoft::WRL::ComPtr<IDXGISwapChain4>			m_pSwapChain = nullptr;
 

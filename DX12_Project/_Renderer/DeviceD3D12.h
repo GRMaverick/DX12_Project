@@ -6,6 +6,9 @@
 #include <dxgi1_6.h>
 #include <wrl.h>
 
+#include "d3dx12.h"
+
+
 class CommandQueue;
 class CommandList;
 class SwapChain;
@@ -14,6 +17,14 @@ class CoreWindow;
 class IBufferResource;
 class VertexBufferResource;
 class IndexBufferResource;
+
+struct PipelineStateDesc
+{
+	CD3DX12_PIPELINE_STATE_STREAM_VS VertexShader;
+	CD3DX12_PIPELINE_STATE_STREAM_PS PixelShader;
+	CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT InputLayout;
+	CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE RootSignature;
+};
 
 class DeviceD3D12
 {
@@ -30,6 +41,8 @@ public:
 	bool UploadResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, IBufferResource** _ppResource);
 	bool CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, VertexBufferResource** _ppResource);
 	bool CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, IndexBufferResource** _ppResource);
+	bool CreateRootSignature(D3D12_ROOT_PARAMETER1* _pRootParameters, UINT _numParameters, ID3D12RootSignature** _ppRootSignature);
+	bool CreatePipelineState(PipelineStateDesc _psDesc, ID3D12PipelineState** _ppPipelineState);
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12Device6>			m_pDevice = nullptr;
