@@ -30,8 +30,9 @@ public:
 	bool Present(void);
 	void Swap(void);
 
-	void PrepareForRendering(CommandList* _cmdList);
-	void PrepareForPresentation(CommandList* _cmdList);
+	void PrepareForRendering(CommandList* _pCmdList);
+	void PrepareForPresentation(CommandList* _pCmdList);
+	void SetOMRenderTargets(CommandList* _pCmdList);
 
 	void OnResize(UINT32 _width, UINT32 _height);
 

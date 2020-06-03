@@ -33,6 +33,7 @@ bool GameLoop()
 		elapsedSeconds = 0.0;
 	}
 
+	g_pRenderer->Update();
 	g_pRenderer->Render();
 
 	return true;

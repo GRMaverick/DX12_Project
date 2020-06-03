@@ -7,6 +7,7 @@ class IRenderer
 {
 public:
 	virtual bool Initialise(CoreWindow* _pWindow) = 0;
+	virtual void Update() = 0;
 	virtual bool Render() = 0;
 };
 

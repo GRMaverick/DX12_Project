@@ -88,6 +88,11 @@ void CommandList::SetGraphicsRootSignature(ID3D12RootSignature* _pRootSignature)
 	m_pList->SetGraphicsRootSignature(_pRootSignature);
 }
 
+void CommandList::SetGraphicsRoot32BitConstants(UINT _rootParameterIndex, UINT _num32BitValuesToSet, const void* _pSrcData, UINT _destOffsetIn32BitValues)
+{
+	m_pList->SetGraphicsRoot32BitConstants(_rootParameterIndex, _num32BitValuesToSet, _pSrcData, _destOffsetIn32BitValues);
+}
+
 void CommandList::SetRSViewports(UINT _numViewports, D3D12_VIEWPORT* _pViewport)
 {
 	m_pList->RSSetViewports(_numViewports, _pViewport);
@@ -96,4 +101,29 @@ void CommandList::SetRSViewports(UINT _numViewports, D3D12_VIEWPORT* _pViewport)
 void CommandList::SetRSScissorRects(UINT _numRects, D3D12_RECT* _pScissorRects)
 {
 	m_pList->RSSetScissorRects(_numRects, _pScissorRects);
+}
+
+void CommandList::SetIAPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY _topology)
+{
+	m_pList->IASetPrimitiveTopology(_topology);
+}
+
+void CommandList::SetIAVertexBuffers(UINT _startSlot, UINT _numViews, D3D12_VERTEX_BUFFER_VIEW* _pViews)
+{
+	m_pList->IASetVertexBuffers(_startSlot, _numViews, _pViews);
+}
+
+void CommandList::SetIAIndexBuffer(D3D12_INDEX_BUFFER_VIEW* _pView)
+{
+	m_pList->IASetIndexBuffer(_pView);
+}
+
+void CommandList::SetOMRenderTargets(UINT _numRTs, D3D12_CPU_DESCRIPTOR_HANDLE* _rtCpuDescHandle, BOOL _bSingleHandleToDescriptor, D3D12_CPU_DESCRIPTOR_HANDLE* _dsvCpuDescHandle)
+{
+	m_pList->OMSetRenderTargets(_numRTs, _rtCpuDescHandle, _bSingleHandleToDescriptor, _dsvCpuDescHandle);
+}
+
+void CommandList::DrawIndexedInstanced(UINT _indicesPerInstance, UINT _instanceCount, UINT _startIndexLocation, UINT _baseVertexLocation, UINT _startInstanceLocation)
+{
+	m_pList->DrawIndexedInstanced(_indicesPerInstance, _instanceCount, _startIndexLocation, _baseVertexLocation, _startInstanceLocation);
 }

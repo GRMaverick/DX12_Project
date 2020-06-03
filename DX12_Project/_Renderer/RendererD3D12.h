@@ -17,6 +17,8 @@
 #include "VertexBufferResource.h"
 #include "ShaderCache.h"
 
+#include <DirectXMath.h>
+
 class RendererD3D12 : public IRenderer
 {
 public:
@@ -24,6 +26,7 @@ public:
 	~RendererD3D12(void);
 
 	virtual bool Initialise(CoreWindow* _pWindow) override final;
+	virtual void Update() override final;
 	virtual bool Render(void) override final;
 
 private:
@@ -41,8 +44,15 @@ private:
 
 	ShaderCache										m_ShaderCache;
 
+	// Refactor Required
 	Microsoft::WRL::ComPtr<ID3D12RootSignature>		m_pRootSignature = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState>		m_pBasicPipelineState = nullptr;
+
+	DirectX::XMMATRIX m_ModelMatrix;
+	DirectX::XMMATRIX m_ViewMatrix;
+	DirectX::XMMATRIX m_ProjectionMatrix;
+	float m_AspectRatio;
+	float m_FieldOfView;
 
 	bool LoadCube();
 	bool CreatePipelineState();

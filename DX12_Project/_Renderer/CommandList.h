@@ -28,7 +28,12 @@ public:
 	void SetGraphicsRootSignature(ID3D12RootSignature* _pRootSignature);
 	void SetRSViewports(UINT _numViewports, D3D12_VIEWPORT* _pViewport);
 	void SetRSScissorRects(UINT _numRects, D3D12_RECT* _pScissorRects);
-
+	void SetIAPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY _topology);
+	void SetIAVertexBuffers(UINT StartSlot, UINT NumViews, D3D12_VERTEX_BUFFER_VIEW* pViews);
+	void SetIAIndexBuffer(D3D12_INDEX_BUFFER_VIEW* pView);
+	void SetOMRenderTargets(UINT _numRTs, D3D12_CPU_DESCRIPTOR_HANDLE* _rtCpuDescHandle, BOOL _bSingleHandleToDescriptor, D3D12_CPU_DESCRIPTOR_HANDLE* _dsvCpuDescHandle);
+	void SetGraphicsRoot32BitConstants(UINT _rootParameterIndex, UINT _num32BitValuesToSet, const void* _pSrcData, UINT _destOffsetIn32BitValues);
+	void DrawIndexedInstanced(UINT _indicesPerInstance, UINT _instanceCount, UINT _startIndexLocation, UINT _baseVertexLocation, UINT _startInstanceLocation);
 private:
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	m_pList;
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		m_pAllocator;

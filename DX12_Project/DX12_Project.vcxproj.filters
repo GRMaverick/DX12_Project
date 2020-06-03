@@ -118,7 +118,7 @@
     <None Include="_Shaders\BasicPS.ps">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="_Shaders\BasicVS.ps">
+    <None Include="_Shaders\BasicVS.vs">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>

@@ -186,7 +186,7 @@ bool DeviceD3D12::UploadResource(CommandList* _pCommandList, UINT _sizeInBytes, 
 {
 	HRESULT hr = S_OK;
 
-	SIZE_T bufferSize = _sizeInBytes * _strideInBytes;
+	UINT bufferSize = _sizeInBytes * _strideInBytes;
 	ComPtr<ID3D12Resource> pDestination = nullptr;
 	hr = m_pDevice->CreateCommittedResource( &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(bufferSize, _flags),
 		D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(pDestination.GetAddressOf()));
@@ -225,13 +225,13 @@ bool DeviceD3D12::UploadResource(CommandList* _pCommandList, UINT _sizeInBytes, 
 bool DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, VertexBufferResource** _ppResource)
 {
 	*_ppResource = new VertexBufferResource();
-	if (UploadResource(_pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, (IBufferResource**)_ppResource))
+	if (!UploadResource(_pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, (IBufferResource**)_ppResource))
 		return false;
 
 	D3D12_VERTEX_BUFFER_VIEW vbv = { };
 	ZeroMemory(&vbv, sizeof(D3D12_VERTEX_BUFFER_VIEW));
 	vbv.BufferLocation = (*_ppResource)->GetGPUBuffer()->GetGPUVirtualAddress();
-	vbv.SizeInBytes = _sizeInBytes;
+	vbv.SizeInBytes = _sizeInBytes * _strideInBytes;
 	vbv.StrideInBytes = _strideInBytes;
 
 	(*_ppResource)->SetView(vbv);
@@ -240,14 +240,14 @@ bool DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, UINT _s
 bool DeviceD3D12::CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, IndexBufferResource** _ppResource)
 {
 	*_ppResource = new IndexBufferResource();
-	if (UploadResource(_pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, (IBufferResource**)_ppResource))
+	if (!UploadResource(_pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, (IBufferResource**)_ppResource))
 		return false;
 
 	D3D12_INDEX_BUFFER_VIEW ibv = { };
 	ZeroMemory(&ibv, sizeof(D3D12_INDEX_BUFFER_VIEW));
 	ibv.BufferLocation = (*_ppResource)->GetGPUBuffer()->GetGPUVirtualAddress();
-	ibv.SizeInBytes = _sizeInBytes;
-	ibv.Format = DXGI_FORMAT_R16_UINT;
+	ibv.SizeInBytes = _sizeInBytes * _strideInBytes;
+	ibv.Format = DXGI_FORMAT_R32_UINT;
 
 	(*_ppResource)->SetView(ibv);
 	return true;

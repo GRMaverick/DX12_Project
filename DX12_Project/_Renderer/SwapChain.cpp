@@ -144,31 +144,42 @@ bool SwapChain::Present()
 
 	return SUCCEEDED(m_pSwapChain->Present(syncInterval, presentFlags));
 }
+
 void SwapChain::Swap()
 {
 	m_CurrentBackBuffer = m_pSwapChain->GetCurrentBackBufferIndex();
 }
+
 void SwapChain::OnResize(UINT32 _width, UINT32 _height)
 {
 
 }
 
-void SwapChain::PrepareForRendering(CommandList* _cmdList)
+void SwapChain::PrepareForRendering(CommandList* _pCmdList)
 {
-	_cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pBackBuffers[m_CurrentBackBuffer].Get(),
+	_pCmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pBackBuffers[m_CurrentBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, 0));
 
 	FLOAT clearColour[] = { 0.4f, 0.6f, 0.9f, 1.0f };
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtv(m_pDescHeapRTV->GetCPUStartHandle(), m_CurrentBackBuffer, m_pDescHeapRTV->GetIncrementSize());
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsv(m_pDescHeapDSV->GetCPUStartHandle(), 0, m_pDescHeapDSV->GetIncrementSize());
 
-	_cmdList->ClearRenderTargetView(rtv, clearColour, 0, nullptr);
-	_cmdList->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-	_cmdList->SetRSViewports(1, &m_Viewport);
-	_cmdList->SetRSScissorRects(1, &m_ScissorRect);
+	_pCmdList->ClearRenderTargetView(rtv, clearColour, 0, nullptr);
+	_pCmdList->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+	_pCmdList->SetRSViewports(1, &m_Viewport);
+	_pCmdList->SetRSScissorRects(1, &m_ScissorRect);
 }
-void SwapChain::PrepareForPresentation(CommandList* _cmdList)
+
+void SwapChain::PrepareForPresentation(CommandList* _pCmdList)
 {
-	_cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pBackBuffers[m_CurrentBackBuffer].Get(),
+	_pCmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pBackBuffers[m_CurrentBackBuffer].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, 0));
+}
+
+void SwapChain::SetOMRenderTargets(CommandList* _pCmdList)
+{
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtv(m_pDescHeapRTV->GetCPUStartHandle(), m_CurrentBackBuffer, m_pDescHeapRTV->GetIncrementSize());
+	CD3DX12_CPU_DESCRIPTOR_HANDLE dsv(m_pDescHeapDSV->GetCPUStartHandle(), 0, m_pDescHeapDSV->GetIncrementSize());
+
+	_pCmdList->SetOMRenderTargets(1, &rtv, FALSE, &dsv);
 }

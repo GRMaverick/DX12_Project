@@ -36,7 +36,7 @@ static VertexPosColor g_Vertices[8] = {
 	{ XMFLOAT3(1.0f, -1.0f,  1.0f), XMFLOAT3(1.0f, 0.0f, 1.0f) }  // 7
 };
 
-static WORD g_Indicies[36] =
+static DWORD g_Indicies[36] =
 {
 	0, 1, 2, 0, 2, 3,
 	4, 6, 5, 4, 7, 6,
@@ -93,6 +93,11 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 	if (!CreatePipelineState())
 		return false;
 
+	m_ModelMatrix = XMMatrixIdentity();
+	m_ModelMatrix = XMMatrixTranslation(0.0f, 0.0f, - 1.0f);
+	m_ViewMatrix = XMMatrixIdentity();
+	m_ProjectionMatrix = XMMatrixIdentity();
+
 	return true;
 }
 
@@ -100,13 +105,14 @@ bool RendererD3D12::LoadCube(void)
 {	
 	m_pCopyCommandList->Reset();
 
-	if (m_Device.CreateVertexBufferResource(m_pCopyCommandList, _countof(g_Vertices), sizeof(VertexPosColor), D3D12_RESOURCE_FLAG_NONE, (void*)g_Vertices, &m_pVertexBuffer))
+	if (!m_Device.CreateVertexBufferResource(m_pCopyCommandList, _countof(g_Vertices), sizeof(VertexPosColor), D3D12_RESOURCE_FLAG_NONE, (void*)g_Vertices, &m_pVertexBuffer))
 		return false;
 
-	if (m_Device.CreateIndexBufferResource(m_pCopyCommandList, _countof(g_Indicies), sizeof(WORD), D3D12_RESOURCE_FLAG_NONE, (void*)g_Indicies, &m_pIndexBuffer))
+	if (!m_Device.CreateIndexBufferResource(m_pCopyCommandList, _countof(g_Indicies), sizeof(DWORD), D3D12_RESOURCE_FLAG_NONE, (void*)g_Indicies, &m_pIndexBuffer))
 		return false;
 
 	m_pCopyCommandQueue->ExecuteCommandLists(m_pCopyCommandList, 1);
+	m_pCopyCommandQueue->Flush();
 
 	return true;
 }
@@ -139,7 +145,26 @@ bool RendererD3D12::CreatePipelineState(void)
 
 	return true;
 }
+void RendererD3D12::Update(void)
+{
+	PRAGMA_TODO("Refactor into Object class")
+	// Update the model matrix. 
+	float angle = static_cast<float>(90.0);
+	const XMVECTOR rotationAxis = XMVectorSet(0, 1, 1, 0);
+	m_ModelMatrix = XMMatrixRotationAxis(rotationAxis, XMConvertToRadians(angle));
 
+	PRAGMA_TODO("Refactor into Camera Class")
+	// Update the view matrix.
+	const XMVECTOR eyePosition = XMVectorSet(0, 0, -10, 1);
+	const XMVECTOR focusPoint = XMVectorSet(0, 0, 0, 1);
+	const XMVECTOR upDirection = XMVectorSet(0, 1, 0, 0);
+	m_ViewMatrix = XMMatrixLookAtLH(eyePosition, focusPoint, upDirection);
+
+	// Update the projection matrix.
+	m_FieldOfView = 45.0;
+	m_AspectRatio = 1024 / 768; //static_cast<float>(GetClientWidth()) / static_cast<float>(GetClientHeight());
+	m_ProjectionMatrix = XMMatrixPerspectiveFovLH(XMConvertToRadians(m_FieldOfView), m_AspectRatio, 0.1f, 100.0f);
+}
 bool RendererD3D12::Render(void)
 {
 	m_pGFXCommandList->Reset();
@@ -149,6 +174,21 @@ bool RendererD3D12::Render(void)
 		m_pSwapChain->PrepareForRendering(m_pGFXCommandList);
 		m_pGFXCommandList->SetPipelineState(m_pBasicPipelineState.Get());
 		m_pGFXCommandList->SetGraphicsRootSignature(m_pRootSignature.Get());
+		m_pSwapChain->SetOMRenderTargets(m_pGFXCommandList);
+
+		// Per Object Draws
+		{
+			m_pGFXCommandList->SetIAPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			m_pGFXCommandList->SetIAVertexBuffers(0, 1, &m_pVertexBuffer->GetView());
+			m_pGFXCommandList->SetIAIndexBuffer(&m_pIndexBuffer->GetView());
+
+			// Constant Buffer Information    
+			XMMATRIX mvpMatrix = XMMatrixMultiply(m_ModelMatrix, m_ViewMatrix);
+			mvpMatrix = XMMatrixMultiply(mvpMatrix, m_ProjectionMatrix);
+			m_pGFXCommandList->SetGraphicsRoot32BitConstants(0, sizeof(XMMATRIX) / 4, &mvpMatrix, 0);
+
+			m_pGFXCommandList->DrawIndexedInstanced(_countof(g_Indicies), 1, 0, 0, 0);
+		}
 	}
 
 	// Presentation
