@@ -110,13 +110,16 @@
     <ClInclude Include="_Renderer\IndexBufferResource.h">
       <Filter>Header Files\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="_Renderer\ShaderData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="_Shaders\BasicPS.hlsl">
+    <None Include="_Shaders\BasicPS.ps">
       <Filter>Resource Files\Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="_Shaders\BasicVS.hlsl">
+    </None>
+    <None Include="_Shaders\BasicVS.ps">
       <Filter>Resource Files\Shaders</Filter>
-    </FxCompile>
+    </None>
   </ItemGroup>
 </Project>

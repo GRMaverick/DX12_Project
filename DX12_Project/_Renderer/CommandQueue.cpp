@@ -83,5 +83,5 @@ void CommandQueue::ExecuteCommandLists(CommandList* _pLists, UINT _numLists)
 		vpLists.push_back(_pLists[listIdx].m_pList.Get());
 	}
 
-	m_pQueue->ExecuteCommandLists(vpLists.size(), &vpLists[0]);
+	m_pQueue->ExecuteCommandLists((UINT)vpLists.size(), &vpLists[0]);
 }

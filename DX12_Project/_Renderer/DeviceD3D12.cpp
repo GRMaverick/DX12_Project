@@ -166,7 +166,7 @@ bool DeviceD3D12::CreateSwapChain(SwapChain** _ppSwapChain, CoreWindow* _pWindow
 	return true;
 }
 
-bool DeviceD3D12::UploadResource(CommandList* _pCommandList, SIZE_T _sizeInBytes, SIZE_T _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData,IBufferResource** _ppResource)
+bool DeviceD3D12::UploadResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData,IBufferResource** _ppResource)
 {
 	HRESULT hr = S_OK;
 
@@ -206,7 +206,7 @@ bool DeviceD3D12::UploadResource(CommandList* _pCommandList, SIZE_T _sizeInBytes
 
 	return true;
 }
-bool DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, SIZE_T _sizeInBytes, SIZE_T _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, VertexBufferResource** _ppResource)
+bool DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, VertexBufferResource** _ppResource)
 {
 	*_ppResource = new VertexBufferResource();
 	if (UploadResource(_pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, (IBufferResource**)_ppResource))
@@ -221,7 +221,7 @@ bool DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, SIZE_T 
 	(*_ppResource)->SetView(vbv);
 	return true;
 }
-bool DeviceD3D12::CreateIndexBufferResource(CommandList* _pCommandList, SIZE_T _sizeInBytes, SIZE_T _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, IndexBufferResource** _ppResource)
+bool DeviceD3D12::CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, IndexBufferResource** _ppResource)
 {
 	*_ppResource = new IndexBufferResource();
 	if (UploadResource(_pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, (IBufferResource**)_ppResource))

@@ -11,9 +11,10 @@
 #include "CommandQueue.h"
 #include "DeviceD3D12.h"
 #include "DescriptorHeap.h"
+#include "IndexBufferResource.h"
+#include "ShaderCache.h"
 #include "SwapChain.h"
 #include "VertexBufferResource.h"
-#include "IndexBufferResource.h"
 
 class RendererD3D12 : public IRenderer
 {
@@ -36,6 +37,8 @@ private:
 
 	VertexBufferResource*		m_pVertexBuffer;
 	IndexBufferResource*		m_pIndexBuffer;
+
+	ShaderCache					m_ShaderCache;
 
 	bool LoadCube();
 	bool LoadShaders();

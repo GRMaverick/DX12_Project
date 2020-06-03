@@ -27,9 +27,9 @@ public:
 	bool CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE _type, DescriptorHeap** _ppDescriptorHeap, UINT _numBuffers = 1);
 	bool CreateSwapChain(SwapChain** _ppSwapChain, CoreWindow* _pWindow, UINT _numBackBuffers, CommandQueue* _pCommandQueue);
 	
-	bool UploadResource(CommandList* _pCommandList, SIZE_T _sizeInBytes, SIZE_T _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, IBufferResource** _ppResource);
-	bool CreateVertexBufferResource(CommandList* _pCommandList, SIZE_T _sizeInBytes, SIZE_T _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, VertexBufferResource** _ppResource);
-	bool CreateIndexBufferResource(CommandList* _pCommandList, SIZE_T _sizeInBytes, SIZE_T _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, IndexBufferResource** _ppResource);
+	bool UploadResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, IBufferResource** _ppResource);
+	bool CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, VertexBufferResource** _ppResource);
+	bool CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, IndexBufferResource** _ppResource);
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12Device6>			m_pDevice = nullptr;

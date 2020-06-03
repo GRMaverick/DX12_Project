@@ -17,6 +17,8 @@ using namespace DirectX;
 PRAGMA_TODO("VSync Support")
 PRAGMA_TODO("Test Interleaved Vertex Format v Packed Vertex Format")
 
+#define SHADER_CACHE_LOCATION "C:\\Users\\Maverick\\Source\\Repos\\DX12_Project\\DX12_Project\\_Shaders\\*"
+
 struct VertexPosColor
 {
 	XMFLOAT3 Position;
@@ -109,6 +111,11 @@ bool RendererD3D12::LoadCube(void)
 
 bool RendererD3D12::LoadShaders(void)
 {
+	m_ShaderCache = ShaderCache(SHADER_CACHE_LOCATION);
+
+	D3D12_SHADER_BYTECODE basicVS = m_ShaderCache.GetShader("BasicVS.vs");
+	D3D12_SHADER_BYTECODE basicPS = m_ShaderCache.GetShader("BasicPS.ps");
+
 	return true;
 }
 

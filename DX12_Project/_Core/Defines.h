@@ -8,7 +8,7 @@
 
 #define BACK_BUFFERS 2
 
-inline void DPRINTF(int level, char* format, ...)
+inline void DebugPrint(const char* format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -22,7 +22,7 @@ inline void DPRINTF(int level, char* format, ...)
 	HRESULT hr = test; \
 	if(FAILED(hr)) \
 	{ \
-		DPRINTF(0, "[HRESULT Failure]: 0x%i", hr); \
+		DebugPrint("[HRESULT Failure]: 0x%i", hr); \
 		assert(false); \
 	} \
 } \
