@@ -11,6 +11,8 @@
 #include "CommandQueue.h"
 #include "DescriptorHeap.h"
 
+#include <PixScopedEvent.h>
+
 PRAGMA_TODO("Resize Handling")
 
 using namespace Microsoft::WRL;

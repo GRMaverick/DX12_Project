@@ -17,7 +17,9 @@ using namespace DirectX;
 PRAGMA_TODO("VSync Support")
 PRAGMA_TODO("Test Interleaved Vertex Format v Packed Vertex Format")
 PRAGMA_TODO("PIX Profile Markers")
+PRAGMA_TODO("Memory Profiling")
 PRAGMA_TODO("Integrate ImGUI")
+PRAGMA_TODO("Integrate ASSIMP")
 
 #define SHADER_CACHE_LOCATION "C:\\Users\\Maverick\\Source\\Repos\\DX12_Project\\DX12_Project\\_Shaders\\*"
 
@@ -151,8 +153,8 @@ void RendererD3D12::Update(void)
 {
 	PRAGMA_TODO("Refactor into Object class")
 	// Update the model matrix. 
-	float angle = static_cast<float>(90.0);
-	const XMVECTOR rotationAxis = XMVectorSet(0, 1, 1, 0);
+	float angle = static_cast<float>(45.0);
+	const XMVECTOR rotationAxis = XMVectorSet(1, 1, 0, 0);
 	m_ModelMatrix = XMMatrixRotationAxis(rotationAxis, XMConvertToRadians(angle));
 
 	PRAGMA_TODO("Refactor into Camera Class")

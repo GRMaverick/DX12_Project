@@ -23,6 +23,7 @@ public:
 	void	Flush();
 
 private:
+	D3D12_COMMAND_LIST_TYPE						m_Type;
 	Microsoft::WRL::ComPtr<ID3D12Fence>			m_pFence;
 	UINT64										m_FenceValue;
 	HANDLE										m_FenceEvent;

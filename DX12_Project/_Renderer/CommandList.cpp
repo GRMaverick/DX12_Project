@@ -4,7 +4,20 @@
 
 #include <assert.h>
 
+#include "PixScopedEvent.h"
+
 using namespace Microsoft::WRL;
+
+const char* g_TypeToString[]
+{
+	"GFX List",
+	"Bundle List",
+	"Compute List",
+	"Copy List",
+	"Video Decode",
+	"Video Process",
+	"Video Encode",
+};
 
 CommandList::CommandList(void)
 {
@@ -21,6 +34,7 @@ CommandList::~CommandList(void)
 bool CommandList::Initialise(ComPtr<ID3D12Device> _pDevice, D3D12_COMMAND_LIST_TYPE _type)
 {
 	HRESULT hr = S_OK;
+	m_Type = _type;
 
 	// Command Allocator
 	{
@@ -60,70 +74,84 @@ void CommandList::Reset(void)
 
 void CommandList::ResourceBarrier(UINT32 _numBarriers, CD3DX12_RESOURCE_BARRIER* _pBarrier)
 {
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "ResourceBarrier");
 	m_pList->ResourceBarrier(_numBarriers, _pBarrier);
 }
 
 void CommandList::UpdateSubresource(ID3D12Resource* _pGPU, ID3D12Resource* _pCPU, UINT _intermediateOffset, UINT _firstSubresource, UINT _numSubresources, D3D12_SUBRESOURCE_DATA* _pSubresourceData)
 {
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "UpdateSubresource");
 	UpdateSubresources(m_pList.Get(), _pGPU, _pCPU, _intermediateOffset, _firstSubresource, _numSubresources, _pSubresourceData);
 }
 
 void CommandList::ClearRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, FLOAT _pColor[4], UINT _numRects, D3D12_RECT* _pRects)
 {
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "ClearRenderTargetView");
 	m_pList->ClearRenderTargetView(_cpuHandle, _pColor, _numRects, _pRects);
 }
 
 void CommandList::ClearDepthStencilView(D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, D3D12_CLEAR_FLAGS _clearFlags, FLOAT _depth, UINT8 _stencil, UINT _numRects, D3D12_RECT* _pRects)
 {
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "ClearDepthStencilView");
 	m_pList->ClearDepthStencilView(_cpuHandle, _clearFlags, _depth, _stencil, _numRects, _pRects);
 }
 
 void CommandList::SetPipelineState(ID3D12PipelineState* _pPipelineState)
 {
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "SetPipelineState");
 	m_pList->SetPipelineState(_pPipelineState);
 }
 
 void CommandList::SetGraphicsRootSignature(ID3D12RootSignature* _pRootSignature)
 {
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "SetGraphicsRootSignature");
 	m_pList->SetGraphicsRootSignature(_pRootSignature);
 }
 
 void CommandList::SetGraphicsRoot32BitConstants(UINT _rootParameterIndex, UINT _num32BitValuesToSet, const void* _pSrcData, UINT _destOffsetIn32BitValues)
 {
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "SetGraphicsRoot32BitConstants");
 	m_pList->SetGraphicsRoot32BitConstants(_rootParameterIndex, _num32BitValuesToSet, _pSrcData, _destOffsetIn32BitValues);
 }
 
 void CommandList::SetRSViewports(UINT _numViewports, D3D12_VIEWPORT* _pViewport)
 {
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "SetRSViewports");
 	m_pList->RSSetViewports(_numViewports, _pViewport);
 }
 
 void CommandList::SetRSScissorRects(UINT _numRects, D3D12_RECT* _pScissorRects)
 {
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "SetRSScissorRects");
 	m_pList->RSSetScissorRects(_numRects, _pScissorRects);
 }
 
 void CommandList::SetIAPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY _topology)
 {
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "SetIAPrimitiveTopology");
 	m_pList->IASetPrimitiveTopology(_topology);
 }
 
 void CommandList::SetIAVertexBuffers(UINT _startSlot, UINT _numViews, D3D12_VERTEX_BUFFER_VIEW* _pViews)
 {
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "SetIAVertexBuffers");
 	m_pList->IASetVertexBuffers(_startSlot, _numViews, _pViews);
 }
 
 void CommandList::SetIAIndexBuffer(D3D12_INDEX_BUFFER_VIEW* _pView)
 {
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "SetIAIndexBuffer");
 	m_pList->IASetIndexBuffer(_pView);
 }
 
 void CommandList::SetOMRenderTargets(UINT _numRTs, D3D12_CPU_DESCRIPTOR_HANDLE* _rtCpuDescHandle, BOOL _bSingleHandleToDescriptor, D3D12_CPU_DESCRIPTOR_HANDLE* _dsvCpuDescHandle)
 {
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "SetOMRenderTargets");
 	m_pList->OMSetRenderTargets(_numRTs, _rtCpuDescHandle, _bSingleHandleToDescriptor, _dsvCpuDescHandle);
 }
 
 void CommandList::DrawIndexedInstanced(UINT _indicesPerInstance, UINT _instanceCount, UINT _startIndexLocation, UINT _baseVertexLocation, UINT _startInstanceLocation)
 {
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "DrawIndexedInstanced");
 	m_pList->DrawIndexedInstanced(_indicesPerInstance, _instanceCount, _startIndexLocation, _baseVertexLocation, _startInstanceLocation);
 }

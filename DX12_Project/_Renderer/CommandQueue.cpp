@@ -4,7 +4,11 @@
 
 #include <assert.h>
 
+#include "PixScopedEvent.h"
+
 using namespace Microsoft::WRL;
+
+extern const char* g_TypeToString[];
 
 CommandQueue::CommandQueue(void)
 {
@@ -56,17 +60,20 @@ bool CommandQueue::Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, D3D
 
 void CommandQueue::Flush()
 {
+	PixScopedEvent rEvent(m_pQueue.Get(), "%s: %s", g_TypeToString[m_Type], "Flush");
 	Signal();
 	Wait();
 }
 
 UINT64 CommandQueue::Signal()
 {
+	PixScopedEvent rEvent(m_pQueue.Get(), "%s: %s", g_TypeToString[m_Type], "Signal");
 	m_pQueue->Signal(m_pFence.Get(), ++m_FenceValue);
 	return m_FenceValue;
 }
 void CommandQueue::Wait()
 {
+	PixScopedEvent rEvent(m_pQueue.Get(), "%s: %s", g_TypeToString[m_Type], "Wait");
 	if (m_pFence->GetCompletedValue() < m_FenceValue)
 	{
 		m_pFence->SetEventOnCompletion(m_FenceValue, m_FenceEvent);
@@ -76,6 +83,7 @@ void CommandQueue::Wait()
 
 void CommandQueue::ExecuteCommandLists(CommandList* _pLists, UINT _numLists)
 {
+	PixScopedEvent rEvent(m_pQueue.Get(), "%s: %s", g_TypeToString[m_Type], "ExecuteCommandLists");
 	std::vector<ID3D12CommandList*> vpLists;
 	for (UINT listIdx = 0; listIdx < _numLists; ++listIdx)
 	{
