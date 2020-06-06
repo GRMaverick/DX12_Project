@@ -38,12 +38,6 @@ public:
 private:
 	SwapChain*										m_pSwapChain;
 
-	CommandList*									m_pGFXCommandList;
-	CommandList*									m_pCopyCommandList;
-
-	CommandQueue*									m_pCopyCommandQueue;
-	CommandQueue*									m_pGFXCommandQueue;
-
 	Camera											m_Camera;
 	RenderEntity*									m_pRenderEntity;
 
@@ -56,13 +50,6 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12PipelineState>		m_pBasicPSO = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState>		m_pAlbedoPSO = nullptr;
-
-	DirectX::XMMATRIX m_ModelMatrix;
-	DirectX::XMMATRIX m_ViewMatrix;
-	DirectX::XMMATRIX m_ProjectionMatrix;
-	float m_AspectRatio;
-	float m_FieldOfView;
-	float m_CurrentRotation = 0.0f;
 
 	bool LoadContent();
 	bool CreatePipelineState();

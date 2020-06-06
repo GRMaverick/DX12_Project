@@ -20,8 +20,7 @@
 using namespace Microsoft::WRL;
 using namespace DirectX;
 
-PRAGMA_TODO("VSync Support")
-PRAGMA_TODO("Test Interleaved Vertex Format v Packed Vertex Format")
+//PRAGMA_TODO("VSync Support")
 PRAGMA_TODO("Memory Profiling")
 PRAGMA_TODO("Integrate ImGUI")
 PRAGMA_TODO("Integrate ASSIMP")
@@ -30,6 +29,7 @@ PRAGMA_TODO("Command Line Parser")
 PRAGMA_TODO("Data Driven Pipelines")
 PRAGMA_TODO("Constant Buffers, CBVs and Descriptor Tables")
 PRAGMA_TODO("Scene Configuration File")
+PRAGMA_TODO("Input")
 
 #define SHADER_CACHE_LOCATION "C:\\Users\\Maverick\\Source\\Repos\\DX12_Project\\DX12_Project\\_Shaders\\*"
 
@@ -42,19 +42,11 @@ struct VertexPosColor
 RendererD3D12::RendererD3D12(void)
 {
 	m_pSwapChain = nullptr;
-	m_pGFXCommandList = nullptr;
-	m_pGFXCommandQueue = nullptr;
-	m_pCopyCommandList = nullptr;
-	m_pCopyCommandQueue = nullptr;
 }
 
 RendererD3D12::~RendererD3D12(void)
 {
 	if (m_pSwapChain) delete m_pSwapChain; m_pSwapChain = nullptr;
-	if (m_pGFXCommandList) delete m_pGFXCommandList; m_pGFXCommandList = nullptr;
-	if (m_pGFXCommandQueue) delete m_pGFXCommandQueue; m_pGFXCommandQueue = nullptr;
-	if (m_pCopyCommandList) delete m_pCopyCommandList; m_pCopyCommandList = nullptr;
-	if (m_pCopyCommandQueue) delete m_pCopyCommandQueue; m_pCopyCommandQueue = nullptr;
 }
 
 bool RendererD3D12::Initialise(CoreWindow* _pWindow)
@@ -67,13 +59,7 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_DIRECT);
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY);
 
-	if (!DeviceD3D12::Instance()->CreateCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT, &m_pGFXCommandList, L"GFX"))
-		return false;
-
-	if (!DeviceD3D12::Instance()->CreateCommandList(D3D12_COMMAND_LIST_TYPE_COPY, &m_pCopyCommandList, L"CPY"))
-		return false;
-
-	if (!DeviceD3D12::Instance()->CreateSwapChain(&m_pSwapChain, _pWindow, BACK_BUFFERS, m_pGFXCommandQueue, L"Swap Chain"))
+	if (!DeviceD3D12::Instance()->CreateSwapChain(&m_pSwapChain, _pWindow, BACK_BUFFERS, L"Swap Chain"))
 		return false;
 	
 	if (!LoadContent())
@@ -91,11 +77,6 @@ const char* g_ModelList[] =
 	//"Content\\S&W_45ACP\\Handgun_fbx_7.4_binary.fbx",
 	//"Content\\Room\\OBJ\\Room.obj",
 	//"Content\\Cube\\Cube.obj",
-};
-
-const wchar_t* g_TexList[] =
-{
-	L"Content\\Cube\\AnotherCrate.dds",
 };
 
 bool RendererD3D12::LoadContent(void)
