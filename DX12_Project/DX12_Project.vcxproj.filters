@@ -78,6 +78,9 @@
     <ClCompile Include="_Utilities\TextureLoader.cpp">
       <Filter>Source Files\Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="_Core\Camera.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Core\CoreWindow.h">
@@ -145,6 +148,9 @@
     </ClInclude>
     <ClInclude Include="_Utilities\TextureLoader.h">
       <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="_Core\Camera.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

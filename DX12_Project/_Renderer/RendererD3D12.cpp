@@ -27,6 +27,8 @@ PRAGMA_TODO("Integrate ASSIMP")
 PRAGMA_TODO("Implement Logger")
 PRAGMA_TODO("Command Line Parser")
 PRAGMA_TODO("Data Driven Pipelines")
+PRAGMA_TODO("Constant Buffers, CBVs and Descriptor Tables")
+PRAGMA_TODO("MT Command Buffers")
 
 #define SHADER_CACHE_LOCATION "C:\\Users\\Maverick\\Source\\Repos\\DX12_Project\\DX12_Project\\_Shaders\\*"
 
@@ -34,27 +36,6 @@ struct VertexPosColor
 {
 	XMFLOAT3 Position;
 	XMFLOAT3 Color;
-};
-
-static VertexPosColor g_Vertices[8] = {
-	{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0.0f, 0.0f, 0.0f) }, // 0
-	{ XMFLOAT3(-1.0f,  1.0f, -1.0f), XMFLOAT3(0.0f, 1.0f, 0.0f) }, // 1
-	{ XMFLOAT3(1.0f,  1.0f, -1.0f), XMFLOAT3(1.0f, 1.0f, 0.0f) }, // 2
-	{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f) }, // 3
-	{ XMFLOAT3(-1.0f, -1.0f,  1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f) }, // 4
-	{ XMFLOAT3(-1.0f,  1.0f,  1.0f), XMFLOAT3(0.0f, 1.0f, 1.0f) }, // 5
-	{ XMFLOAT3(1.0f,  1.0f,  1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f) }, // 6
-	{ XMFLOAT3(1.0f, -1.0f,  1.0f), XMFLOAT3(1.0f, 0.0f, 1.0f) }  // 7
-};
-
-static DWORD g_Indicies[36] =
-{
-	0, 1, 2, 0, 2, 3,
-	4, 6, 5, 4, 7, 6,
-	4, 5, 1, 4, 1, 0,
-	3, 2, 6, 3, 6, 7,
-	1, 5, 6, 1, 6, 2,
-	4, 0, 3, 4, 3, 7
 };
 
 RendererD3D12::RendererD3D12(void)
@@ -103,8 +84,6 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 
 	m_ModelMatrix = XMMatrixIdentity();
 	m_ModelMatrix = XMMatrixTranslation(0.0f, 0.0f, - 1.0f);
-	m_ViewMatrix = XMMatrixIdentity();
-	m_ProjectionMatrix = XMMatrixIdentity();
 
 	return true;
 }
@@ -234,17 +213,12 @@ void RendererD3D12::Update(float _deltaTime)
 	const XMVECTOR rotationAxis = XMVectorSet(1, 0, 0, 0);
 	m_ModelMatrix = XMMatrixRotationAxis(rotationAxis, XMConvertToRadians(angle));
 
-	PRAGMA_TODO("Refactor into Camera Class")
-	// Update the view matrix.
-	const XMVECTOR eyePosition = XMVectorSet(0, 0, -5, 1);
-	const XMVECTOR focusPoint = XMVectorSet(0, 0, 0, 1);
-	const XMVECTOR upDirection = XMVectorSet(0, 1, 0, 0);
-	m_ViewMatrix = XMMatrixLookAtLH(eyePosition, focusPoint, upDirection);
-
-	// Update the projection matrix.
-	m_FieldOfView = 45.0;
-	m_AspectRatio = 1024 / 768; //static_cast<float>(GetClientWidth()) / static_cast<float>(GetClientHeight());
-	m_ProjectionMatrix = XMMatrixPerspectiveFovLH(XMConvertToRadians(m_FieldOfView), m_AspectRatio, 0.1f, 100.0f);
+	m_Camera.SetPosition(0.0f, 0.0f, -5.0f);
+	m_Camera.SetUp(0.0f, 1.0f, 0.0f);
+	m_Camera.SetTarget(0.0f, 0.0f, 0.0f);
+	m_Camera.SetFieldOfView(45.0f);
+	m_Camera.SetAspectRatio(1920.0f / 1080.0f);
+	m_Camera.Update();
 }
 bool RendererD3D12::Render(void)
 {
@@ -266,9 +240,8 @@ bool RendererD3D12::Render(void)
 			{
 				Mesh& rMesh = m_pModel->pMeshList[i];
 
-				PRAGMA_TODO("Constant Buffer objects");
-				XMMATRIX mvpMatrix = XMMatrixMultiply(m_ModelMatrix, m_ViewMatrix);
-				mvpMatrix = XMMatrixMultiply(mvpMatrix, m_ProjectionMatrix);
+				XMMATRIX mvpMatrix = XMMatrixMultiply(m_ModelMatrix, m_Camera.GetView());
+				mvpMatrix = XMMatrixMultiply(mvpMatrix, m_Camera.GetProjection());
 				m_pGFXCommandList->SetGraphicsRoot32BitConstants(0, sizeof(XMMATRIX) / 4, &mvpMatrix, 0);
 
 				if (rMesh.pTexture)

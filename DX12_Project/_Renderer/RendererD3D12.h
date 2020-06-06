@@ -17,6 +17,7 @@
 #include "VertexBufferResource.h"
 #include "Texture2DResource.h"
 #include "ShaderCache.h"
+#include "Camera.h"
 
 #include <DirectXMath.h>
 
@@ -42,8 +43,7 @@ private:
 	CommandQueue*									m_pCopyCommandQueue;
 	CommandQueue*									m_pGFXCommandQueue;
 
-	Texture2DResource* m_randomResource;
-
+	Camera											m_Camera;
 	Model*											m_pModel;
 
 	ShaderCache										m_ShaderCache;
