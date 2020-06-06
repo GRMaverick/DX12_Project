@@ -11,7 +11,7 @@ public:
 	~DescriptorHeap(void);
 
 	bool Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, D3D12_DESCRIPTOR_HEAP_TYPE _type, UINT _numDescriptors,
-		D3D12_DESCRIPTOR_HEAP_FLAGS _flags);
+		D3D12_DESCRIPTOR_HEAP_FLAGS _flags, const wchar_t* _pDebugName);
 
 	void						Increment(void);
 	UINT						GetFreeIndex(void);

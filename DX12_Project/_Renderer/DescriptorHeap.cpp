@@ -17,7 +17,7 @@ DescriptorHeap::~DescriptorHeap(void)
 }
 
 bool DescriptorHeap::Initialise(ComPtr<ID3D12Device> _pDevice, D3D12_DESCRIPTOR_HEAP_TYPE _type, UINT _numDescriptors,
-	D3D12_DESCRIPTOR_HEAP_FLAGS _flags)
+	D3D12_DESCRIPTOR_HEAP_FLAGS _flags, const wchar_t* _pDebugName)
 {
 	D3D12_DESCRIPTOR_HEAP_DESC desc = {};
 	ZeroMemory(&desc, sizeof(D3D12_DESCRIPTOR_HEAP_DESC));
@@ -28,6 +28,8 @@ bool DescriptorHeap::Initialise(ComPtr<ID3D12Device> _pDevice, D3D12_DESCRIPTOR_
 	VALIDATE_D3D(_pDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(m_pDescriptorHeap.GetAddressOf())));
 	m_IncrementSize = _pDevice->GetDescriptorHandleIncrementSize(_type);
 	m_MaxDescriptors = _numDescriptors;
+
+	m_pDescriptorHeap->SetName(_pDebugName);
 
 	return true;
 }

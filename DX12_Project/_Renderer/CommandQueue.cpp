@@ -23,7 +23,7 @@ CommandQueue::~CommandQueue(void)
 	if (m_pQueue) m_pQueue.Reset();
 }
 
-bool CommandQueue::Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, D3D12_COMMAND_LIST_TYPE _type)
+bool CommandQueue::Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, D3D12_COMMAND_LIST_TYPE _type, const wchar_t* _pDebugName)
 {
 	HRESULT hr = S_OK;
 
@@ -54,6 +54,9 @@ bool CommandQueue::Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, D3D
 		assert(false && "Fence Event Creation Failed");
 		return false;
 	}
+
+	m_pFence->SetName(_pDebugName);
+	m_pQueue->SetName(_pDebugName);
 
 	return true;
 }

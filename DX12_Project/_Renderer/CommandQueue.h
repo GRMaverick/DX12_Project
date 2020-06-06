@@ -14,7 +14,7 @@ public:
 	CommandQueue(void);
 	~CommandQueue(void);
 
-	bool	Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, D3D12_COMMAND_LIST_TYPE _type);
+	bool	Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, D3D12_COMMAND_LIST_TYPE _type, const wchar_t* _pDebugName);
 
 	void	ExecuteCommandLists(CommandList* _pList, UINT _numLists);
 

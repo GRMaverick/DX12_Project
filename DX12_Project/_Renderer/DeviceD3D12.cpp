@@ -142,6 +142,7 @@ bool DeviceD3D12::Initialise(bool _bDebugging)
 
 	// Create Device
 	VALIDATE_D3D(D3D12CreateDevice(m_pDxgiAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(m_pDevice.GetAddressOf())));
+	m_pDevice->SetName(L"Le Device");
 
 	return true;
 }
@@ -149,7 +150,7 @@ bool DeviceD3D12::Initialise(bool _bDebugging)
 bool DeviceD3D12::CreateCommandQueue(D3D12_COMMAND_LIST_TYPE _type, CommandQueue** _ppCommandQueue, const wchar_t* _pDebugName)
 {
 	*_ppCommandQueue = new CommandQueue();
-	if (!(*_ppCommandQueue)->Initialise(m_pDevice, D3D12_COMMAND_LIST_TYPE_DIRECT))
+	if (!(*_ppCommandQueue)->Initialise(m_pDevice, D3D12_COMMAND_LIST_TYPE_DIRECT, _pDebugName))
 		return false;
 
 	return true;
@@ -165,7 +166,7 @@ bool DeviceD3D12::CreateCommandList(D3D12_COMMAND_LIST_TYPE _type, CommandList**
 bool DeviceD3D12::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE _type, DescriptorHeap** _ppDescriptorHeap, UINT _numBuffers, D3D12_DESCRIPTOR_HEAP_FLAGS _flags, const wchar_t* _pDebugName)
 {
 	*_ppDescriptorHeap = new DescriptorHeap();
-	if (!(*_ppDescriptorHeap)->Initialise(m_pDevice, _type, _numBuffers, _flags))
+	if (!(*_ppDescriptorHeap)->Initialise(m_pDevice, _type, _numBuffers, _flags, _pDebugName))
 		return false;
 
 	return true;
@@ -173,11 +174,11 @@ bool DeviceD3D12::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE _type, Descrip
 bool DeviceD3D12::CreateSwapChain(SwapChain** _ppSwapChain, CoreWindow* _pWindow, UINT _numBackBuffers, CommandQueue* _pCommandQueue, const wchar_t* _pDebugName)
 {
 	DescriptorHeap* descHeapRTV;
-	if (!CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, &descHeapRTV, _numBackBuffers))
+	if (!CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, &descHeapRTV, _numBackBuffers, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, _pDebugName))
 		return false;
 
 	DescriptorHeap* descHeapDSV;
-	if (!CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, &descHeapDSV, 1))
+	if (!CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, &descHeapDSV, 1, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, _pDebugName))
 		return false;
 
 	*_ppSwapChain = new SwapChain();
@@ -315,7 +316,6 @@ bool DeviceD3D12::CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList*
 		pGPUTexture->SetName(pGPUDebugName);
 	}
 
-
 	(*_pTexture)->SetCPUBuffer(pCPUTexture);
 	(*_pTexture)->SetGPUBuffer(pGPUTexture);
 
@@ -377,6 +377,7 @@ bool DeviceD3D12::CreateRootSignature(D3D12_ROOT_PARAMETER* _pRootParameters, UI
 	}
 
 	VALIDATE_D3D(m_pDevice->CreateRootSignature(0, pRootSigBlob->GetBufferPointer(), pRootSigBlob->GetBufferSize(), IID_PPV_ARGS(_ppRootSignature)));
+	(*_ppRootSignature)->SetName(_pDebugName);
 
 	return true;
 }
@@ -411,6 +412,7 @@ bool DeviceD3D12::CreatePipelineState(PipelineStateDesc _psDesc, ID3D12PipelineS
 	};
 
 	VALIDATE_D3D(m_pDevice->CreatePipelineState(&pipelineStateStreamDesc, IID_PPV_ARGS(_ppPipelineState)));
+	(*_ppPipelineState)->SetName(_pDebugName);
 
 	return true;
 }

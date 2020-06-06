@@ -202,6 +202,25 @@ Texture2DResource* GetTextureFromModel(DeviceD3D12* _pDevice, const aiScene* sce
 
 	return nullptr;
 }
+//const char* ExtractExtension(const char* _pFilename)
+//{
+//	size_t extensionStart = 0;
+//	size_t size = strlen(_pFilename);
+//	for (size_t i = size - 1; i >= 0; --i)
+//	{
+//		if (_pFilename[i] == '.')
+//		{
+//			extensionStart = i + 1;
+//			break;
+//		}
+//	}
+//
+//	char ext[5];
+//	snprintf(ext, ARRAYSIZE(ext), "%s", &_pFilename[extensionStart]);
+//	return ext;
+//}
+
+extern const char* ExtractExtension(const char* _pFilename);
 
 Texture2DResource* AssimpLoader::ProcessMaterial(DeviceD3D12* _pDevice, CommandList* _pCommandList, DescriptorHeap* pDescHeapSRV, const aiMaterial* _pMaterial, const aiTextureType _type, const char* _typeName, const aiScene* _pScene)
 {
@@ -223,10 +242,19 @@ Texture2DResource* AssimpLoader::ProcessMaterial(DeviceD3D12* _pDevice, CommandL
 			}
 			else
 			{
-				std::string strFilename = g_Directory + "\\" +  std::string(str.C_Str());
+				std::string strFilename = g_Directory + "\\" + std::string(str.C_Str());
 				std::wstring wstrFilename = std::wstring(strFilename.begin(), strFilename.end());
-				if (_pDevice->CreateWICTexture2D(wstrFilename.c_str(), _pCommandList, &pTexture, pDescHeapSRV, wstrFilename.c_str()))
-					return pTexture;
+				const char* ext = ExtractExtension(str.C_Str());
+				if (strncmp(ext, "dds", 3) == 0)
+				{
+					if (_pDevice->CreateTexture2D(wstrFilename.c_str(), _pCommandList, &pTexture, pDescHeapSRV, wstrFilename.c_str()))
+						return pTexture;
+				}
+				else
+				{
+					if (_pDevice->CreateWICTexture2D(wstrFilename.c_str(), _pCommandList, &pTexture, pDescHeapSRV, wstrFilename.c_str()))
+						return pTexture;
+				}
 			}
 		}
 	}

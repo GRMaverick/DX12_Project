@@ -64,6 +64,7 @@ bool SwapChain::Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, Micros
 			nullptr,
 			pSwapChain1.GetAddressOf()
 		);
+
 		if (FAILED(hr))
 		{
 			assert(false && "SwapChain1 Creation failed");
@@ -129,6 +130,7 @@ bool SwapChain::Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, Micros
 		dsv.Flags = D3D12_DSV_FLAG_NONE;
 
 		_pDevice->CreateDepthStencilView(m_pDepthBuffer.Get(), &dsv, dsvHandle);
+		m_pDepthBuffer->SetName(L"Depth Buffer");
 	}
 
 	// Crete Viewport 

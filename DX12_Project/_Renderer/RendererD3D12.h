@@ -42,6 +42,8 @@ private:
 	CommandQueue*									m_pCopyCommandQueue;
 	CommandQueue*									m_pGFXCommandQueue;
 
+	Texture2DResource* m_randomResource;
+
 	Model*											m_pModel;
 
 	ShaderCache										m_ShaderCache;

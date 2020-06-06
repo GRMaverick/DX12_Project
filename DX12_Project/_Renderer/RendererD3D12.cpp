@@ -80,17 +80,17 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 
 	m_ShaderCache = ShaderCache(SHADER_CACHE_LOCATION);
 
-	if (!m_Device.CreateCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT, &m_pGFXCommandQueue))
+	if (!m_Device.CreateCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT, &m_pGFXCommandQueue, L"CPY"))
 		return false;
 	if (!m_Device.CreateCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT, &m_pGFXCommandList, L"GFX"))
 		return false;
 
-	if (!m_Device.CreateCommandQueue(D3D12_COMMAND_LIST_TYPE_COPY, &m_pCopyCommandQueue))
+	if (!m_Device.CreateCommandQueue(D3D12_COMMAND_LIST_TYPE_COPY, &m_pCopyCommandQueue, L"CPY"))
 		return false;
 	if (!m_Device.CreateCommandList(D3D12_COMMAND_LIST_TYPE_COPY, &m_pCopyCommandList, L"CPY"))
 		return false;
 
-	if (!m_Device.CreateSwapChain(&m_pSwapChain, _pWindow, BACK_BUFFERS, m_pGFXCommandQueue))
+	if (!m_Device.CreateSwapChain(&m_pSwapChain, _pWindow, BACK_BUFFERS, m_pGFXCommandQueue, L"Swap Chain"))
 		return false;
 	
 	if (!LoadContent())
@@ -111,12 +111,13 @@ const char* g_ModelList[] =
 {
 	//"Content\\AnalogMeter.Needle.Dark\\AnalogMeter.fbx",
 	//"Content\\S&W_45ACP\\Handgun_fbx_7.4_binary.fbx",
-	//"Content\\Room\\Room.c4d",
+	//"Content\\Room\\OBJ\\Room.obj",
 	"Content\\Cube\\Cube.obj",
 };
-const wchar_t* g_TextureList[]
+
+const wchar_t* g_TexList[] =
 {
-	L"Content\\Cube\\WoodCrate01.dds",
+	L"Content\\Cube\\AnotherCrate.dds",
 };
 
 bool RendererD3D12::LoadContent(void)
@@ -129,16 +130,14 @@ bool RendererD3D12::LoadContent(void)
 	//if (!AssimpLoader::LoadModel(&m_Device, m_pCopyCommandList, "Content\\Cube\\Cube.obj", &m_pDialModel))
 	//	return false;
 
-	if (!m_Device.CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, &m_pDescHeapSRV, _countof(g_TextureList), D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE))
-		return true;
+	//if (!m_Device.CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, &m_pDescHeapSRV, _countof(g_TexList), D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, L"RandomSRV"))
+	//	return true;
 
-	// Load Texture
-	{	
-		if (!m_Device.CreateTexture2D(g_TextureList[0], m_pCopyCommandList, &m_pModel->pMeshList[0].pTexture, m_pDescHeapSRV, g_TextureList[0]))
-			return false;
-		delete m_pModel->pSRVHeap;
-		m_pModel->pSRVHeap = m_pDescHeapSRV;
-	}
+	//// Load Texture
+	//{	
+	//	if (!m_Device.CreateTexture2D(g_TexList[0], m_pCopyCommandList, &m_randomResource, m_pDescHeapSRV, g_TexList[0]))
+	//		return false;
+	//}
 
 	m_pCopyCommandQueue->ExecuteCommandLists(m_pCopyCommandList, 1);
 	m_pCopyCommandQueue->Flush();
