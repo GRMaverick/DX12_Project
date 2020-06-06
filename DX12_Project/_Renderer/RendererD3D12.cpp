@@ -25,6 +25,8 @@ PRAGMA_TODO("Memory Profiling")
 PRAGMA_TODO("Integrate ImGUI")
 PRAGMA_TODO("Integrate ASSIMP")
 PRAGMA_TODO("Implement Logger")
+PRAGMA_TODO("Command Line Parser")
+PRAGMA_TODO("Data Driven Pipelines")
 
 #define SHADER_CACHE_LOCATION "C:\\Users\\Maverick\\Source\\Repos\\DX12_Project\\DX12_Project\\_Shaders\\*"
 
@@ -109,10 +111,10 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 
 const char* g_ModelList[] =
 {
-	//"Content\\AnalogMeter.Needle.Dark\\AnalogMeter.fbx",
+	"Content\\AnalogMeter.Needle.Dark\\AnalogMeter.fbx",
 	//"Content\\S&W_45ACP\\Handgun_fbx_7.4_binary.fbx",
 	//"Content\\Room\\OBJ\\Room.obj",
-	"Content\\Cube\\Cube.obj",
+	//"Content\\Cube\\Cube.obj",
 };
 
 const wchar_t* g_TexList[] =
@@ -229,7 +231,7 @@ void RendererD3D12::Update(float _deltaTime)
 
 	// Update the model matrix. 
 	float angle = static_cast<float>(m_CurrentRotation);
-	const XMVECTOR rotationAxis = XMVectorSet(0, 1, 0, 0);
+	const XMVECTOR rotationAxis = XMVectorSet(1, 0, 0, 0);
 	m_ModelMatrix = XMMatrixRotationAxis(rotationAxis, XMConvertToRadians(angle));
 
 	PRAGMA_TODO("Refactor into Camera Class")

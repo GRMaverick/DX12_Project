@@ -194,8 +194,14 @@ bool DeviceD3D12::UploadResource(CommandList* _pCommandList, UINT _sizeInBytes, 
 
 	UINT bufferSize = _sizeInBytes * _strideInBytes;
 	ComPtr<ID3D12Resource> pDestination = nullptr;
-	hr = m_pDevice->CreateCommittedResource( &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(bufferSize, _flags),
-		D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(pDestination.GetAddressOf()));
+	hr = m_pDevice->CreateCommittedResource( 
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), 
+		D3D12_HEAP_FLAG_NONE, 
+		&CD3DX12_RESOURCE_DESC::Buffer(bufferSize, _flags),
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		nullptr, 
+		IID_PPV_ARGS(pDestination.GetAddressOf())
+	);
 	if (FAILED(hr))
 	{
 		assert(false && "Destination Buffer Setup Failed");
@@ -273,7 +279,7 @@ bool DeviceD3D12::CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList*
 
 	D3D12_SUBRESOURCE_DATA srData; 
 	std::unique_ptr<uint8_t[]> decodedData;
-	if (FAILED(LoadWICTextureFromFile(m_pDevice.Get(), _pWstrFilename, pCPUTexture.GetAddressOf(), decodedData, srData)))
+	if (FAILED(LoadWICTextureFromFile(m_pDevice.Get(), _pWstrFilename, pGPUTexture.GetAddressOf(), decodedData, srData)))
 		return false;
 
 	VALIDATE_D3D(m_pDevice->CreateCommittedResource(
@@ -282,7 +288,7 @@ bool DeviceD3D12::CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList*
 		&CD3DX12_RESOURCE_DESC::Buffer(srData.SlicePitch),
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
-		IID_PPV_ARGS(&pGPUTexture)
+		IID_PPV_ARGS(&pCPUTexture)
 	));
 
 	_pCommandList->UpdateSubresource(pGPUTexture.Get(), pCPUTexture.Get(), 0, 0, 1, &srData);
@@ -303,7 +309,7 @@ bool DeviceD3D12::CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList*
 	CD3DX12_CPU_DESCRIPTOR_HANDLE srvHandle(_pDescHeapSRV->GetCPUStartHandle());
 	srvHandle.Offset((*_pTexture)->GetHeapIndex(), _pDescHeapSRV->GetIncrementSize());
 
-	m_pDevice->CreateShaderResourceView(pCPUTexture.Get(), &srvDesc, srvHandle);
+	m_pDevice->CreateShaderResourceView(pGPUTexture.Get(), &srvDesc, srvHandle);
 
 
 	if (_pDebugName)
