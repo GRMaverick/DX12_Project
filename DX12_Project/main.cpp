@@ -18,10 +18,10 @@ bool GameLoop()
 
 	frameCounter++;
 	auto t1 = clock.now();
-	auto deltaTime = t1 - t0;
+	float deltaTime = (t1 - t0).count() * 1e-9;
 	t0 = t1;
 
-	elapsedSeconds += deltaTime.count() * 1e-9;
+	elapsedSeconds += deltaTime;
 	if (elapsedSeconds > 1.0)
 	{
 		char buffer[500];
@@ -33,7 +33,7 @@ bool GameLoop()
 		elapsedSeconds = 0.0;
 	}
 
-	g_pRenderer->Update();
+	g_pRenderer->Update(deltaTime);
 	g_pRenderer->Render();
 
 	return true;

@@ -1,12 +1,15 @@
 #pragma once
+#define NOMINMAX
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <assert.h>
 
-#define PRAGMA_TODO(todo) __pragma(message("[TODO]: "todo));
+#define PRAGMA_TODO(todo)	__pragma(message("[TODO]: "todo));
 
 #define BACK_BUFFERS 2
+
+#define CONSTANT_BUFFER_SIZE(byteSize) (byteSize + 255) & ~255;
 
 inline void DebugPrint(const char* format, ...)
 {

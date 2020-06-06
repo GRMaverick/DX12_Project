@@ -31,7 +31,7 @@ CommandList::~CommandList(void)
 	if (m_pAllocator) m_pAllocator.Reset();
 }
 
-bool CommandList::Initialise(ComPtr<ID3D12Device> _pDevice, D3D12_COMMAND_LIST_TYPE _type)
+bool CommandList::Initialise(ComPtr<ID3D12Device> _pDevice, D3D12_COMMAND_LIST_TYPE _type, const wchar_t* _pDebugName)
 {
 	HRESULT hr = S_OK;
 	m_Type = _type;
@@ -44,6 +44,7 @@ bool CommandList::Initialise(ComPtr<ID3D12Device> _pDevice, D3D12_COMMAND_LIST_T
 			assert(false && "Command Allocator Creation Failed");
 			return false;
 		}
+		m_pAllocator->SetName(_pDebugName);
 	}
 
 	// Command List
@@ -54,7 +55,24 @@ bool CommandList::Initialise(ComPtr<ID3D12Device> _pDevice, D3D12_COMMAND_LIST_T
 			assert(false && "Command List Creation Failed");
 			return false;
 		}
+		m_pList->SetName(_pDebugName);
 	}
+
+
+#if defined(_DEBUG) && defined(BREADCRUMB)
+	// Init Breadcrumb Debugging
+	{
+		VALIDATE_D3D(_pDevice->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT32)),
+			D3D12_RESOURCE_STATE_COPY_DEST,
+			nullptr,
+			IID_PPV_ARGS(&m_BreadcrumbBuffer)));
+
+		m_BreadcrumbBuffer->Map(0, nullptr, (void**)&m_BreadcrumbReadback);
+	}
+#endif
 
 	Close();
 	
@@ -72,6 +90,27 @@ void CommandList::Reset(void)
 	m_pList->Reset(m_pAllocator.Get(), nullptr);
 }
 
+void CommandList::WriteBreadcrumb(UINT32 _breadcrumb)
+{
+#if defined(_DEBUG) && defined(BREADCRUMB)
+	ComPtr<ID3D12GraphicsCommandList2> pList2 = nullptr;
+	VALIDATE_D3D(m_pList.As(&pList2));
+
+	D3D12_WRITEBUFFERIMMEDIATE_MODE modes = D3D12_WRITEBUFFERIMMEDIATE_MODE_DEFAULT;
+	D3D12_WRITEBUFFERIMMEDIATE_PARAMETER params;
+	params.Dest = m_BreadcrumbBuffer->GetGPUVirtualAddress();
+	params.Value = _breadcrumb;
+	pList2->WriteBufferImmediate(1, &params, &modes);
+#endif
+}
+UINT32 CommandList::ReadBreadcrumb(void)
+{
+#if defined(_DEBUG) && defined(BREADCRUMB)
+	return *m_BreadcrumbReadback;
+#else
+	return 0;
+#endif
+}
 void CommandList::ResourceBarrier(UINT32 _numBarriers, CD3DX12_RESOURCE_BARRIER* _pBarrier)
 {
 	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "ResourceBarrier");
@@ -154,4 +193,15 @@ void CommandList::DrawIndexedInstanced(UINT _indicesPerInstance, UINT _instanceC
 {
 	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "DrawIndexedInstanced");
 	m_pList->DrawIndexedInstanced(_indicesPerInstance, _instanceCount, _startIndexLocation, _baseVertexLocation, _startInstanceLocation);
+}
+
+void CommandList::SetGraphicsRootDescriptorTable(UINT _rootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE _gpuHandle)
+{
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "SetGraphicsRootDescriptorTable");
+	m_pList->SetGraphicsRootDescriptorTable(_rootParameterIndex, _gpuHandle);
+}
+void CommandList::SetDescriptorHeaps(ID3D12DescriptorHeap* const* _pHeaps, UINT _numHeaps)
+{
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "SetDescriptorHeaps");
+	m_pList->SetDescriptorHeaps(_numHeaps, _pHeaps);
 }

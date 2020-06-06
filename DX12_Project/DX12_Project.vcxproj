@@ -123,14 +123,16 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)\_Core;$(ProjectDir)\_Interfaces;$(ProjectDir)\_Renderer</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)_Core;$(ProjectDir)_Interfaces;$(ProjectDir)_Renderer;$(ProjectDir)_Dependencies\include;$(ProjectDir)_Utilities;$(SolutionDir)DirectXTK12\Inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)_Dependencies\lib;$(SolutionDir)DirectXTK12\Bin\Desktop_2019_Win10\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>COPY /Y $(ProjectDir)\_Dependencies\* $(SolutionDir)$(Platform)\$(Configuration)\</Command>
+      <Command>xcopy /y /s /q $(ProjectDir)_Dependencies\dll\*.* $(SolutionDir)$(Platform)\$(Configuration)\
+xcopy /y /s /q $(ProjectDir)_Content\*.* $(SolutionDir)$(Platform)\$(Configuration)\Content\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -164,6 +166,9 @@
     <ClCompile Include="_Renderer\ShaderCache.cpp" />
     <ClCompile Include="_Renderer\ShaderCompiler.cpp" />
     <ClCompile Include="_Renderer\SwapChain.cpp" />
+    <ClCompile Include="_Renderer\Texture2DResource.cpp" />
+    <ClCompile Include="_Utilities\AssimpLoader.cpp" />
+    <ClCompile Include="_Utilities\TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Core\CoreWindow.h" />
@@ -176,16 +181,23 @@
     <ClInclude Include="_Renderer\DescriptorHeap.h" />
     <ClInclude Include="_Renderer\DeviceD3D12.h" />
     <ClInclude Include="_Renderer\IndexBufferResource.h" />
-    <ClInclude Include="_Renderer\PixScopedEvent.h" />
     <ClInclude Include="_Renderer\RendererD3D12.h" />
     <ClInclude Include="_Renderer\ShaderCache.h" />
     <ClInclude Include="_Renderer\ShaderCompiler.h" />
     <ClInclude Include="_Renderer\ShaderData.h" />
     <ClInclude Include="_Renderer\SwapChain.h" />
+    <ClInclude Include="_Renderer\Texture2DResource.h" />
+    <ClInclude Include="_Renderer\TextureLoader.h" />
+    <ClInclude Include="_Renderer\UploadBuffer.h" />
     <ClInclude Include="_Renderer\VertexBufferResource.h" />
+    <ClInclude Include="_Utilities\AssimpLoader.h" />
+    <ClInclude Include="_Utilities\PixScopedEvent.h" />
+    <ClInclude Include="_Utilities\TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="_Shaders\AlbedoPS.ps" />
+    <None Include="_Shaders\AlbedoVS.vs" />
     <None Include="_Shaders\BasicPS.ps">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </None>

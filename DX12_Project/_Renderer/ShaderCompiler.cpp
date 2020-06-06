@@ -133,6 +133,17 @@ ShaderData ShaderCompiler::CompileDXIL(const char* _pFilename, const char* _pFun
 	VALIDATE_D3D(pOpsResult->GetStatus(&status));
 	VALIDATE_D3D(status);
 
+	if (FAILED(status))
+	{
+		IDxcBlobEncoding* pError = nullptr;
+		pOpsResult->GetErrorBuffer(&pError);
+
+		const char* pErrorString = (const char*)pError->GetBufferPointer();
+		DebugPrint("Shader Compiler Error %s\n", pErrorString);
+		pError->Release();
+		return ShaderData();
+	}
+
 	IDxcBlob* pCompiledCode = nullptr;
 	VALIDATE_D3D(pOpsResult->GetResult(&pCompiledCode));
 
