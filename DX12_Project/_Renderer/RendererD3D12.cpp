@@ -29,6 +29,7 @@ PRAGMA_TODO("Command Line Parser")
 PRAGMA_TODO("Data Driven Pipelines")
 PRAGMA_TODO("Constant Buffers, CBVs and Descriptor Tables")
 PRAGMA_TODO("MT Command Buffers")
+PRAGMA_TODO("Scene Configuration File")
 
 #define SHADER_CACHE_LOCATION "C:\\Users\\Maverick\\Source\\Repos\\DX12_Project\\DX12_Project\\_Shaders\\*"
 
