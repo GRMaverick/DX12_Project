@@ -24,7 +24,7 @@
 #include <wrl.h>
 
 #include "TextureLoader.h" 
-#include "CommandList.h"
+#include "D3D12\Device\CommandList.h"
 
 using namespace Microsoft::WRL;
 

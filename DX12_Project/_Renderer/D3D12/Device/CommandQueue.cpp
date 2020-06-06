@@ -84,15 +84,24 @@ void CommandQueue::Wait()
 	}
 }
 
-void CommandQueue::ExecuteCommandLists(CommandList* _pLists, UINT _numLists)
+void CommandQueue::ExecuteCommandLists(void)
 {
 	PixScopedEvent rEvent(m_pQueue.Get(), "%s: %s", g_TypeToString[m_Type], "ExecuteCommandLists");
+
 	std::vector<ID3D12CommandList*> vpLists;
-	for (UINT listIdx = 0; listIdx < _numLists; ++listIdx)
+	for (UINT listIdx = 0; listIdx < m_pAwaitingExecution.size(); ++listIdx)
 	{
-		_pLists[listIdx].Close();
-		vpLists.push_back(_pLists[listIdx].m_pList.Get());
+		m_pAwaitingExecution[listIdx]->Close();
+		vpLists.push_back(m_pAwaitingExecution[listIdx]->m_pList.Get());
 	}
 
 	m_pQueue->ExecuteCommandLists((UINT)vpLists.size(), &vpLists[0]);
+	
+	Flush();
+
+	for (INT listIdx = m_pAwaitingExecution.size() - 1; listIdx >= 0 ; --listIdx)
+	{
+		delete m_pAwaitingExecution[listIdx];
+		m_pAwaitingExecution.pop_back();
+	}
 }

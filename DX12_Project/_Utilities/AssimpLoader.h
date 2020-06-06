@@ -1,8 +1,8 @@
 #ifndef __AssimpLoader_h__
 #define __AssimpLoader_h__
 
-#include "IndexBufferResource.h"
-#include "VertexBufferResource.h"
+#include "D3D12\Resources\IndexBufferResource.h"
+#include "D3D12\Resources\VertexBufferResource.h"
 
 #include <assimp\types.h>
 #include <assimp\material.h>
@@ -24,7 +24,7 @@ struct Mesh
 	VertexBufferResource*	pVertexBuffer = nullptr;
 };
 
-struct Model
+struct RenderModel
 {
 	UINT				MeshCount = 0;
 	Mesh*				pMeshList = nullptr;
@@ -48,12 +48,12 @@ struct AssimpPreprocessResult
 class AssimpLoader
 {
 public:
-	static bool						LoadModel(DeviceD3D12* _pDevice, CommandList* _pCommandList, const char* _pFilename, Model** _pModelOut);
-	static void						ProcessNode(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiNode* _pNode, const aiScene* _pScene, Model** _pModelOut);
+	static bool						LoadModel(DeviceD3D12* _pDevice, CommandList* _pCommandList, const char* _pFilename, RenderModel** _pModelOut);
+	static void						ProcessNode(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiNode* _pNode, const aiScene* _pScene, RenderModel** _pModelOut);
 	static Mesh						ProcessMesh(DeviceD3D12* _pDevice, CommandList* _pCommandList, DescriptorHeap* pDescHeapSRV, const aiMesh* _pMesh, const aiScene* _pScene);
 	static Texture2DResource*		ProcessMaterial(DeviceD3D12* _pDevice, CommandList* _pCommandList, DescriptorHeap* pDescHeapSRV, const aiMaterial* _pMaterial, const aiTextureType _type, const char* _typeName, const aiScene* _pScene);
 private:
-	static std::map<std::string, Model*>				m_LoadedModels;
+	static std::map<std::string, RenderModel*>				m_LoadedModels;
 	static std::map<std::string, Texture2DResource*>	m_LoadedTextures;
 	
 	static AssimpPreprocessResult	Preprocess(const aiScene* _pScene);

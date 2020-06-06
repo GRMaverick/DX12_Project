@@ -5,6 +5,8 @@
 #include <wrl.h>
 #include "d3dx12.h"
 
+#include "DeviceD3D12.h"
+
 // #define BREADCRUMB
 class CommandList
 {
@@ -13,6 +15,15 @@ class CommandList
 public:
 	CommandList(void);
 	~CommandList(void);
+
+	static CommandList* Build(D3D12_COMMAND_LIST_TYPE _type)
+	{
+		CommandList* pCommandList = nullptr;
+		if (!DeviceD3D12::Instance()->CreateCommandList(D3D12_COMMAND_LIST_TYPE_COPY, &pCommandList, L"CPY"))
+			return nullptr;
+		pCommandList->Reset();
+		return pCommandList;
+	}
 
 	bool Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, D3D12_COMMAND_LIST_TYPE _type, const wchar_t* _pDebugName = L"");
 

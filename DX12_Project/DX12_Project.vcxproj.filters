@@ -61,6 +61,12 @@
     <Filter Include="Source Files\Renderer\D3D12\Shaders">
       <UniqueIdentifier>{990f5271-40a2-4071-9be7-4d783e321b4d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Renderer\Scene">
+      <UniqueIdentifier>{705f68ce-83b4-4011-80aa-06e229f9bbf8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\Scene">
+      <UniqueIdentifier>{1f2840a6-3acd-429f-ab88-87d049b9be00}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="_Core\CoreWindow.cpp">
@@ -81,36 +87,36 @@
     <ClCompile Include="_Renderer\RendererD3D12.cpp">
       <Filter>Source Files\Renderer\D3D12</Filter>
     </ClCompile>
-    <ClCompile Include="_Renderer\CommandList.cpp">
+    <ClCompile Include="_Renderer\D3D12\Device\CommandList.cpp">
       <Filter>Source Files\Renderer\D3D12\Device</Filter>
     </ClCompile>
-    <ClCompile Include="_Renderer\CommandQueue.cpp">
+    <ClCompile Include="_Renderer\D3D12\Device\CommandQueue.cpp">
       <Filter>Source Files\Renderer\D3D12\Device</Filter>
     </ClCompile>
-    <ClCompile Include="_Renderer\DeviceD3D12.cpp">
+    <ClCompile Include="_Renderer\D3D12\Device\DeviceD3D12.cpp">
       <Filter>Source Files\Renderer\D3D12\Device</Filter>
     </ClCompile>
-    <ClCompile Include="_Renderer\SwapChain.cpp">
+    <ClCompile Include="_Renderer\D3D12\Device\SwapChain.cpp">
       <Filter>Source Files\Renderer\D3D12\Device</Filter>
     </ClCompile>
-    <ClCompile Include="_Renderer\DescriptorHeap.cpp">
-      <Filter>Source Files\Renderer\D3D12\Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="_Renderer\Texture2DResource.cpp">
-      <Filter>Source Files\Renderer\D3D12\Resource</Filter>
-    </ClCompile>
-    <ClCompile Include="_Renderer\ShaderCompiler.cpp">
+    <ClCompile Include="_Renderer\D3D12\Shaders\ShaderCache.cpp">
       <Filter>Source Files\Renderer\D3D12\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="_Renderer\ShaderCache.cpp">
+    <ClCompile Include="_Renderer\D3D12\Shaders\ShaderCompiler.cpp">
       <Filter>Source Files\Renderer\D3D12\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="_Renderer\D3D12\Resources\DescriptorHeap.cpp">
+      <Filter>Source Files\Renderer\D3D12\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="_Renderer\D3D12\Resources\Texture2DResource.cpp">
+      <Filter>Source Files\Renderer\D3D12\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="_Renderer\Scene\RenderEntity.cpp">
+      <Filter>Source Files\Renderer\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Core\CoreWindow.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="_Core\d3dx12.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="_Core\Defines.h">
@@ -143,37 +149,49 @@
     <ClInclude Include="_Renderer\RendererD3D12.h">
       <Filter>Header Files\Renderer\D3D12</Filter>
     </ClInclude>
-    <ClInclude Include="_Renderer\DeviceD3D12.h">
+    <ClInclude Include="_Core\RenderEntity.h">
+      <Filter>Header Files\Renderer\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="_Core\d3dx12.h">
+      <Filter>Header Files\Renderer\D3D12</Filter>
+    </ClInclude>
+    <ClInclude Include="_Renderer\D3D12\Device\CommandList.h">
       <Filter>Header Files\Renderer\D3D12\Device</Filter>
     </ClInclude>
-    <ClInclude Include="_Renderer\SwapChain.h">
+    <ClInclude Include="_Renderer\D3D12\Device\CommandQueue.h">
       <Filter>Header Files\Renderer\D3D12\Device</Filter>
     </ClInclude>
-    <ClInclude Include="_Renderer\CommandList.h">
+    <ClInclude Include="_Renderer\D3D12\Device\DeviceD3D12.h">
       <Filter>Header Files\Renderer\D3D12\Device</Filter>
     </ClInclude>
-    <ClInclude Include="_Renderer\CommandQueue.h">
+    <ClInclude Include="_Renderer\D3D12\Device\SwapChain.h">
       <Filter>Header Files\Renderer\D3D12\Device</Filter>
     </ClInclude>
-    <ClInclude Include="_Renderer\Texture2DResource.h">
-      <Filter>Header Files\Renderer\D3D12\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="_Renderer\VertexBufferResource.h">
-      <Filter>Header Files\Renderer\D3D12\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="_Renderer\IndexBufferResource.h">
-      <Filter>Header Files\Renderer\D3D12\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="_Renderer\UploadBuffer.h">
-      <Filter>Header Files\Renderer\D3D12\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="_Renderer\ShaderCache.h">
+    <ClInclude Include="_Renderer\D3D12\Shaders\ShaderCache.h">
       <Filter>Header Files\Renderer\D3D12\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="_Renderer\ShaderCompiler.h">
+    <ClInclude Include="_Renderer\D3D12\Shaders\ShaderCompiler.h">
       <Filter>Header Files\Renderer\D3D12\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="_Renderer\DescriptorHeap.h">
+    <ClInclude Include="_Renderer\D3D12\Shaders\ShaderData.h">
+      <Filter>Header Files\Renderer\D3D12\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="_Renderer\D3D12\Resources\DescriptorHeap.h">
+      <Filter>Header Files\Renderer\D3D12\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="_Renderer\D3D12\Resources\IBufferResource.h">
+      <Filter>Header Files\Renderer\D3D12\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="_Renderer\D3D12\Resources\IndexBufferResource.h">
+      <Filter>Header Files\Renderer\D3D12\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="_Renderer\D3D12\Resources\Texture2DResource.h">
+      <Filter>Header Files\Renderer\D3D12\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="_Renderer\D3D12\Resources\UploadBuffer.h">
+      <Filter>Header Files\Renderer\D3D12\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="_Renderer\D3D12\Resources\VertexBufferResource.h">
       <Filter>Header Files\Renderer\D3D12\Resource</Filter>
     </ClInclude>
   </ItemGroup>

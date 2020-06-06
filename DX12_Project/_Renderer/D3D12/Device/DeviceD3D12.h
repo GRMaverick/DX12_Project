@@ -29,9 +29,9 @@ struct PipelineStateDesc
 class DeviceD3D12
 {
 public:
-	DeviceD3D12(void);
 	~DeviceD3D12(void);
 
+	static DeviceD3D12* Instance(void);
 	bool Initialise(bool _bDebugging);
 	bool UploadResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, const void* _pData, IBufferResource** _ppResource, const wchar_t* _pDebugName = L"");
 
@@ -50,6 +50,7 @@ public:
 	bool CreateSamplerState(D3D12_SAMPLER_DESC* _pSamplerDesc, D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const wchar_t* _pDebugName = L"");
 
 private:
+	DeviceD3D12(void);
 	Microsoft::WRL::ComPtr<ID3D12Device6>			m_pDevice = nullptr;
 
 	Microsoft::WRL::ComPtr<IDXGIFactory5>			m_pDxgiFactory = nullptr;

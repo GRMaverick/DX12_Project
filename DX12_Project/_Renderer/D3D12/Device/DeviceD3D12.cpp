@@ -3,13 +3,14 @@
 #include "DeviceD3D12.h"
 #include "CommandList.h"
 #include "CommandQueue.h"
-#include "DescriptorHeap.h"
 #include "SwapChain.h"
 #include "CoreWindow.h"
-#include "Texture2DResource.h"
-#include "VertexBufferResource.h"
-#include "IndexBufferResource.h"
-#include "UploadBuffer.h"
+
+#include "D3D12\Resources\DescriptorHeap.h"
+#include "D3D12\Resources\Texture2DResource.h"
+#include "D3D12\Resources\VertexBufferResource.h"
+#include "D3D12\Resources\IndexBufferResource.h"
+#include "D3D12\Resources\UploadBuffer.h"
 
 #include <assert.h>
 #include <DirectXMath.h>
@@ -24,6 +25,11 @@ PRAGMA_TODO("Debug Flags for Device Creation")
 PRAGMA_TODO("\tDRED Features")
 PRAGMA_TODO("\tInfo Queue Features");
 
+DeviceD3D12* DeviceD3D12::Instance(void)
+{
+	static DeviceD3D12 device;
+	return &device;
+}
 
 DeviceD3D12::DeviceD3D12(void)
 {
@@ -31,6 +37,7 @@ DeviceD3D12::DeviceD3D12(void)
 	m_pDxgiFactory = nullptr;
 	m_pDxgiAdapter = nullptr;
 }
+
 DeviceD3D12::~DeviceD3D12(void)
 {
 	if (m_pDevice) m_pDevice.Reset();
@@ -149,7 +156,6 @@ bool DeviceD3D12::Initialise(bool _bDebugging)
 
 bool DeviceD3D12::CreateCommandQueue(D3D12_COMMAND_LIST_TYPE _type, CommandQueue** _ppCommandQueue, const wchar_t* _pDebugName)
 {
-	*_ppCommandQueue = new CommandQueue();
 	if (!(*_ppCommandQueue)->Initialise(m_pDevice, D3D12_COMMAND_LIST_TYPE_DIRECT, _pDebugName))
 		return false;
 
@@ -182,7 +188,7 @@ bool DeviceD3D12::CreateSwapChain(SwapChain** _ppSwapChain, CoreWindow* _pWindow
 		return false;
 
 	*_ppSwapChain = new SwapChain();
-	if (!(*_ppSwapChain)->Initialise(m_pDevice, m_pDxgiFactory, _pCommandQueue, _numBackBuffers, descHeapRTV, descHeapDSV, _pWindow))
+	if (!(*_ppSwapChain)->Initialise(m_pDevice, m_pDxgiFactory, CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_DIRECT), _numBackBuffers, descHeapRTV, descHeapDSV, _pWindow))
 		return false;
 
 	return true;

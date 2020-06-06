@@ -9,7 +9,7 @@
 #include "CoreWindow.h"
 #include "CommandList.h"
 #include "CommandQueue.h"
-#include "DescriptorHeap.h"
+#include "D3D12\Resources\DescriptorHeap.h"
 
 #include <PixScopedEvent.h>
 

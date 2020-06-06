@@ -7,21 +7,23 @@
 
 #include "IRenderer.h"
 
-#include "CommandList.h"
-#include "CommandQueue.h"
-#include "DeviceD3D12.h"
-#include "DescriptorHeap.h"
-#include "IndexBufferResource.h"
-#include "ShaderCache.h"
-#include "SwapChain.h"
-#include "VertexBufferResource.h"
-#include "Texture2DResource.h"
-#include "ShaderCache.h"
+#include "D3D12\Device\CommandList.h"
+#include "D3D12\Device\CommandQueue.h"
+#include "D3D12\Device\DeviceD3D12.h"
+#include "D3D12\Device\SwapChain.h"
+
+#include "D3D12\Shaders\ShaderCache.h"
+
+#include "D3D12\Resources\DescriptorHeap.h"
+#include "D3D12\Resources\IndexBufferResource.h"
+#include "D3D12\Resources\VertexBufferResource.h"
+#include "D3D12\Resources\Texture2DResource.h"
+
 #include "Camera.h"
 
 #include <DirectXMath.h>
 
-struct Model;
+class RenderEntity;
 
 class RendererD3D12 : public IRenderer
 {
@@ -34,7 +36,6 @@ public:
 	virtual bool Render(void) override final;
 
 private:
-	DeviceD3D12										m_Device;
 	SwapChain*										m_pSwapChain;
 
 	CommandList*									m_pGFXCommandList;
@@ -44,10 +45,9 @@ private:
 	CommandQueue*									m_pGFXCommandQueue;
 
 	Camera											m_Camera;
-	Model*											m_pModel;
+	RenderEntity*									m_pRenderEntity;
 
 	ShaderCache										m_ShaderCache;
-	DescriptorHeap*									m_pDescHeapSRV;
 	DescriptorHeap*									m_pDescHeapSampler;
 
 	// Refactor Required

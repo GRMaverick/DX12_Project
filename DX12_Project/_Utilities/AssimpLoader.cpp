@@ -1,6 +1,6 @@
 #include "Defines.h"
-#include "DeviceD3D12.h"
-#include "CommandList.h"
+#include "D3D12\Device\DeviceD3D12.h"
+#include "D3D12\Device\CommandList.h"
 #include "AssimpLoader.h"
 
 #include <assert.h>
@@ -18,7 +18,7 @@
 #pragma comment(lib, "zlibstaticd.lib")
 #pragma comment(lib, "IrrXMLd.lib")
 
-std::map<std::string, Model*> AssimpLoader::m_LoadedModels = std::map<std::string, Model*>();
+std::map<std::string, RenderModel*> AssimpLoader::m_LoadedModels = std::map<std::string, RenderModel*>();
 std::map<std::string, Texture2DResource*> AssimpLoader::m_LoadedTextures = std::map<std::string, Texture2DResource*>();
 
 struct Vertex
@@ -68,7 +68,7 @@ AssimpPreprocessResult AssimpLoader::Preprocess(const aiScene* _pScene)
 	return result;
 }
 
-bool AssimpLoader::LoadModel(DeviceD3D12* _pDevice, CommandList* _pCommandList, const char* _pFilename, Model** _pModelOut)
+bool AssimpLoader::LoadModel(DeviceD3D12* _pDevice, CommandList* _pCommandList, const char* _pFilename, RenderModel** _pModelOut)
 {
 	Assimp::Importer importer;
 
@@ -83,7 +83,7 @@ bool AssimpLoader::LoadModel(DeviceD3D12* _pDevice, CommandList* _pCommandList, 
 
 	AssimpPreprocessResult result = Preprocess(pScene);
 
-	(*_pModelOut) = new Model();
+	(*_pModelOut) = new RenderModel();
 	(*_pModelOut)->pMeshList = new Mesh[result.MeshCount];
 	if (!_pDevice->CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, &(*_pModelOut)->pSRVHeap, result.TextureCount, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, L"AssimpLoader"))
 		return false;
@@ -93,7 +93,7 @@ bool AssimpLoader::LoadModel(DeviceD3D12* _pDevice, CommandList* _pCommandList, 
 	return true;
 }
 
-void AssimpLoader::ProcessNode(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiNode* _pNode, const aiScene* _pScene, Model** _pModelOut)
+void AssimpLoader::ProcessNode(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiNode* _pNode, const aiScene* _pScene, RenderModel** _pModelOut)
 {
 	for (UINT i = 0; i < _pNode->mNumMeshes; ++i)
 	{

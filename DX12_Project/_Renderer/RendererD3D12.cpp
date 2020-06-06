@@ -11,6 +11,7 @@
 
 #include <WICTextureLoader.h>
 
+#include "Scene\RenderEntity.h"
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d12.lib")
@@ -28,7 +29,6 @@ PRAGMA_TODO("Implement Logger")
 PRAGMA_TODO("Command Line Parser")
 PRAGMA_TODO("Data Driven Pipelines")
 PRAGMA_TODO("Constant Buffers, CBVs and Descriptor Tables")
-PRAGMA_TODO("MT Command Buffers")
 PRAGMA_TODO("Scene Configuration File")
 
 #define SHADER_CACHE_LOCATION "C:\\Users\\Maverick\\Source\\Repos\\DX12_Project\\DX12_Project\\_Shaders\\*"
@@ -59,22 +59,21 @@ RendererD3D12::~RendererD3D12(void)
 
 bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 {
-	if (!m_Device.Initialise(true))
+	if (!DeviceD3D12::Instance()->Initialise(true))
 		return false;
 
 	m_ShaderCache = ShaderCache(SHADER_CACHE_LOCATION);
 
-	if (!m_Device.CreateCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT, &m_pGFXCommandQueue, L"CPY"))
-		return false;
-	if (!m_Device.CreateCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT, &m_pGFXCommandList, L"GFX"))
+	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_DIRECT);
+	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY);
+
+	if (!DeviceD3D12::Instance()->CreateCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT, &m_pGFXCommandList, L"GFX"))
 		return false;
 
-	if (!m_Device.CreateCommandQueue(D3D12_COMMAND_LIST_TYPE_COPY, &m_pCopyCommandQueue, L"CPY"))
-		return false;
-	if (!m_Device.CreateCommandList(D3D12_COMMAND_LIST_TYPE_COPY, &m_pCopyCommandList, L"CPY"))
+	if (!DeviceD3D12::Instance()->CreateCommandList(D3D12_COMMAND_LIST_TYPE_COPY, &m_pCopyCommandList, L"CPY"))
 		return false;
 
-	if (!m_Device.CreateSwapChain(&m_pSwapChain, _pWindow, BACK_BUFFERS, m_pGFXCommandQueue, L"Swap Chain"))
+	if (!DeviceD3D12::Instance()->CreateSwapChain(&m_pSwapChain, _pWindow, BACK_BUFFERS, m_pGFXCommandQueue, L"Swap Chain"))
 		return false;
 	
 	if (!LoadContent())
@@ -82,9 +81,6 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 
 	if (!CreatePipelineState())
 		return false;
-
-	m_ModelMatrix = XMMatrixIdentity();
-	m_ModelMatrix = XMMatrixTranslation(0.0f, 0.0f, - 1.0f);
 
 	return true;
 }
@@ -104,26 +100,15 @@ const wchar_t* g_TexList[] =
 
 bool RendererD3D12::LoadContent(void)
 {	
-	m_pCopyCommandList->Reset();
-	
-	if (!AssimpLoader::LoadModel(&m_Device, m_pCopyCommandList, g_ModelList[0], &m_pModel))
-		return false;
+	m_pRenderEntity = new RenderEntity();
+	m_pRenderEntity->LoadModelFromFile(g_ModelList[0]);
+	m_pRenderEntity->SetScale(1.0f);
+	m_pRenderEntity->SetRotation(0.0f, 0.0f, 0.0f);
+	m_pRenderEntity->SetPosition(0.0f, 0.0f, -1.0f);
 
-	//if (!AssimpLoader::LoadModel(&m_Device, m_pCopyCommandList, "Content\\Cube\\Cube.obj", &m_pDialModel))
-	//	return false;
+	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY)->ExecuteCommandLists();
+	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY)->Flush();
 
-	//if (!m_Device.CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, &m_pDescHeapSRV, _countof(g_TexList), D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, L"RandomSRV"))
-	//	return true;
-
-	//// Load Texture
-	//{	
-	//	if (!m_Device.CreateTexture2D(g_TexList[0], m_pCopyCommandList, &m_randomResource, m_pDescHeapSRV, g_TexList[0]))
-	//		return false;
-	//}
-
-	m_pCopyCommandQueue->ExecuteCommandLists(m_pCopyCommandList, 1);
-	m_pCopyCommandQueue->Flush();
-		
 	return true;
 }
 
@@ -134,7 +119,7 @@ bool RendererD3D12::CreatePipelineState(void)
 		CD3DX12_ROOT_PARAMETER rootParameters[1];
 		rootParameters[0].InitAsConstants(sizeof(XMMATRIX) / 4, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 
-		if (!m_Device.CreateRootSignature(rootParameters, _countof(rootParameters), m_pBasicRS.GetAddressOf()))
+		if (!DeviceD3D12::Instance()->CreateRootSignature(rootParameters, _countof(rootParameters), m_pBasicRS.GetAddressOf()))
 			return false;
 
 		D3D12_INPUT_ELEMENT_DESC inputLayout[] =
@@ -150,13 +135,13 @@ bool RendererD3D12::CreatePipelineState(void)
 		psDesc.InputLayout = { inputLayout, _countof(inputLayout) };
 		psDesc.RootSignature = m_pBasicRS.Get();
 
-		if (!m_Device.CreatePipelineState(psDesc, m_pBasicPSO.GetAddressOf()))
+		if (!DeviceD3D12::Instance()->CreatePipelineState(psDesc, m_pBasicPSO.GetAddressOf()))
 			return false;
 	}
 
 	// Albedo PSO
 	{
-		if (!m_Device.CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, &m_pDescHeapSampler, 1, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE))
+		if (!DeviceD3D12::Instance()->CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, &m_pDescHeapSampler, 1, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE))
 			return false;
 
 		D3D12_SAMPLER_DESC samplerDesc = {};
@@ -169,7 +154,7 @@ bool RendererD3D12::CreatePipelineState(void)
 		samplerDesc.MipLODBias = 0.0f;
 		samplerDesc.MaxAnisotropy = 1;
 		samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-		if (!m_Device.CreateSamplerState(&samplerDesc, m_pDescHeapSampler->GetCPUStartHandle()))
+		if (!DeviceD3D12::Instance()->CreateSamplerState(&samplerDesc, m_pDescHeapSampler->GetCPUStartHandle()))
 			return false;
 
 		CD3DX12_DESCRIPTOR_RANGE srvRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
@@ -180,7 +165,7 @@ bool RendererD3D12::CreatePipelineState(void)
 		rootParameters[1].InitAsDescriptorTable(1, &srvRange, D3D12_SHADER_VISIBILITY_PIXEL);
 		rootParameters[2].InitAsDescriptorTable(1, &samplerRange, D3D12_SHADER_VISIBILITY_PIXEL);
 
-		if (!m_Device.CreateRootSignature(rootParameters, _countof(rootParameters), m_pAlbedoRS.GetAddressOf()))
+		if (!DeviceD3D12::Instance()->CreateRootSignature(rootParameters, _countof(rootParameters), m_pAlbedoRS.GetAddressOf()))
 			return false;
 
 		D3D12_INPUT_ELEMENT_DESC inputLayout[] =
@@ -196,7 +181,7 @@ bool RendererD3D12::CreatePipelineState(void)
 		psDesc.InputLayout = { inputLayout, _countof(inputLayout) };
 		psDesc.RootSignature = m_pAlbedoRS.Get();
 
-		if (!m_Device.CreatePipelineState(psDesc, m_pAlbedoPSO.GetAddressOf()))
+		if (!DeviceD3D12::Instance()->CreatePipelineState(psDesc, m_pAlbedoPSO.GetAddressOf()))
 			return false;
 	}
 
@@ -204,16 +189,8 @@ bool RendererD3D12::CreatePipelineState(void)
 }
 void RendererD3D12::Update(float _deltaTime)
 {
-	PRAGMA_TODO("Refactor into Object class")
-
-	float sRotationSpeed = 25.0f * _deltaTime;
-	m_CurrentRotation += sRotationSpeed;
-
-	// Update the model matrix. 
-	float angle = static_cast<float>(m_CurrentRotation);
-	const XMVECTOR rotationAxis = XMVectorSet(1, 0, 0, 0);
-	m_ModelMatrix = XMMatrixRotationAxis(rotationAxis, XMConvertToRadians(angle));
-
+	m_pRenderEntity->Update();
+	
 	m_Camera.SetPosition(0.0f, 0.0f, -5.0f);
 	m_Camera.SetUp(0.0f, 1.0f, 0.0f);
 	m_Camera.SetTarget(0.0f, 0.0f, 0.0f);
@@ -223,53 +200,54 @@ void RendererD3D12::Update(float _deltaTime)
 }
 bool RendererD3D12::Render(void)
 {
-	m_pGFXCommandList->Reset();
-	
+	CommandList* pGfxCmdList = CommandList::Build(D3D12_COMMAND_LIST_TYPE_DIRECT);
+
 	// Rendering
 	{
-		m_pSwapChain->PrepareForRendering(m_pGFXCommandList);
-		m_pSwapChain->SetOMRenderTargets(m_pGFXCommandList);
-		m_pGFXCommandList->SetPipelineState(m_pAlbedoPSO.Get());
-		m_pGFXCommandList->SetGraphicsRootSignature(m_pAlbedoRS.Get());
-		m_pGFXCommandList->SetIAPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_pSwapChain->PrepareForRendering(pGfxCmdList);
+		m_pSwapChain->SetOMRenderTargets(pGfxCmdList);
+		pGfxCmdList->SetPipelineState(m_pAlbedoPSO.Get());
+		pGfxCmdList->SetGraphicsRootSignature(m_pAlbedoRS.Get());
+		pGfxCmdList->SetIAPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		// Per Object Draws
+		ID3D12DescriptorHeap* pHeaps[] = { m_pRenderEntity->GetModel()->pSRVHeap->GetHeap(), m_pDescHeapSampler->GetHeap() };
+		pGfxCmdList->SetDescriptorHeaps(pHeaps, _countof(pHeaps));
+		for (UINT i = 0; i < m_pRenderEntity->GetModel()->MeshCount; ++i)
 		{
-			ID3D12DescriptorHeap* pHeaps[] = { m_pModel->pSRVHeap->GetHeap(), m_pDescHeapSampler->GetHeap() };
-			m_pGFXCommandList->SetDescriptorHeaps(pHeaps, _countof(pHeaps));
-			for (UINT i = 0; i < m_pModel->MeshCount; ++i)
+			Mesh& rMesh = m_pRenderEntity->GetModel()->pMeshList[i];
+
+			XMMATRIX mvpMatrix = XMMatrixMultiply(m_pRenderEntity->GetWorld(), m_Camera.GetView());
+			mvpMatrix = XMMatrixMultiply(mvpMatrix, m_Camera.GetProjection());
+			pGfxCmdList->SetGraphicsRoot32BitConstants(0, sizeof(XMMATRIX) / 4, &mvpMatrix, 0);
+
+			if (rMesh.pTexture)
 			{
-				Mesh& rMesh = m_pModel->pMeshList[i];
-
-				XMMATRIX mvpMatrix = XMMatrixMultiply(m_ModelMatrix, m_Camera.GetView());
-				mvpMatrix = XMMatrixMultiply(mvpMatrix, m_Camera.GetProjection());
-				m_pGFXCommandList->SetGraphicsRoot32BitConstants(0, sizeof(XMMATRIX) / 4, &mvpMatrix, 0);
-
-				if (rMesh.pTexture)
-				{
-					CD3DX12_GPU_DESCRIPTOR_HANDLE texHandle(m_pModel->pSRVHeap->GetGPUStartHandle());
-					texHandle.Offset(rMesh.pTexture->GetHeapIndex(), m_pModel->pSRVHeap->GetIncrementSize());
-					m_pGFXCommandList->SetGraphicsRootDescriptorTable(1, texHandle);
-				}
-
-				CD3DX12_GPU_DESCRIPTOR_HANDLE samplerHandle(m_pDescHeapSampler->GetGPUStartHandle());
-				m_pGFXCommandList->SetGraphicsRootDescriptorTable(2, samplerHandle);
-
-				m_pGFXCommandList->SetIAVertexBuffers(0, 1, &rMesh.pVertexBuffer->GetView());
-				m_pGFXCommandList->SetIAIndexBuffer(&rMesh.pIndexBuffer->GetView());
-				m_pGFXCommandList->DrawIndexedInstanced(rMesh.Indices, 1, 0, 0, 0);
+				CD3DX12_GPU_DESCRIPTOR_HANDLE texHandle(m_pRenderEntity->GetModel()->pSRVHeap->GetGPUStartHandle());
+				texHandle.Offset(rMesh.pTexture->GetHeapIndex(), m_pRenderEntity->GetModel()->pSRVHeap->GetIncrementSize());
+				pGfxCmdList->SetGraphicsRootDescriptorTable(1, texHandle);
 			}
+
+			CD3DX12_GPU_DESCRIPTOR_HANDLE samplerHandle(m_pDescHeapSampler->GetGPUStartHandle());
+			pGfxCmdList->SetGraphicsRootDescriptorTable(2, samplerHandle);
+
+			pGfxCmdList->SetIAVertexBuffers(0, 1, &rMesh.pVertexBuffer->GetView());
+			pGfxCmdList->SetIAIndexBuffer(&rMesh.pIndexBuffer->GetView());
+			pGfxCmdList->DrawIndexedInstanced(rMesh.Indices, 1, 0, 0, 0);
 		}
 	}
 
 	// Presentation
 	{
-		m_pSwapChain->PrepareForPresentation(m_pGFXCommandList);
-		m_pGFXCommandQueue->ExecuteCommandLists(m_pGFXCommandList, 1);
+		CommandQueue* pGfxCmdQueue = CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+		m_pSwapChain->PrepareForPresentation(pGfxCmdList);
+		pGfxCmdQueue->SubmitToQueue(pGfxCmdList);
+		pGfxCmdQueue->ExecuteCommandLists();
 		m_pSwapChain->Present();
-		m_pGFXCommandQueue->Signal();
+		pGfxCmdQueue->Signal();
 		m_pSwapChain->Swap();
-		m_pGFXCommandQueue->Wait();
+		pGfxCmdQueue->Wait();
 	}
 
 	return true;
