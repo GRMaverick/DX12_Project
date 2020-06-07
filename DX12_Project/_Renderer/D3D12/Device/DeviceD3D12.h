@@ -28,6 +28,7 @@ struct PipelineStateDesc
 
 class DeviceD3D12
 {
+	friend class RendererD3D12;
 public:
 	~DeviceD3D12(void);
 

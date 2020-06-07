@@ -51,6 +51,7 @@ public:
 	void SetGraphicsRootSignature(ID3D12RootSignature* _pRootSignature);
 	void SetGraphicsRootDescriptorTable(UINT _rootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE _gpuHandle);
 	void SetGraphicsRoot32BitConstants(UINT _rootParameterIndex, UINT _num32BitValuesToSet, const void* _pSrcData, UINT _destOffsetIn32BitValues);
+	void SetGraphicsRootConstantBufferView(UINT _rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS _gpuAddress);
 	void DrawIndexedInstanced(UINT _indicesPerInstance, UINT _instanceCount, UINT _startIndexLocation, UINT _baseVertexLocation, UINT _startInstanceLocation);
 
 private:

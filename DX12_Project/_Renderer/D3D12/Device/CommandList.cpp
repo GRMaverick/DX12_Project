@@ -147,6 +147,18 @@ void CommandList::SetGraphicsRootSignature(ID3D12RootSignature* _pRootSignature)
 	m_pList->SetGraphicsRootSignature(_pRootSignature);
 }
 
+void CommandList::SetGraphicsRootConstantBufferView(UINT _rootParameterIndex, D3D12_GPU_VIRTUAL_ADDRESS _gpuAddress)
+{
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "SetGraphicsRootConstantBufferView");
+	m_pList->SetGraphicsRootConstantBufferView(_rootParameterIndex, _gpuAddress);
+}
+
+void CommandList::SetGraphicsRootDescriptorTable(UINT _rootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE _gpuHandle)
+{
+	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "SetGraphicsRootDescriptorTable");
+	m_pList->SetGraphicsRootDescriptorTable(_rootParameterIndex, _gpuHandle);
+}
+
 void CommandList::SetGraphicsRoot32BitConstants(UINT _rootParameterIndex, UINT _num32BitValuesToSet, const void* _pSrcData, UINT _destOffsetIn32BitValues)
 {
 	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "SetGraphicsRoot32BitConstants");
@@ -195,11 +207,6 @@ void CommandList::DrawIndexedInstanced(UINT _indicesPerInstance, UINT _instanceC
 	m_pList->DrawIndexedInstanced(_indicesPerInstance, _instanceCount, _startIndexLocation, _baseVertexLocation, _startInstanceLocation);
 }
 
-void CommandList::SetGraphicsRootDescriptorTable(UINT _rootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE _gpuHandle)
-{
-	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "SetGraphicsRootDescriptorTable");
-	m_pList->SetGraphicsRootDescriptorTable(_rootParameterIndex, _gpuHandle);
-}
 void CommandList::SetDescriptorHeaps(ID3D12DescriptorHeap* const* _pHeaps, UINT _numHeaps)
 {
 	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "SetDescriptorHeaps");

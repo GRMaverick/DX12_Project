@@ -18,12 +18,18 @@
 #include "D3D12\Resources\IndexBufferResource.h"
 #include "D3D12\Resources\VertexBufferResource.h"
 #include "D3D12\Resources\Texture2DResource.h"
+#include "D3D12\Resources\UploadBuffer.h"
 
 #include "Camera.h"
 
 #include <DirectXMath.h>
 
 class RenderEntity;
+
+struct ObjectCB
+{
+	DirectX::XMMATRIX MVP;
+};
 
 class RendererD3D12 : public IRenderer
 {
@@ -36,13 +42,19 @@ public:
 	virtual bool Render(void) override final;
 
 private:
+	UINT											m_ModelCount;
+	UINT											m_ObjectCBCount;
+	bool											m_bNewModelsLoaded;
+
 	SwapChain*										m_pSwapChain;
 
 	Camera											m_Camera;
-	RenderEntity*									m_pRenderEntity;
+	RenderEntity**									m_pRenderEntity;
 
 	ShaderCache										m_ShaderCache;
 	DescriptorHeap*									m_pDescHeapSampler;
+
+	UploadBuffer<ObjectCB>*							m_ObjectCBs;
 
 	// Refactor Required
 	Microsoft::WRL::ComPtr<ID3D12RootSignature>		m_pBasicRS = nullptr;
@@ -53,6 +65,10 @@ private:
 
 	bool LoadContent();
 	bool CreatePipelineState();
+
+	void UpdatePassConstants();
+
+	void MainRenderPass(CommandList* _pGfxCmdList);
 };
 
 #endif // __RendererD3D12_h__

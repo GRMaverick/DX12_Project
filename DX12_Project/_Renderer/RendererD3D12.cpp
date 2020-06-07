@@ -27,7 +27,6 @@ PRAGMA_TODO("Integrate ASSIMP")
 PRAGMA_TODO("Implement Logger")
 PRAGMA_TODO("Command Line Parser")
 PRAGMA_TODO("Data Driven Pipelines")
-PRAGMA_TODO("Constant Buffers, CBVs and Descriptor Tables")
 PRAGMA_TODO("Scene Configuration File")
 PRAGMA_TODO("Input")
 
@@ -81,11 +80,24 @@ const char* g_ModelList[] =
 
 bool RendererD3D12::LoadContent(void)
 {	
-	m_pRenderEntity = new RenderEntity();
-	m_pRenderEntity->LoadModelFromFile(g_ModelList[0]);
-	m_pRenderEntity->SetScale(1.0f);
-	m_pRenderEntity->SetRotation(0.0f, 0.0f, 0.0f);
-	m_pRenderEntity->SetPosition(0.0f, 0.0f, -1.0f);
+	m_bNewModelsLoaded = true;
+
+	m_pRenderEntity = new RenderEntity*[_countof(g_ModelList)];
+	for (UINT i = 0; i < _countof(g_ModelList); ++i)
+	{
+		m_pRenderEntity[i] = new RenderEntity();
+		m_pRenderEntity[i]->LoadModelFromFile(g_ModelList[i]);
+		m_pRenderEntity[i]->SetScale(1.0f);
+		m_pRenderEntity[i]->SetRotation(0.0f, 0.0f, 0.0f);
+		m_pRenderEntity[i]->SetPosition(0.0f, 0.0f, -1.0f);
+		m_ModelCount++;
+	}
+
+	m_Camera.SetPosition(0.0f, 0.0f, -5.0f);
+	m_Camera.SetUp(0.0f, 1.0f, 0.0f);
+	m_Camera.SetTarget(0.0f, 0.0f, 0.0f);
+	m_Camera.SetFieldOfView(45.0f);
+	m_Camera.SetAspectRatio(1920.0f / 1080.0f);
 
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY)->ExecuteCommandLists();
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY)->Flush();
@@ -141,10 +153,11 @@ bool RendererD3D12::CreatePipelineState(void)
 		CD3DX12_DESCRIPTOR_RANGE srvRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 		CD3DX12_DESCRIPTOR_RANGE samplerRange(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
 
-		CD3DX12_ROOT_PARAMETER rootParameters[3];
-		rootParameters[0].InitAsConstants(sizeof(XMMATRIX) / 4, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-		rootParameters[1].InitAsDescriptorTable(1, &srvRange, D3D12_SHADER_VISIBILITY_PIXEL);
-		rootParameters[2].InitAsDescriptorTable(1, &samplerRange, D3D12_SHADER_VISIBILITY_PIXEL);
+		CD3DX12_ROOT_PARAMETER rootParameters[4];
+		rootParameters[0].InitAsDescriptorTable(1, &srvRange, D3D12_SHADER_VISIBILITY_PIXEL);
+		rootParameters[1].InitAsDescriptorTable(1, &samplerRange, D3D12_SHADER_VISIBILITY_PIXEL);
+		rootParameters[2].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX); // Pass
+		rootParameters[3].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_VERTEX); // Object
 
 		if (!DeviceD3D12::Instance()->CreateRootSignature(rootParameters, _countof(rootParameters), m_pAlbedoRS.GetAddressOf()))
 			return false;
@@ -168,17 +181,47 @@ bool RendererD3D12::CreatePipelineState(void)
 
 	return true;
 }
+
 void RendererD3D12::Update(float _deltaTime)
 {
-	m_pRenderEntity->Update();
-	
-	m_Camera.SetPosition(0.0f, 0.0f, -5.0f);
-	m_Camera.SetUp(0.0f, 1.0f, 0.0f);
-	m_Camera.SetTarget(0.0f, 0.0f, 0.0f);
-	m_Camera.SetFieldOfView(45.0f);
-	m_Camera.SetAspectRatio(1920.0f / 1080.0f);
+	UpdatePassConstants();
+
+	if (m_bNewModelsLoaded)
+	{
+		m_bNewModelsLoaded = false;
+
+		UINT numNewCBs = 0;
+		for (UINT i = 0; i < m_ModelCount; ++i)
+		{
+			numNewCBs += m_pRenderEntity[i]->GetModel()->MeshCount;
+		}
+
+		if (m_ObjectCBs)
+			delete m_ObjectCBs;
+
+		m_ObjectCBs = new UploadBuffer<ObjectCB>(DeviceD3D12::Instance()->m_pDevice.Get(), numNewCBs, true);
+		m_ObjectCBCount = numNewCBs;
+	}
+
+	UINT cbIndex = 0;
+	for (UINT i = 0; i < m_ModelCount; ++i)
+	{
+		m_pRenderEntity[i]->Update();
+		for (int j = 0; j < m_pRenderEntity[i]->GetModel()->MeshCount; ++j)
+		{
+			ObjectCB objectCb;
+			objectCb.MVP = m_pRenderEntity[i]->GetWorld() * m_Camera.GetView() * m_Camera.GetProjection();
+			m_ObjectCBs->CopyData(cbIndex, objectCb);
+			cbIndex++;
+		}
+	}
+}
+
+void RendererD3D12::UpdatePassConstants()
+{
 	m_Camera.Update();
 }
+
 bool RendererD3D12::Render(void)
 {
 	CommandList* pGfxCmdList = CommandList::Build(D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -187,35 +230,9 @@ bool RendererD3D12::Render(void)
 	{
 		m_pSwapChain->PrepareForRendering(pGfxCmdList);
 		m_pSwapChain->SetOMRenderTargets(pGfxCmdList);
-		pGfxCmdList->SetPipelineState(m_pAlbedoPSO.Get());
-		pGfxCmdList->SetGraphicsRootSignature(m_pAlbedoRS.Get());
 		pGfxCmdList->SetIAPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		// Per Object Draws
-		ID3D12DescriptorHeap* pHeaps[] = { m_pRenderEntity->GetModel()->pSRVHeap->GetHeap(), m_pDescHeapSampler->GetHeap() };
-		pGfxCmdList->SetDescriptorHeaps(pHeaps, _countof(pHeaps));
-		for (UINT i = 0; i < m_pRenderEntity->GetModel()->MeshCount; ++i)
-		{
-			Mesh& rMesh = m_pRenderEntity->GetModel()->pMeshList[i];
-
-			XMMATRIX mvpMatrix = XMMatrixMultiply(m_pRenderEntity->GetWorld(), m_Camera.GetView());
-			mvpMatrix = XMMatrixMultiply(mvpMatrix, m_Camera.GetProjection());
-			pGfxCmdList->SetGraphicsRoot32BitConstants(0, sizeof(XMMATRIX) / 4, &mvpMatrix, 0);
-
-			if (rMesh.pTexture)
-			{
-				CD3DX12_GPU_DESCRIPTOR_HANDLE texHandle(m_pRenderEntity->GetModel()->pSRVHeap->GetGPUStartHandle());
-				texHandle.Offset(rMesh.pTexture->GetHeapIndex(), m_pRenderEntity->GetModel()->pSRVHeap->GetIncrementSize());
-				pGfxCmdList->SetGraphicsRootDescriptorTable(1, texHandle);
-			}
-
-			CD3DX12_GPU_DESCRIPTOR_HANDLE samplerHandle(m_pDescHeapSampler->GetGPUStartHandle());
-			pGfxCmdList->SetGraphicsRootDescriptorTable(2, samplerHandle);
-
-			pGfxCmdList->SetIAVertexBuffers(0, 1, &rMesh.pVertexBuffer->GetView());
-			pGfxCmdList->SetIAIndexBuffer(&rMesh.pIndexBuffer->GetView());
-			pGfxCmdList->DrawIndexedInstanced(rMesh.Indices, 1, 0, 0, 0);
-		}
+		MainRenderPass(pGfxCmdList);
 	}
 
 	// Presentation
@@ -232,4 +249,42 @@ bool RendererD3D12::Render(void)
 	}
 
 	return true;
+}
+void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
+{
+	UINT objCBByteSize = CONSTANT_BUFFER_SIZE(sizeof(ObjectCB));
+
+	_pGfxCmdList->SetPipelineState(m_pAlbedoPSO.Get());
+	_pGfxCmdList->SetGraphicsRootSignature(m_pAlbedoRS.Get());
+
+	// Per Object Draws
+	for (UINT i = 0; i < m_ModelCount; ++i)
+	{
+		RenderEntity* pModel = m_pRenderEntity[i];
+
+		ID3D12DescriptorHeap* pHeaps[] = { pModel->GetModel()->pSRVHeap->GetHeap(), m_pDescHeapSampler->GetHeap() };
+		_pGfxCmdList->SetDescriptorHeaps(pHeaps, _countof(pHeaps));
+
+		for (UINT i = 0; i < pModel->GetModel()->MeshCount; ++i)
+		{
+			Mesh& rMesh = pModel->GetModel()->pMeshList[i];
+
+			D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = m_ObjectCBs->Resource()->GetGPUVirtualAddress() + (i * objCBByteSize);
+			_pGfxCmdList->SetGraphicsRootConstantBufferView(2, objCBAddress);
+
+			if (rMesh.pTexture)
+			{
+				CD3DX12_GPU_DESCRIPTOR_HANDLE texHandle(pModel->GetModel()->pSRVHeap->GetGPUStartHandle());
+				texHandle.Offset(rMesh.pTexture->GetHeapIndex(), pModel->GetModel()->pSRVHeap->GetIncrementSize());
+				_pGfxCmdList->SetGraphicsRootDescriptorTable(0, texHandle);
+			}
+
+			CD3DX12_GPU_DESCRIPTOR_HANDLE samplerHandle(m_pDescHeapSampler->GetGPUStartHandle());
+			_pGfxCmdList->SetGraphicsRootDescriptorTable(1, samplerHandle);
+
+			_pGfxCmdList->SetIAVertexBuffers(0, 1, &rMesh.pVertexBuffer->GetView());
+			_pGfxCmdList->SetIAIndexBuffer(&rMesh.pIndexBuffer->GetView());
+			_pGfxCmdList->DrawIndexedInstanced(rMesh.Indices, 1, 0, 0, 0);
+		}
+	}
 }

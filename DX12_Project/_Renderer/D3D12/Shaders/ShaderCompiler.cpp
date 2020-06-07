@@ -120,9 +120,14 @@ ShaderData ShaderCompiler::CompileDXIL(const char* _pFilename, const char* _pFun
 	IDxcCompiler* pCompiler = nullptr;
 	VALIDATE_D3D(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&pCompiler)));
 
+	LPCWSTR args[] = 
+	{
+		L"/Zi", L"/Od"
+	};
+
 	IDxcOperationResult* pOpsResult = nullptr;
-	VALIDATE_D3D(pCompiler->Compile(pBlob, pFilenameWstr, pFunctionNameWstr, GetTargetProfileDXIL(_pFilename),
-		nullptr, 0, nullptr, 0, nullptr, &pOpsResult));
+	VALIDATE_D3D(pCompiler->Compile(pBlob, pFilenameWstr, pFunctionNameWstr, GetTargetProfileDXIL(_pFilename), args, _countof(args),
+		nullptr, 0, nullptr, &pOpsResult));
 
 	if (!pOpsResult)
 	{

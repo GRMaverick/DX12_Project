@@ -1,4 +1,4 @@
-struct ModelViewProjection
+struct Object
 {
 	matrix MVP;
 };
@@ -15,12 +15,12 @@ struct VSOutput
 	float2 Texture : TEXCOORD;
 };
 
-ConstantBuffer<ModelViewProjection> MVP_CB : register(b0);
+ConstantBuffer<Object> ObjectCB : register(b0);
 
 VSOutput main(VSInput _input)
 {
 	VSOutput output;
-	output.Position = mul(MVP_CB.MVP, float4(_input.Position, 1.0f));
+	output.Position = mul(ObjectCB.MVP, float4(_input.Position, 1.0f));
 	output.Texture = _input.Texture;
 	return output;
 }
