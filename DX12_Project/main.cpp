@@ -4,6 +4,7 @@
 #include <chrono>
 
 #include "CoreWindow.h"
+#include "Logger.h"
 #include "RendererD3D12.h"
 
 static CoreWindow*	g_pWindow = nullptr;
@@ -41,6 +42,12 @@ bool GameLoop()
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR pCmds, INT nCmdShow)
 {
+	Logger::SetSeverity(SEVERITY_INFO);
+	Logger::SetCategory(
+		CATEGORY_APP |
+		CATEGORY_RENDERER
+	);
+
 	g_pWindow = new CoreWindow(hInstance, L"MainWindow", L"DX12 Project");
 	g_pRenderer = new RendererD3D12();
 
@@ -48,6 +55,11 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR pC
 	{
 		return false;
 	}
+
+	Logger::Log(SEVERITY_INFO, CATEGORY_APP, "WinMain:%d", __LINE__);
+	Logger::Log(SEVERITY_WARN, CATEGORY_APP, "WinMain:%d", __LINE__);
+	Logger::Log(SEVERITY_ERR, CATEGORY_APP, "WinMain:%d", __LINE__);
+	Logger::Log(SEVERITY_FATAL, CATEGORY_APP, "WinMain:%d", __LINE__);
 
 	CoreWindow::SetMessageHandlerInstance(g_pWindow);
 

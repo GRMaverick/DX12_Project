@@ -156,6 +156,7 @@ xcopy /y /s /q $(ProjectDir)_Content\*.* $(SolutionDir)$(Platform)\$(Configurati
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="_Core\Camera.cpp" />
     <ClCompile Include="_Core\CoreWindow.cpp" />
@@ -197,6 +198,7 @@ xcopy /y /s /q $(ProjectDir)_Content\*.* $(SolutionDir)$(Platform)\$(Configurati
     <ClInclude Include="_Renderer\ShaderData.h" />
     <ClInclude Include="_Renderer\TextureLoader.h" />
     <ClInclude Include="_Utilities\AssimpLoader.h" />
+    <ClInclude Include="_Utilities\Logger.h" />
     <ClInclude Include="_Utilities\PixScopedEvent.h" />
     <ClInclude Include="_Utilities\TextureLoader.h" />
   </ItemGroup>
