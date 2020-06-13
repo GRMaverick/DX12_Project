@@ -33,7 +33,10 @@ public:
 	~DeviceD3D12(void);
 
 	static DeviceD3D12* Instance(void);
+
 	bool Initialise(bool _bDebugging);
+	bool InitialiseImGUI(HWND _hWindow, DescriptorHeap* _pSRVHeap);
+
 	bool UploadResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, const void* _pData, IBufferResource** _ppResource, const wchar_t* _pDebugName = L"");
 
 	bool CreateCommandQueue(D3D12_COMMAND_LIST_TYPE _type, CommandQueue** _ppCommandQueue, const wchar_t* _pDebugName = L"");

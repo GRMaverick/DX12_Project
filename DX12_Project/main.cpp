@@ -19,7 +19,7 @@ bool GameLoop()
 
 	frameCounter++;
 	auto t1 = clock.now();
-	float deltaTime = (t1 - t0).count() * 1e-9;
+	double deltaTime = (t1 - t0).count() * 1e-9;
 	t0 = t1;
 
 	elapsedSeconds += deltaTime;

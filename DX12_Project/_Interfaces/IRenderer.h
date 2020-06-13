@@ -7,7 +7,7 @@ class IRenderer
 {
 public:
 	virtual bool Initialise(CoreWindow* _pWindow) = 0;
-	virtual void Update(float _deltaTime) = 0;
+	virtual void Update(double _deltaTime) = 0;
 	virtual bool Render() = 0;
 };
 

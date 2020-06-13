@@ -15,6 +15,9 @@
 #include <assert.h>
 #include <DirectXMath.h>
 
+#include <ImGUI\imgui_impl_win32.h>
+#include <ImGUI\imgui_impl_dx12.h>
+
 #include "TextureLoader.h"
 #include <WICTextureLoader.h>
 
@@ -154,6 +157,15 @@ bool DeviceD3D12::Initialise(bool _bDebugging)
 	return true;
 }
 
+bool DeviceD3D12::InitialiseImGUI(HWND _hWindow, DescriptorHeap* _pSRVHeap)
+{
+	ImGui_ImplWin32_Init(_hWindow);
+	ImGui_ImplDX12_Init(m_pDevice.Get(), 1, DXGI_FORMAT_R8G8B8A8_UNORM,
+		_pSRVHeap->m_pDescriptorHeap.Get(), _pSRVHeap->GetCPUStartHandle(), 
+		_pSRVHeap->GetGPUStartHandle()
+	);
+	return true;
+}
 bool DeviceD3D12::CreateCommandQueue(D3D12_COMMAND_LIST_TYPE _type, CommandQueue** _ppCommandQueue, const wchar_t* _pDebugName)
 {
 	if (!(*_ppCommandQueue)->Initialise(m_pDevice, D3D12_COMMAND_LIST_TYPE_DIRECT, _pDebugName))

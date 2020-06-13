@@ -6,6 +6,8 @@
 
 #include "PixScopedEvent.h"
 
+#include <ImGUI\imgui_impl_dx12.h>
+
 using namespace Microsoft::WRL;
 
 const char* g_TypeToString[]
@@ -199,6 +201,12 @@ void CommandList::SetOMRenderTargets(UINT _numRTs, D3D12_CPU_DESCRIPTOR_HANDLE* 
 {
 	PixScopedEvent rEvent(m_pList.Get(), "%s: %s", g_TypeToString[m_Type], "SetOMRenderTargets");
 	m_pList->OMSetRenderTargets(_numRTs, _rtCpuDescHandle, _bSingleHandleToDescriptor, _dsvCpuDescHandle);
+}
+
+void CommandList::DrawImGUI()
+{
+	ImGui::Render();
+	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pList.Get());
 }
 
 void CommandList::DrawIndexedInstanced(UINT _indicesPerInstance, UINT _instanceCount, UINT _startIndexLocation, UINT _baseVertexLocation, UINT _startInstanceLocation)

@@ -6,6 +6,8 @@
 
 class DescriptorHeap
 {
+	friend class DeviceD3D12;
+
 public:
 	DescriptorHeap(void);
 	~DescriptorHeap(void);
@@ -24,6 +26,6 @@ private:
 	UINT m_IncrementSize = 0;
 	UINT m_MaxDescriptors = 0;
 	UINT m_ActualDescriptors = 0;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_pDescriptorHeap = nullptr;;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_pDescriptorHeap = nullptr;
 };
 #endif //__DescriptorHeap_h__

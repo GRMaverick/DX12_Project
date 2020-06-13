@@ -3,6 +3,7 @@
 #include "CoreWindow.h"
 #include "RendererD3D12.h"
 #include "AssimpLoader.h"
+#include "ImGUI\ImGUIEngine.h"
 
 #include "d3dx12.h"
 
@@ -21,7 +22,6 @@ using namespace Microsoft::WRL;
 using namespace DirectX;
 
 PRAGMA_TODO("Memory Profiling")
-PRAGMA_TODO("Integrate ImGUI")
 PRAGMA_TODO("Integrate ASSIMP")
 PRAGMA_TODO("\tTest different formats/materials")
 PRAGMA_TODO("Data Driven Pipelines")
@@ -55,6 +55,11 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_DIRECT);
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY);
+
+	if (!DeviceD3D12::Instance()->CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, &m_pImGuiSRVHeap, 1, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, L"ImGUI SRV"))
+		return false;
+
+	ImGUIEngine::Initialise(_pWindow->GetWindowHandle(), m_pImGuiSRVHeap);
 
 	if (!DeviceD3D12::Instance()->CreateSwapChain(&m_pSwapChain, _pWindow, BACK_BUFFERS, L"Swap Chain"))
 		return false;
@@ -180,7 +185,7 @@ bool RendererD3D12::CreatePipelineState(void)
 	return true;
 }
 
-void RendererD3D12::Update(float _deltaTime)
+void RendererD3D12::Update(double _deltaTime)
 {
 	UpdatePassConstants();
 
@@ -231,6 +236,16 @@ bool RendererD3D12::Render(void)
 		pGfxCmdList->SetIAPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		MainRenderPass(pGfxCmdList);
+
+		// ImGui
+		{		
+			ID3D12DescriptorHeap* pHeaps[] = { m_pImGuiSRVHeap->GetHeap() };
+			pGfxCmdList->SetDescriptorHeaps(pHeaps, _countof(pHeaps));
+
+			ImGUIEngine::Begin();
+			ImGUIEngine::End();
+			ImGUIEngine::Draw(pGfxCmdList);
+		}
 	}
 
 	// Presentation

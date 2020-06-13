@@ -38,7 +38,7 @@ public:
 	~RendererD3D12(void);
 
 	virtual bool Initialise(CoreWindow* _pWindow) override final;
-	virtual void Update(float _deltaTime) override final;
+	virtual void Update(double _deltaTime) override final;
 	virtual bool Render(void) override final;
 
 private:
@@ -52,6 +52,8 @@ private:
 	RenderEntity**									m_pRenderEntity;
 
 	ShaderCache										m_ShaderCache;
+
+	DescriptorHeap*									m_pImGuiSRVHeap;
 	DescriptorHeap*									m_pDescHeapSampler;
 
 	UploadBuffer<ObjectCB>*							m_ObjectCBs;

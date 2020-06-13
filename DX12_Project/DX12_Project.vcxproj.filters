@@ -67,6 +67,12 @@
     <Filter Include="Source Files\Renderer\Scene">
       <UniqueIdentifier>{1f2840a6-3acd-429f-ab88-87d049b9be00}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Renderer\ImGUI">
+      <UniqueIdentifier>{a9e02372-24e4-4bb1-962e-b544d8a80977}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Renderer\ImGUI">
+      <UniqueIdentifier>{80ab644e-df2b-4d2a-9276-3c890f18f889}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="_Core\CoreWindow.cpp">
@@ -119,6 +125,9 @@
     </ClCompile>
     <ClCompile Include="_Utilities\CLParser.cpp">
       <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="_Renderer\ImGUI\ImGUIEngine.cpp">
+      <Filter>Source Files\Renderer\ImGUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -205,6 +214,9 @@
     </ClInclude>
     <ClInclude Include="_Utilities\CLParser.h">
       <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="_Renderer\ImGUI\ImGUIEngine.h">
+      <Filter>Header Files\Renderer\ImGUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
