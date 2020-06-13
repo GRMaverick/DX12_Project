@@ -24,7 +24,6 @@ PRAGMA_TODO("Memory Profiling")
 PRAGMA_TODO("Integrate ImGUI")
 PRAGMA_TODO("Integrate ASSIMP")
 PRAGMA_TODO("\tTest different formats/materials")
-PRAGMA_TODO("Command Line Parser")
 PRAGMA_TODO("Data Driven Pipelines")
 PRAGMA_TODO("Scene Configuration File")
 PRAGMA_TODO("Input")
@@ -39,21 +38,16 @@ struct VertexPosColor
 
 RendererD3D12::RendererD3D12(void)
 {
-	LogInfo_Renderer("RendererD3D12:%d", __LINE__);
-
 	m_pSwapChain = nullptr;
 }
 
 RendererD3D12::~RendererD3D12(void)
 {
-	LogInfo_Renderer("~RendererD3D12:%d", __LINE__);
 	if (m_pSwapChain) delete m_pSwapChain; m_pSwapChain = nullptr;
 }
 
 bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 {
-	LogInfo_Renderer("RendererD3D12:%d", __LINE__);
-
 	if (!DeviceD3D12::Instance()->Initialise(true))
 		return false;
 

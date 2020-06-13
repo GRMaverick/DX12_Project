@@ -57,11 +57,6 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR pC
 		return false;
 	}
 
-	LogInfo_App("WinMain:%d", __LINE__);
-	LogInfo_App("WinMain:%d", __LINE__);
-	LogInfo_App("WinMain:%d", __LINE__);
-	LogInfo_App("WinMain:%d", __LINE__);
-
 	CoreWindow::SetMessageHandlerInstance(g_pWindow);
 
 	bool bClosing = false;
