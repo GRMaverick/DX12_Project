@@ -12,7 +12,6 @@
 #include <WICTextureLoader.h>
 
 #include "Scene\RenderEntity.h"
-#include "Logger.h"
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d12.lib")
@@ -24,6 +23,7 @@ using namespace DirectX;
 PRAGMA_TODO("Memory Profiling")
 PRAGMA_TODO("Integrate ImGUI")
 PRAGMA_TODO("Integrate ASSIMP")
+PRAGMA_TODO("\tTest different formats/materials")
 PRAGMA_TODO("Command Line Parser")
 PRAGMA_TODO("Data Driven Pipelines")
 PRAGMA_TODO("Scene Configuration File")
@@ -39,20 +39,20 @@ struct VertexPosColor
 
 RendererD3D12::RendererD3D12(void)
 {
-	Logger::Log(SEVERITY_INFO, CATEGORY_RENDERER, "RendererD3D12:%d", __LINE__);
+	LogInfo_Renderer("RendererD3D12:%d", __LINE__);
 
 	m_pSwapChain = nullptr;
 }
 
 RendererD3D12::~RendererD3D12(void)
 {
-	Logger::Log(SEVERITY_INFO, CATEGORY_RENDERER, "~RendererD3D12:%d", __LINE__);
+	LogInfo_Renderer("~RendererD3D12:%d", __LINE__);
 	if (m_pSwapChain) delete m_pSwapChain; m_pSwapChain = nullptr;
 }
 
 bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 {
-	Logger::Log(SEVERITY_INFO, CATEGORY_RENDERER, "RendererD3D12:%d", __LINE__);
+	LogInfo_Renderer("RendererD3D12:%d", __LINE__);
 
 	if (!DeviceD3D12::Instance()->Initialise(true))
 		return false;

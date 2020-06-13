@@ -171,6 +171,7 @@ xcopy /y /s /q $(ProjectDir)_Content\*.* $(SolutionDir)$(Platform)\$(Configurati
     <ClCompile Include="_Renderer\RendererD3D12.cpp" />
     <ClCompile Include="_Renderer\Scene\RenderEntity.cpp" />
     <ClCompile Include="_Utilities\AssimpLoader.cpp" />
+    <ClCompile Include="_Utilities\CLParser.cpp" />
     <ClCompile Include="_Utilities\TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -198,6 +199,7 @@ xcopy /y /s /q $(ProjectDir)_Content\*.* $(SolutionDir)$(Platform)\$(Configurati
     <ClInclude Include="_Renderer\ShaderData.h" />
     <ClInclude Include="_Renderer\TextureLoader.h" />
     <ClInclude Include="_Utilities\AssimpLoader.h" />
+    <ClInclude Include="_Utilities\CLParser.h" />
     <ClInclude Include="_Utilities\Logger.h" />
     <ClInclude Include="_Utilities\PixScopedEvent.h" />
     <ClInclude Include="_Utilities\TextureLoader.h" />

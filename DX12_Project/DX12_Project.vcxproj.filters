@@ -117,6 +117,9 @@
     <ClCompile Include="Logger.cpp">
       <Filter>Source Files\Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="_Utilities\CLParser.cpp">
+      <Filter>Source Files\Utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Core\CoreWindow.h">
@@ -198,6 +201,9 @@
       <Filter>Header Files\Renderer\D3D12\Resource</Filter>
     </ClInclude>
     <ClInclude Include="_Utilities\Logger.h">
+      <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="_Utilities\CLParser.h">
       <Filter>Header Files\Utilities</Filter>
     </ClInclude>
   </ItemGroup>

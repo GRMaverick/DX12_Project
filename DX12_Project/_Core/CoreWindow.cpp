@@ -71,8 +71,18 @@ void CoreWindow::RegisterWindowClass(const wchar_t* _pClassName)
 
 void CoreWindow::OpenWindow(const wchar_t* _pClassName, const wchar_t* _pWindowName, bool _bFullscreen)
 {
-	LONG screenWidth = 1920;
+	LONG screenWidth = 1920;	
+	if (CLParser::Instance()->HasArgument("Width"))
+	{
+		screenWidth = atol(CLParser::Instance()->GetArgument("Width"));
+	}
+
 	LONG screenHeight = 1080;
+	if (CLParser::Instance()->HasArgument("Height"))
+	{
+		screenHeight = atol(CLParser::Instance()->GetArgument("Height"));
+	}
+
 	RECT windowRect = { 0, 0, screenWidth, screenHeight };
 	::AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE);
 

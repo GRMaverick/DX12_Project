@@ -144,7 +144,7 @@ ShaderData ShaderCompiler::CompileDXIL(const char* _pFilename, const char* _pFun
 		pOpsResult->GetErrorBuffer(&pError);
 
 		const char* pErrorString = (const char*)pError->GetBufferPointer();
-		DebugPrint("Shader Compiler Error %s\n", pErrorString);
+		LogError_Renderer("Shader Compiler Error %s\n", pErrorString);
 		pError->Release();
 		return ShaderData();
 	}

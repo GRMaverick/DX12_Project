@@ -42,7 +42,7 @@ void ShaderCache::Load(const char* _pShadersPath)
 			if (strncmp(data.cFileName, ".", strlen(data.cFileName)) != 0 && 
 				strncmp(data.cFileName, "..", strlen(data.cFileName)) != 0)
 			{
-				DebugPrint("Loading %s", data.cFileName);
+				LogInfo_Renderer("Loading %s", data.cFileName);
 
 				char* pFullFilepath = new char[strlen(pDirectoryNoWildcard) + strlen(data.cFileName) + 1];
 				snprintf(
