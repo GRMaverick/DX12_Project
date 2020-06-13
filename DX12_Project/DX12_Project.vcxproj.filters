@@ -129,6 +129,9 @@
     <ClCompile Include="_Renderer\ImGUI\ImGUIEngine.cpp">
       <Filter>Source Files\Renderer\ImGUI</Filter>
     </ClCompile>
+    <ClCompile Include="_Core\InputManager.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Core\CoreWindow.h">
@@ -217,6 +220,9 @@
     </ClInclude>
     <ClInclude Include="_Renderer\ImGUI\ImGUIEngine.h">
       <Filter>Header Files\Renderer\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="_Core\InputManager.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

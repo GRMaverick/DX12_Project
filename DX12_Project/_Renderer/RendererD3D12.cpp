@@ -26,7 +26,6 @@ PRAGMA_TODO("Integrate ASSIMP")
 PRAGMA_TODO("\tTest different formats/materials")
 PRAGMA_TODO("Data Driven Pipelines")
 PRAGMA_TODO("Scene Configuration File")
-PRAGMA_TODO("Input")
 
 #define SHADER_CACHE_LOCATION "C:\\Users\\Maverick\\Source\\Repos\\DX12_Project\\DX12_Project\\_Shaders\\*"
 

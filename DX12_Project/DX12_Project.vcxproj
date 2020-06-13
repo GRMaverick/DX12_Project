@@ -160,6 +160,7 @@ xcopy /y /s /q $(ProjectDir)_Content\*.* $(SolutionDir)$(Platform)\$(Configurati
     <ClCompile Include="main.cpp" />
     <ClCompile Include="_Core\Camera.cpp" />
     <ClCompile Include="_Core\CoreWindow.cpp" />
+    <ClCompile Include="_Core\InputManager.cpp" />
     <ClCompile Include="_Renderer\D3D12\Device\CommandList.cpp" />
     <ClCompile Include="_Renderer\D3D12\Device\CommandQueue.cpp" />
     <ClCompile Include="_Renderer\D3D12\Device\DeviceD3D12.cpp" />
@@ -180,6 +181,7 @@ xcopy /y /s /q $(ProjectDir)_Content\*.* $(SolutionDir)$(Platform)\$(Configurati
     <ClInclude Include="_Core\CoreWindow.h" />
     <ClInclude Include="_Core\d3dx12.h" />
     <ClInclude Include="_Core\Defines.h" />
+    <ClInclude Include="_Core\InputManager.h" />
     <ClInclude Include="_Core\RenderEntity.h" />
     <ClInclude Include="_Interfaces\IRenderer.h" />
     <ClInclude Include="_Renderer\D3D12\Device\CommandList.h" />

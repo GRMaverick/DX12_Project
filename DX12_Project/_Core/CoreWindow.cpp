@@ -1,5 +1,6 @@
 #include "Defines.h"
 #include "CoreWindow.h"
+#include "InputManager.h"
 
 #include <assert.h>
 #include <algorithm>
@@ -23,6 +24,7 @@ LRESULT CALLBACK WndProc(HWND _hwnd, UINT _umsg, WPARAM _wparam, LPARAM _lparam)
 	else
 		return DefWindowProc(_hwnd, _umsg, _wparam, _lparam);
 }
+
 LRESULT CoreWindow::MessageHandler(HWND _hwnd, UINT _umsg, WPARAM _wparam, LPARAM _lparam)
 {
 	switch (_umsg)
@@ -34,8 +36,6 @@ LRESULT CoreWindow::MessageHandler(HWND _hwnd, UINT _umsg, WPARAM _wparam, LPARA
 		Resize(rect.right - rect.left, rect.bottom - rect.top);
 		return 0;
 	}
-	case WM_KEYDOWN: return 0;
-	case WM_KEYUP: return 0;
 	default: return DefWindowProc(_hwnd, _umsg, _wparam, _lparam);
 	}
 }

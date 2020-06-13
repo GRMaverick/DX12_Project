@@ -6,6 +6,7 @@
 #include "Defines.h"
 #include "CoreWindow.h"
 #include "RendererD3D12.h"
+#include "InputManager.h"
 
 static CoreWindow*	g_pWindow = nullptr;
 static IRenderer*	g_pRenderer = nullptr;
@@ -33,6 +34,8 @@ bool GameLoop()
 		frameCounter = 0;
 		elapsedSeconds = 0.0;
 	}
+
+	InputManager::Instance()->Update();
 
 	g_pRenderer->Update(deltaTime);
 	g_pRenderer->Render();
