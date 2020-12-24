@@ -98,35 +98,15 @@ bool DeviceD3D12::Initialise(bool _bDebugging)
 		}
 
 		spDebugController1->EnableDebugLayer();
-#if 0
-		// TODO: DRED Features
+
 		ComPtr<ID3D12DeviceRemovedExtendedDataSettings> pDredSettings = nullptr;
 		hr = D3D12GetDebugInterface(IID_PPV_ARGS(&pDredSettings));
-		if (FAILED(hr))
-		{
-			assert(false && "DRED settings failed");
-		}
-		else
+		if (SUCCEEDED(hr))
 		{
 			pDredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
 			pDredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
 		}
-
 		spDebugController1->SetEnableGPUBasedValidation(true);
-
-		// TODO: Info Queue Features
-		//ComPtr<ID3D12InfoQueue> pInfoQueue = nullptr;
-		//if (SUCCEEDED(m_pDevice.As(&pInfoQueue)))
-		//{
-		//	pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
-		//	pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, TRUE);
-		//	pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
-		//}
-		//else
-		//{
-		//	assert(false && "Debugging Device Creation Failed");
-		//}
-#endif
 	}
 
 	// --------------------------------------------------------------------------------------------------------------------------------
@@ -144,12 +124,24 @@ bool DeviceD3D12::Initialise(bool _bDebugging)
 		0x40f5,
 		{ 0xb2, 0x97, 0x81, 0xce, 0x9e, 0x18, 0x93, 0x3f }
 	};
-	VALIDATE_D3D(S_OK);
-	D3D12EnableExperimentalFeatures(1, &D3D12ExperimentalShaderModels, nullptr, nullptr);
+
+	VALIDATE_D3D(D3D12EnableExperimentalFeatures(1, &D3D12ExperimentalShaderModels, nullptr, nullptr));
+	
 	// Create Device
 	VALIDATE_D3D(D3D12CreateDevice(m_pDxgiAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(m_pDevice.GetAddressOf())));
 	m_pDevice->SetName(L"Le Device");
 
+	if (_bDebugging)
+	{
+		ComPtr<ID3D12InfoQueue> pInfoQueue = nullptr;
+		if (SUCCEEDED(m_pDevice.As(&pInfoQueue)))
+		{
+			pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, FALSE);
+			pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, FALSE);
+			pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+		}
+	}
+	
 	return true;
 }
 

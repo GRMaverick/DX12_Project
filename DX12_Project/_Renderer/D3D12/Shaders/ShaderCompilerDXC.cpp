@@ -4,6 +4,7 @@
 #include "ShaderCompilerDXC.h"
 
 #include <dxcapi.h>
+#include <d3dcompiler.h>
 
 #include <stdlib.h>
 
@@ -134,4 +135,21 @@ IShader* ShaderCompilerDXC::Compile(const char* _pFilename, const char* _pFuncti
 
 void ShaderCompilerDXC::Reflect(IShader* _pShader)
 {
+	IDxcLibrary* pLibrary = nullptr;
+	VALIDATE_D3D(DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&pLibrary)));
+
+	IDxcBlobEncoding* pBlob = nullptr;
+	VALIDATE_D3D(pLibrary->CreateBlobWithEncodingOnHeapCopy(_pShader->GetBytecode(), _pShader->GetBytecodeSize(), CP_ACP, &pBlob));
+	
+	IDxcContainerReflection* pReflectionCntr = nullptr;
+	VALIDATE_D3D(DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(&pReflectionCntr)));
+	VALIDATE_D3D(pReflectionCntr->Load(pBlob));
+
+	UINT32 shaderIdx;
+	VALIDATE_D3D(pReflectionCntr->FindFirstPartKind(DFCC_DXIL, &shaderIdx));
+
+	ID3D12ShaderReflection* pReflection = nullptr;
+	VALIDATE_D3D(pReflectionCntr->GetPartReflection(shaderIdx, IID_PPV_ARGS(&pReflection)));
+
+	ReflectInternal(_pShader, pReflection);
 }

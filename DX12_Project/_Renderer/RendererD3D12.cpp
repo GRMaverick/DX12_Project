@@ -43,7 +43,7 @@ RendererD3D12::~RendererD3D12(void)
 
 bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 {
-	if (!DeviceD3D12::Instance()->Initialise(true))
+	if (!DeviceD3D12::Instance()->Initialise(CLParser::Instance()->HasArgument("d3ddebug")))
 		return false;
 
 	m_ShaderCache = ShaderCache(SHADER_CACHE_LOCATION);

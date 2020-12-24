@@ -1,6 +1,11 @@
 #include "Defines.h"
 #include "CLParser.h"
 
+// /Width:1600 
+// /Height:900 
+// /d3ddebug 
+// /dxc
+
 CLParser::CLParser(void)
 {
 	m_NumArgs = 0;

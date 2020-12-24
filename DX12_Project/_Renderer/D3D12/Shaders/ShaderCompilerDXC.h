@@ -1,9 +1,9 @@
 #ifndef __ShaderCompilerDXC_h__
 #define __ShaderCompilerDXC_h__
 
-#include "IShaderCompiler.h"
+#include "ShaderCompilerDX.h"
 
-class ShaderCompilerDXC final : public IShaderCompiler
+class ShaderCompilerDXC final : public ShaderCompilerDX
 {
 public:
 	ShaderCompilerDXC(void);
