@@ -247,19 +247,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="_Shaders\BasicPS.ps">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="_Shaders\BasicVS.vs">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
     <None Include="packages.config" />
-    <None Include="_Shaders\AlbedoPS.ps">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="_Shaders\AlbedoVS.vs">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
     <None Include="_Dependencies\dll\assimp-vc142-mtd.dll">
       <Filter>Resource Files\Dependencies\dll</Filter>
     </None>
@@ -271,6 +259,18 @@
     </None>
     <None Include="_Dependencies\lib\ImGUI.pdb">
       <Filter>Resource Files\Dependencies\lib</Filter>
+    </None>
+    <None Include="_Shaders\Albedo.ps">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="_Shaders\Albedo.vs">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="_Shaders\Basic.ps">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="_Shaders\Basic.vs">
+      <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

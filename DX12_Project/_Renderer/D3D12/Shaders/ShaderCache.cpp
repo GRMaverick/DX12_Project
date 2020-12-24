@@ -9,6 +9,8 @@
 
 #include "CLParser.h"
 
+//#define DUMP_SHADERS
+
 ShaderCache::ShaderCache(void)
 {
 }
@@ -82,10 +84,13 @@ bool ShaderCache::Load(const char* _pShadersPath)
 
 				char* aError = nullptr;
 				
-				IShader* sd = m_pShaderCompiler->Compile(pFullFilepath, "main", aError);
-				sd->SetName(data.cFileName);
+				IShader* pShader = m_pShaderCompiler->Compile(pFullFilepath, "main", aError);
+				pShader->SetName(data.cFileName);
 
-				m_vLoadedShaders.push_back(sd);
+				m_pShaderCompiler->Reflect(pShader);
+				m_vLoadedShaders.push_back(pShader);
+
+				DumpShader(pShader);
 
 				delete[] pFullFilepath;
 			}
@@ -99,14 +104,55 @@ bool ShaderCache::Load(const char* _pShadersPath)
 	return true;
 }
 
-IShader* ShaderCache::GetShader(const char* _pName)
+void ShaderCache::DumpShader(IShader* _pShader)
 {
+#if defined(_DEBUG) && defined(DUMP_SHADERS)
+	const ShaderIOParameters& parameters = _pShader->GetParameters();
+
+	LogInfo_Renderer("\t\tInputs: %u", parameters.NumberInputs);
+	for (unsigned int parameter = 0; parameter < parameters.NumberInputs; ++parameter)
+	{
+		ShaderIOParameters::Parameter& p = parameters.Inputs[parameter];
+		LogInfo_Renderer("\t\t\tSemanticName: %s", p.SemanticName);
+		LogInfo_Renderer("\t\t\t\tSemanticIndex: %u", p.SemanticIndex);
+		LogInfo_Renderer("\t\t\t\tRegister: %u", p.Register);
+		LogInfo_Renderer("\t\t\t\tComponentType: %u", p.ComponentType);
+		LogInfo_Renderer("\t\t\t\tSystemValueType: %u", p.SystemValueType);
+	}
+
+	LogInfo_Renderer("\t\tOutputs: %u", parameters.NumberOutputs);
+	for (unsigned int parameter = 0; parameter < parameters.NumberOutputs; ++parameter)
+	{
+		ShaderIOParameters::Parameter& p = parameters.Outputs[parameter];
+		LogInfo_Renderer("\t\t\tSemanticName: %s", p.SemanticName);
+		LogInfo_Renderer("\t\t\t\tSemanticIndex: %u", p.SemanticIndex);
+		LogInfo_Renderer("\t\t\t\tRegister: %u", p.Register);
+		LogInfo_Renderer("\t\t\t\tComponentType: %u", p.ComponentType);
+		LogInfo_Renderer("\t\t\t\tSystemValueType: %u", p.SystemValueType);
+	}
+#endif
+}
+
+ShaderSet ShaderCache::GetShader(const char* _pName)
+{
+	ShaderSet set;
 	for (size_t i = 0; i < m_vLoadedShaders.size(); ++i)
 	{
-		if (strcmp(_pName, m_vLoadedShaders[i]->GetShaderName()) == 0)
+		const char* pName = m_vLoadedShaders[i]->GetShaderName();
+		if (strstr(pName, _pName))
 		{
-			return m_vLoadedShaders[i];
+			if (m_vLoadedShaders[i]->GetType() == IShader::ShaderType::VertexShader)
+			{
+				set.VertexShader = m_vLoadedShaders[i];
+				continue;
+			}
+
+			if (m_vLoadedShaders[i]->GetType() == IShader::ShaderType::PixelShader)
+			{
+				set.PixelShader = m_vLoadedShaders[i];
+				continue;
+			}
 		}
 	}
-	return nullptr;
+	return set;
 }

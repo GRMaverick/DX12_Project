@@ -6,8 +6,9 @@
 class ShaderD3D12 final : public IShader
 {
 public:
-	ShaderD3D12(void* pBytecode, const size_t& _szBytecode)
+	ShaderD3D12(void* pBytecode, const size_t& _szBytecode, ShaderType _type)
 	{
+		m_Type = _type;
 		m_ShaderBytecodeSize = _szBytecode;
 
 		m_pShaderBytecode = new char[m_ShaderBytecodeSize];

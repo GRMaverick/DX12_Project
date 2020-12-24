@@ -107,6 +107,70 @@ bool RendererD3D12::LoadContent(void)
 	return true;
 }
 
+void GenerateInputLayout(IShader* _pShader, std::vector<D3D12_INPUT_ELEMENT_DESC>* _pLayout)
+{
+	if (_pShader->GetType() != IShader::ShaderType::VertexShader)
+	{
+		LogError_Renderer("Shader generating Input Layout IS NOT a Vertex Shader");
+		return;
+	}
+
+	ShaderIOParameters parameters = _pShader->GetParameters();
+
+	_pLayout->reserve(parameters.NumberInputs);
+
+	for (unsigned int input = 0; input < parameters.NumberInputs; ++input)
+	{
+		const ShaderIOParameters::Parameter& p = parameters.Inputs[input];
+		D3D12_INPUT_ELEMENT_DESC desc;
+		ZeroMemory(&desc, sizeof(D3D12_INPUT_ELEMENT_DESC));
+		desc.SemanticIndex = p.SemanticIndex;
+		desc.SemanticName = p.SemanticName;
+		desc.InputSlot = 0;
+		desc.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+		desc.InstanceDataStepRate = 0;
+		desc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+
+		if (p.Mask == 1)
+		{
+			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32) 
+				desc.Format = DXGI_FORMAT_R32_UINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32) 
+				desc.Format = DXGI_FORMAT_R32_SINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) 
+				desc.Format = DXGI_FORMAT_R32_FLOAT;
+		}
+		else if (p.Mask <= 3)
+		{
+			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32) 
+				desc.Format = DXGI_FORMAT_R32G32_UINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32) 
+				desc.Format = DXGI_FORMAT_R32G32_SINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) 
+				desc.Format = DXGI_FORMAT_R32G32_FLOAT;
+		}
+		else if (p.Mask <= 7)
+		{
+			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32) 
+				desc.Format = DXGI_FORMAT_R32G32B32_UINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32) 
+				desc.Format = DXGI_FORMAT_R32G32B32_SINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) 
+				desc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		}
+		else if (p.Mask <= 15)
+		{
+			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32) 
+				desc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32) 
+				desc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) 
+				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		}
+		_pLayout->push_back(desc);
+	}
+}
+
 bool RendererD3D12::CreatePipelineState(void)
 {
 	// Basic Colour PSO
@@ -116,21 +180,17 @@ bool RendererD3D12::CreatePipelineState(void)
 
 		if (!DeviceD3D12::Instance()->CreateRootSignature(rootParameters, _countof(rootParameters), m_pBasicRS.GetAddressOf()))
 			return false;
+						
+		ShaderSet set = m_ShaderCache.GetShader("Basic");
 
-		D3D12_INPUT_ELEMENT_DESC inputLayout[] =
-		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		};
-
-		IShader* pVS = m_ShaderCache.GetShader("BasicVS.vs");
-		IShader* pPS = m_ShaderCache.GetShader("BasicPS.ps");
+		std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
+		GenerateInputLayout(set.VertexShader, &inputLayout);
 
 		PipelineStateDesc psDesc;
 		ZeroMemory(&psDesc, sizeof(PipelineStateDesc));
-		psDesc.VertexShader = { pVS->GetBytecode(), pVS->GetBytecodeSize() };
-		psDesc.PixelShader = { pPS->GetBytecode(), pPS->GetBytecodeSize() };
-		psDesc.InputLayout = { inputLayout, _countof(inputLayout) };
+		psDesc.VertexShader = { set.VertexShader->GetBytecode(), set.VertexShader->GetBytecodeSize() };
+		psDesc.PixelShader = { set.PixelShader->GetBytecode(), set.PixelShader->GetBytecodeSize() };
+		psDesc.InputLayout = { &inputLayout[0], (UINT)inputLayout.size() };
 		psDesc.RootSignature = m_pBasicRS.Get();
 
 		if (!DeviceD3D12::Instance()->CreatePipelineState(psDesc, m_pBasicPSO.GetAddressOf()))
@@ -167,20 +227,16 @@ bool RendererD3D12::CreatePipelineState(void)
 		if (!DeviceD3D12::Instance()->CreateRootSignature(rootParameters, _countof(rootParameters), m_pAlbedoRS.GetAddressOf()))
 			return false;
 
-		D3D12_INPUT_ELEMENT_DESC inputLayout[] =
-		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		};
+		ShaderSet set = m_ShaderCache.GetShader("Albedo");
 
-		IShader* pVS = m_ShaderCache.GetShader("AlbedoVS.vs");
-		IShader* pPS = m_ShaderCache.GetShader("AlbedoPS.ps");
+		std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
+		GenerateInputLayout(set.VertexShader, &inputLayout);
 
 		PipelineStateDesc psDesc;
 		ZeroMemory(&psDesc, sizeof(PipelineStateDesc));
-		psDesc.VertexShader = { pVS->GetBytecode(), pVS->GetBytecodeSize() };
-		psDesc.PixelShader = { pPS->GetBytecode(), pPS->GetBytecodeSize() };
-		psDesc.InputLayout = { inputLayout, _countof(inputLayout) };
+		psDesc.VertexShader = { set.VertexShader->GetBytecode(), set.VertexShader->GetBytecodeSize() };
+		psDesc.PixelShader = { set.PixelShader->GetBytecode(), set.PixelShader->GetBytecodeSize() };
+		psDesc.InputLayout = { &inputLayout[0], (UINT)inputLayout.size() };
 		psDesc.RootSignature = m_pAlbedoRS.Get();
 
 		if (!DeviceD3D12::Instance()->CreatePipelineState(psDesc, m_pAlbedoPSO.GetAddressOf()))

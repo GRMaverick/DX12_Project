@@ -79,12 +79,64 @@ IShader* ShaderCompilerFXC::Compile(const char* _pFilename, const char* _pFuncti
 	{
 		_pError = new char[pError->GetBufferSize()];
 		strncpy_s(_pError, pError->GetBufferSize(), (const char*)pError->GetBufferPointer(), pError->GetBufferSize());
+		pError->Release();
 		return nullptr;
 	}
 
-	return new ShaderD3D12(pByteCode->GetBufferPointer(), pByteCode->GetBufferSize());
+	IShader* pShader = new ShaderD3D12(pByteCode->GetBufferPointer(), pByteCode->GetBufferSize(),
+		pStrTargetProfile[0] == 'v' ? IShader::ShaderType::VertexShader : IShader::ShaderType::PixelShader
+	);
+
+	pByteCode->Release();
+
+	return pShader;
 }
 
 void ShaderCompilerFXC::Reflect(IShader* _pShader)
 {
+	ID3D12ShaderReflection* pShaderReflection = nullptr;
+	VALIDATE_D3D(D3DReflect(_pShader->GetBytecode(), _pShader->GetBytecodeSize(), IID_ID3D12ShaderReflection, (void**)&pShaderReflection));
+	
+	if (pShaderReflection)
+	{
+		D3D12_SHADER_DESC desc{};
+		VALIDATE_D3D(pShaderReflection->GetDesc(&desc));
+
+		ShaderIOParameters reflectData;
+		reflectData.NumberInputs = desc.InputParameters;
+		reflectData.Inputs = new ShaderIOParameters::Parameter[reflectData.NumberInputs];
+		for (unsigned int i = 0; i < reflectData.NumberInputs; ++i)
+		{
+			D3D12_SIGNATURE_PARAMETER_DESC paramDesc{};
+			VALIDATE_D3D(pShaderReflection->GetInputParameterDesc(i, &paramDesc));
+			
+			ShaderIOParameters::Parameter& p = reflectData.Inputs[i];
+			p.Register = paramDesc.Register;
+			p.ComponentType = paramDesc.ComponentType;
+			p.SemanticIndex = paramDesc.SemanticIndex;
+			p.SystemValueType = paramDesc.SystemValueType;
+			p.Mask = paramDesc.Mask;
+			strncpy_s(p.SemanticName, paramDesc.SemanticName, ARRAYSIZE(p.SemanticName));
+		}
+
+		reflectData.NumberOutputs = desc.OutputParameters;
+		reflectData.Outputs = new ShaderIOParameters::Parameter[reflectData.NumberOutputs];
+		for (unsigned int i = 0; i < reflectData.NumberOutputs; ++i)
+		{
+			D3D12_SIGNATURE_PARAMETER_DESC paramDesc{};
+			VALIDATE_D3D(pShaderReflection->GetOutputParameterDesc(i, &paramDesc));
+
+			ShaderIOParameters::Parameter& p = reflectData.Outputs[i];
+			p.Register = paramDesc.Register;
+			p.ComponentType = paramDesc.ComponentType;
+			p.SemanticIndex = paramDesc.SemanticIndex;
+			p.SystemValueType = paramDesc.SystemValueType;
+			p.Mask = paramDesc.Mask;
+			strncpy_s(p.SemanticName, paramDesc.SemanticName, ARRAYSIZE(p.SemanticName));
+		}
+
+		_pShader->SetShaderParameters(reflectData);
+
+		pShaderReflection->Release();
+	}
 }

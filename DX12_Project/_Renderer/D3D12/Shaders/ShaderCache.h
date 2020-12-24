@@ -8,6 +8,12 @@
 
 class IShaderCompiler;
 
+struct ShaderSet
+{
+	IShader* VertexShader = nullptr;
+	IShader* PixelShader = nullptr;
+};
+
 class ShaderCache
 {
 public:
@@ -18,11 +24,13 @@ public:
 	void InitCompiler(void);
 	bool Load(const char* _pCachePath);
 
-	IShader* GetShader(const char* _pName);
+	ShaderSet GetShader(const char* _pName);
 
 private:
 	IShaderCompiler*		m_pShaderCompiler;
 	std::vector<IShader*>	m_vLoadedShaders;
+
+	void DumpShader(IShader* _pShader);
 };
 
 #endif // __ShaderCache_h__

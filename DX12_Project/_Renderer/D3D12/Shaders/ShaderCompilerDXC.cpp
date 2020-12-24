@@ -74,6 +74,8 @@ IShader* ShaderCompilerDXC::Compile(const char* _pFilename, const char* _pFuncti
 	IDxcCompiler* pCompiler = nullptr;
 	VALIDATE_D3D(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&pCompiler)));
 
+	const wchar_t* targetProfile = GetTargetProfile(_pFilename);
+
 	LPCWSTR args[] = 
 	{
 		L"/Zi", L"/Od"
@@ -84,9 +86,9 @@ IShader* ShaderCompilerDXC::Compile(const char* _pFilename, const char* _pFuncti
 		LogError_Renderer("%s failed to load", _pFilename);
 		return nullptr;
 	}
+
 	IDxcOperationResult* pOpsResult = nullptr;
-	VALIDATE_D3D(pCompiler->Compile(pBlob, pFilenameWstr, pFunctionNameWstr, GetTargetProfile(_pFilename), args, _countof(args),
-		nullptr, 0, nullptr, &pOpsResult));
+	VALIDATE_D3D(pCompiler->Compile(pBlob, pFilenameWstr, pFunctionNameWstr, targetProfile, args, _countof(args), nullptr, 0, nullptr, &pOpsResult));
 
 	if (!pOpsResult)
 	{
@@ -117,7 +119,9 @@ IShader* ShaderCompilerDXC::Compile(const char* _pFilename, const char* _pFuncti
 		return nullptr;
 	}
 
-	IShader* pShaderData = new ShaderD3D12(pCompiledCode->GetBufferPointer(), pCompiledCode->GetBufferSize());
+	IShader* pShader = new ShaderD3D12(pCompiledCode->GetBufferPointer(), pCompiledCode->GetBufferSize(),
+		targetProfile[0] == L'v' ? IShader::ShaderType::VertexShader : IShader::ShaderType::PixelShader
+	);
 
 	pCompiledCode->Release();
 	pOpsResult->Release();
@@ -125,7 +129,7 @@ IShader* ShaderCompilerDXC::Compile(const char* _pFilename, const char* _pFuncti
 	pBlob->Release();
 	pLibrary->Release();
 
-	return pShaderData;
+	return pShader;
 }
 
 void ShaderCompilerDXC::Reflect(IShader* _pShader)
