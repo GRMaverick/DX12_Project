@@ -73,6 +73,15 @@
     <Filter Include="Source Files\Renderer\ImGUI">
       <UniqueIdentifier>{80ab644e-df2b-4d2a-9276-3c890f18f889}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Dependencies">
+      <UniqueIdentifier>{7028ea46-1ad0-4269-91d6-bfd4cf58af8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Dependencies\dll">
+      <UniqueIdentifier>{dc161553-aa58-4281-a4f0-fb55017d954c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Dependencies\lib">
+      <UniqueIdentifier>{7965c45e-39fd-4f29-9e31-a3980daf62c9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="_Core\CoreWindow.cpp">
@@ -239,5 +248,34 @@
     <None Include="_Shaders\AlbedoVS.vs">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="_Dependencies\dll\assimp-vc142-mtd.dll">
+      <Filter>Resource Files\Dependencies\dll</Filter>
+    </None>
+    <None Include="_Dependencies\dll\dxcompiler.dll">
+      <Filter>Resource Files\Dependencies\dll</Filter>
+    </None>
+    <None Include="_Dependencies\dll\dxil.dll">
+      <Filter>Resource Files\Dependencies\dll</Filter>
+    </None>
+    <None Include="_Dependencies\lib\ImGUI.pdb">
+      <Filter>Resource Files\Dependencies\lib</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="_Dependencies\lib\assimp-vc142-mtd.lib">
+      <Filter>Resource Files\Dependencies\lib</Filter>
+    </Library>
+    <Library Include="_Dependencies\lib\ImGUI.lib">
+      <Filter>Resource Files\Dependencies\lib</Filter>
+    </Library>
+    <Library Include="_Dependencies\lib\IrrXMLd.lib">
+      <Filter>Resource Files\Dependencies\lib</Filter>
+    </Library>
+    <Library Include="_Dependencies\lib\zlibd.lib">
+      <Filter>Resource Files\Dependencies\lib</Filter>
+    </Library>
+    <Library Include="_Dependencies\lib\zlibstaticd.lib">
+      <Filter>Resource Files\Dependencies\lib</Filter>
+    </Library>
   </ItemGroup>
 </Project>

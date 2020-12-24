@@ -148,8 +148,8 @@ bool DeviceD3D12::Initialise(bool _bDebugging)
 		0x40f5,
 		{ 0xb2, 0x97, 0x81, 0xce, 0x9e, 0x18, 0x93, 0x3f }
 	};
-	VALIDATE_D3D(D3D12EnableExperimentalFeatures(1, &D3D12ExperimentalShaderModels, nullptr, nullptr));
-
+	VALIDATE_D3D(S_OK);
+	D3D12EnableExperimentalFeatures(1, &D3D12ExperimentalShaderModels, nullptr, nullptr);
 	// Create Device
 	VALIDATE_D3D(D3D12CreateDevice(m_pDxgiAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(m_pDevice.GetAddressOf())));
 	m_pDevice->SetName(L"Le Device");
@@ -212,32 +212,34 @@ bool DeviceD3D12::UploadResource(CommandList* _pCommandList, UINT _sizeInBytes, 
 
 	UINT bufferSize = _sizeInBytes * _strideInBytes;
 	ComPtr<ID3D12Resource> pDestination = nullptr;
-	hr = m_pDevice->CreateCommittedResource( 
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), 
-		D3D12_HEAP_FLAG_NONE, 
-		&CD3DX12_RESOURCE_DESC::Buffer(bufferSize, _flags),
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		nullptr, 
-		IID_PPV_ARGS(pDestination.GetAddressOf())
-	);
+
+	D3D12_RESOURCE_DESC dRdBuffer = CD3DX12_RESOURCE_DESC::Buffer(bufferSize, _flags);
+	D3D12_HEAP_PROPERTIES dHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+
+	hr = m_pDevice->CreateCommittedResource(&dHeapProperties, D3D12_HEAP_FLAG_NONE, &dRdBuffer, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(pDestination.GetAddressOf()));
 	if (FAILED(hr))
 	{
 		assert(false && "Destination Buffer Setup Failed");
 		return false;
 	}
+
 	if (pDestination.Get())
 		(*_ppResource)->SetGPUBuffer(pDestination);
 
 	if (_pData)
 	{
 		ComPtr<ID3D12Resource> pIntermediate = nullptr;
-		hr = m_pDevice->CreateCommittedResource( &CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), D3D12_HEAP_FLAG_NONE, &CD3DX12_RESOURCE_DESC::Buffer(bufferSize),
-			D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(pIntermediate.GetAddressOf()));
+
+		D3D12_HEAP_PROPERTIES iHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+		D3D12_RESOURCE_DESC iRdBuffer = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
+
+		hr = m_pDevice->CreateCommittedResource( &iHeapProperties, D3D12_HEAP_FLAG_NONE, &iRdBuffer, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(pIntermediate.GetAddressOf()));
 		if (FAILED(hr))
 		{
 			assert(false && "Upload Buffer Setup Failed");
 			return false;
 		}
+		
 		if (pIntermediate.Get())
 			(*_ppResource)->SetCPUBuffer(pIntermediate);
 
@@ -300,10 +302,12 @@ bool DeviceD3D12::CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList*
 	if (FAILED(LoadWICTextureFromFile(m_pDevice.Get(), _pWstrFilename, pGPUTexture.GetAddressOf(), decodedData, srData)))
 		return false;
 
+	D3D12_HEAP_PROPERTIES uploadHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	D3D12_RESOURCE_DESC uploadRdBuffer = CD3DX12_RESOURCE_DESC::Buffer(srData.SlicePitch);
 	VALIDATE_D3D(m_pDevice->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		&uploadHeapProperties,
 		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(srData.SlicePitch),
+		&uploadRdBuffer,
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&pCPUTexture)

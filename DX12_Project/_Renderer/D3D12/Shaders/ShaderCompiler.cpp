@@ -33,8 +33,8 @@ const char* ExtractExtension(const char* _pFilename)
 		}
 	}
 
-	char ext[5];
-	snprintf(ext, ARRAYSIZE(ext), "%s", &_pFilename[extensionStart]);
+	char* ext = new char[5];
+	snprintf(ext, 5, "%s", &_pFilename[extensionStart]);
 	return ext;
 }
 
@@ -44,13 +44,16 @@ const char* ShaderCompiler::GetTargetProfileD3D(const char* _pFilename)
 	if (strncmp(pExtractedFileExtension, "vs", strlen(pExtractedFileExtension)) == 0)
 	{
 		// Vertex Shader
+		delete pExtractedFileExtension;
 		return "vs_5_1";
 	}
 	else if (strncmp(pExtractedFileExtension, "ps", strlen(pExtractedFileExtension)) == 0)
 	{
 		// Pixel Shader
+		delete pExtractedFileExtension;
 		return "ps_5_1";
 	}
+	delete pExtractedFileExtension;
 	return "";
 }
 
@@ -60,13 +63,16 @@ const wchar_t* ShaderCompiler::GetTargetProfileDXIL(const char* _pFilename)
 	if (strncmp(pExtractedFileExtension, "vs", strlen(pExtractedFileExtension)) == 0)
 	{
 		// Vertex Shader
+		delete pExtractedFileExtension;
 		return L"vs_6_0";
 	}
 	else if (strncmp(pExtractedFileExtension, "ps", strlen(pExtractedFileExtension)) == 0)
 	{
 		// Pixel Shader
+		delete pExtractedFileExtension;
 		return L"ps_6_0";
 	}
+	delete pExtractedFileExtension;
 	return L"";
 }
 
@@ -125,12 +131,18 @@ ShaderData ShaderCompiler::CompileDXIL(const char* _pFilename, const char* _pFun
 		L"/Zi", L"/Od"
 	};
 
+	if (!pBlob)
+	{
+		LogError_Renderer("%s failed to load", _pFilename);
+		return ShaderData();
+	}
 	IDxcOperationResult* pOpsResult = nullptr;
 	VALIDATE_D3D(pCompiler->Compile(pBlob, pFilenameWstr, pFunctionNameWstr, GetTargetProfileDXIL(_pFilename), args, _countof(args),
 		nullptr, 0, nullptr, &pOpsResult));
 
 	if (!pOpsResult)
 	{
+		LogError_Renderer("%s failed to compile", _pFilename);
 		return ShaderData();
 	}
 
@@ -160,7 +172,7 @@ ShaderData ShaderCompiler::CompileDXIL(const char* _pFilename, const char* _pFun
 	ShaderData sd;
 	sd.ShaderByteCodeSize = pCompiledCode->GetBufferSize();
 	sd.ShaderByteCode = new char[sd.ShaderByteCodeSize];
-	memcpy_s(sd.ShaderByteCode, sd.ShaderByteCodeSize + 1, pCompiledCode->GetBufferPointer(), sd.ShaderByteCodeSize);
+	memcpy_s(sd.ShaderByteCode, sd.ShaderByteCodeSize, pCompiledCode->GetBufferPointer(), sd.ShaderByteCodeSize);
 
 	pCompiledCode->Release();
 	pOpsResult->Release();

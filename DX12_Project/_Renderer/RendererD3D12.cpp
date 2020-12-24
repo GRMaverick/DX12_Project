@@ -27,7 +27,7 @@ PRAGMA_TODO("\tTest different formats/materials")
 PRAGMA_TODO("Data Driven Pipelines")
 PRAGMA_TODO("Scene Configuration File")
 
-#define SHADER_CACHE_LOCATION "C:\\Users\\Maverick\\Source\\Repos\\DX12_Project\\DX12_Project\\_Shaders\\*"
+#define SHADER_CACHE_LOCATION "Shaders\\*"
 
 struct VertexPosColor
 {
@@ -294,8 +294,10 @@ void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 			CD3DX12_GPU_DESCRIPTOR_HANDLE samplerHandle(m_pDescHeapSampler->GetGPUStartHandle());
 			_pGfxCmdList->SetGraphicsRootDescriptorTable(1, samplerHandle);
 
-			_pGfxCmdList->SetIAVertexBuffers(0, 1, &rMesh.pVertexBuffer->GetView());
-			_pGfxCmdList->SetIAIndexBuffer(&rMesh.pIndexBuffer->GetView());
+			auto vbView = rMesh.pVertexBuffer->GetView();
+			auto ibView = rMesh.pIndexBuffer->GetView();
+			_pGfxCmdList->SetIAVertexBuffers(0, 1, &vbView);
+			_pGfxCmdList->SetIAIndexBuffer(&ibView);
 			_pGfxCmdList->DrawIndexedInstanced(rMesh.Indices, 1, 0, 0, 0);
 		}
 	}

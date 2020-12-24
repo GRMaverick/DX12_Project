@@ -24,11 +24,13 @@
 #define LogError_Renderer(pFormat, ...)		Logger::Log(SEVERITY_ERR, CATEGORY_RENDERER, pFormat, __VA_ARGS__)
 #define LogFatal_Renderer(pFormat, ...)		Logger::Log(SEVERITY_FATAL, CATEGORY_RENDERER, pFormat, __VA_ARGS__)
 
-#define VALIDATE_D3D(test) { \
-	HRESULT hr = test; \
-	if(FAILED(hr)) \
-	{ \
-		LogError_Renderer("[HRESULT Failure]: 0x%i", hr); \
-		assert(false); \
-	} \
-} \
+#define VALIDATE_D3D(test) test
+
+//#define VALIDATE_D3D(test) { \
+//	HRESULT hr = test; \
+//	if(FAILED(hr)) \
+//	{ \
+//		LogError_Renderer("[HRESULT Failure]: 0x%i", hr); \
+//		assert(false); \
+//	} \
+//} \

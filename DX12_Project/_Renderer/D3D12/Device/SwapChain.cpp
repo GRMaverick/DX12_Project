@@ -113,11 +113,14 @@ bool SwapChain::Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, Micros
 		optimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
 		optimizedClearValue.DepthStencil = { 1.0f, 0 };
 
+		D3D12_HEAP_PROPERTIES defaultHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+		D3D12_RESOURCE_DESC defaultRdTex = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, _pWindow->GetDimensions().WindowWidth, _pWindow->GetDimensions().WindowHeight,
+				1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+
 		_pDevice->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			&defaultHeapProperties,
 			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, _pWindow->GetDimensions().WindowWidth, _pWindow->GetDimensions().WindowHeight,
-				1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
+			&defaultRdTex,
 			D3D12_RESOURCE_STATE_DEPTH_WRITE,
 			&optimizedClearValue,
 			IID_PPV_ARGS(m_pDepthBuffer.GetAddressOf())
@@ -161,8 +164,8 @@ void SwapChain::OnResize(UINT32 _width, UINT32 _height)
 
 void SwapChain::PrepareForRendering(CommandList* _pCmdList)
 {
-	_pCmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pBackBuffers[m_CurrentBackBuffer].Get(),
-		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, 0));
+	CD3DX12_RESOURCE_BARRIER tgtBarrier = CD3DX12_RESOURCE_BARRIER::Transition(m_pBackBuffers[m_CurrentBackBuffer].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, 0);
+	_pCmdList->ResourceBarrier(1, &tgtBarrier);
 
 	FLOAT clearColour[] = { 0.4f, 0.6f, 0.9f, 1.0f };
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtv(m_pDescHeapRTV->GetCPUStartHandle(), m_CurrentBackBuffer, m_pDescHeapRTV->GetIncrementSize());
@@ -176,8 +179,8 @@ void SwapChain::PrepareForRendering(CommandList* _pCmdList)
 
 void SwapChain::PrepareForPresentation(CommandList* _pCmdList)
 {
-	_pCmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pBackBuffers[m_CurrentBackBuffer].Get(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, 0));
+	CD3DX12_RESOURCE_BARRIER tgtBarrier = CD3DX12_RESOURCE_BARRIER::Transition(m_pBackBuffers[m_CurrentBackBuffer].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, 0);
+	_pCmdList->ResourceBarrier(1, &tgtBarrier);
 }
 
 void SwapChain::SetOMRenderTargets(CommandList* _pCmdList)

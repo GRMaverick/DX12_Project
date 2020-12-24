@@ -132,7 +132,8 @@
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /s /q $(ProjectDir)_Dependencies\dll\*.* $(SolutionDir)$(Platform)\$(Configuration)\
-xcopy /y /s /q $(ProjectDir)_Content\*.* $(SolutionDir)$(Platform)\$(Configuration)\Content\</Command>
+xcopy /y /s /q $(ProjectDir)_Content\*.* $(SolutionDir)$(Platform)\$(Configuration)\Content\
+xcopy /y /s /q $(ProjectDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configuration)\Shaders\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -210,12 +211,23 @@ xcopy /y /s /q $(ProjectDir)_Content\*.* $(SolutionDir)$(Platform)\$(Configurati
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="_Dependencies\dll\assimp-vc142-mtd.dll" />
+    <None Include="_Dependencies\dll\dxcompiler.dll" />
+    <None Include="_Dependencies\dll\dxil.dll" />
+    <None Include="_Dependencies\lib\ImGUI.pdb" />
     <None Include="_Shaders\AlbedoPS.ps" />
     <None Include="_Shaders\AlbedoVS.vs" />
     <None Include="_Shaders\BasicPS.ps">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </None>
     <None Include="_Shaders\BasicVS.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="_Dependencies\lib\assimp-vc142-mtd.lib" />
+    <Library Include="_Dependencies\lib\ImGUI.lib" />
+    <Library Include="_Dependencies\lib\IrrXMLd.lib" />
+    <Library Include="_Dependencies\lib\zlibd.lib" />
+    <Library Include="_Dependencies\lib\zlibstaticd.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

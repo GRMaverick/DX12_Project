@@ -14,7 +14,6 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
 
 # Fortran module files
 *.mod
@@ -24,7 +23,6 @@
 *.lai
 *.la
 *.a
-*.lib
 
 # Executables
 *.exe
@@ -46,7 +44,10 @@
 *.idb
 *.txt
 *.rar
-DX12_Project/_Content/87xm06x9pyps-room/3ds/Room.3ds
-DX12_Project/_Content/87xm06x9pyps-room/C4d/Room.c4d
-DX12_Project/_Content/87xm06x9pyps-room/OBJ/Room.mtl
-DX12_Project/_Content/87xm06x9pyps-room/OBJ/Room.wfobj
+
+#Visual Studio
+
+#Output Paths
+x64/**
+DX12_Project/x64/**
+ImGUI/x64/**
