@@ -4,7 +4,9 @@
 #include <vector>
 #include <d3d12.h>
 
-#include "ShaderData.h"
+#include "IShader.h"
+
+class IShaderCompiler;
 
 class ShaderCache
 {
@@ -13,13 +15,14 @@ public:
 	ShaderCache(const char* _pShadersPath);
 	~ShaderCache(void);
 
-	void Load(const char* _pCachePath);
+	void InitCompiler(void);
+	bool Load(const char* _pCachePath);
 
-	D3D12_SHADER_BYTECODE GetShader(const char* _pName);
+	IShader* GetShader(const char* _pName);
 
 private:
-
-	std::vector<ShaderData> m_vLoadedShaders;
+	IShaderCompiler*		m_pShaderCompiler;
+	std::vector<IShader*>	m_vLoadedShaders;
 };
 
 #endif // __ShaderCache_h__

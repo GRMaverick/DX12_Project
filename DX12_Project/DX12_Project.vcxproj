@@ -168,7 +168,8 @@ xcopy /y /s /q $(ProjectDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configurati
     <ClCompile Include="_Renderer\D3D12\Resources\DescriptorHeap.cpp" />
     <ClCompile Include="_Renderer\D3D12\Resources\Texture2DResource.cpp" />
     <ClCompile Include="_Renderer\D3D12\Shaders\ShaderCache.cpp" />
-    <ClCompile Include="_Renderer\D3D12\Shaders\ShaderCompiler.cpp" />
+    <ClCompile Include="_Renderer\D3D12\Shaders\ShaderCompilerDXC.cpp" />
+    <ClCompile Include="_Renderer\D3D12\Shaders\ShaderCompilerFXC.cpp" />
     <ClCompile Include="_Renderer\ImGUI\ImGUIEngine.cpp" />
     <ClCompile Include="_Renderer\RendererD3D12.cpp" />
     <ClCompile Include="_Renderer\Scene\RenderEntity.cpp" />
@@ -185,6 +186,8 @@ xcopy /y /s /q $(ProjectDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configurati
     <ClInclude Include="_Core\InputManager.h" />
     <ClInclude Include="_Core\RenderEntity.h" />
     <ClInclude Include="_Interfaces\IRenderer.h" />
+    <ClInclude Include="_Interfaces\IShader.h" />
+    <ClInclude Include="_Interfaces\IShaderCompiler.h" />
     <ClInclude Include="_Renderer\D3D12\Device\CommandList.h" />
     <ClInclude Include="_Renderer\D3D12\Device\CommandQueue.h" />
     <ClInclude Include="_Renderer\D3D12\Device\DeviceD3D12.h" />
@@ -196,12 +199,12 @@ xcopy /y /s /q $(ProjectDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configurati
     <ClInclude Include="_Renderer\D3D12\Resources\UploadBuffer.h" />
     <ClInclude Include="_Renderer\D3D12\Resources\VertexBufferResource.h" />
     <ClInclude Include="_Renderer\D3D12\Shaders\ShaderCache.h" />
-    <ClInclude Include="_Renderer\D3D12\Shaders\ShaderCompiler.h" />
-    <ClInclude Include="_Renderer\D3D12\Shaders\ShaderData.h" />
+    <ClInclude Include="_Renderer\D3D12\Shaders\ShaderCompilerDXC.h" />
+    <ClInclude Include="_Renderer\D3D12\Shaders\ShaderCompilerFXC.h" />
+    <ClInclude Include="_Renderer\D3D12\Shaders\ShaderD3D12.h" />
     <ClInclude Include="_Renderer\IBufferResource.h" />
     <ClInclude Include="_Renderer\ImGUI\ImGUIEngine.h" />
     <ClInclude Include="_Renderer\RendererD3D12.h" />
-    <ClInclude Include="_Renderer\ShaderData.h" />
     <ClInclude Include="_Renderer\TextureLoader.h" />
     <ClInclude Include="_Utilities\AssimpLoader.h" />
     <ClInclude Include="_Utilities\CLParser.h" />

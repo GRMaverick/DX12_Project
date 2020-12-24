@@ -51,3 +51,6 @@
 x64/**
 DX12_Project/x64/**
 ImGUI/x64/**
+*.user
+DX12_Project/DX12_Project.vcxproj.user
+DX12_Project/DX12_Project.vcxproj.user

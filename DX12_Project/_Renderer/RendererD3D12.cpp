@@ -123,10 +123,13 @@ bool RendererD3D12::CreatePipelineState(void)
 			{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		};
 
+		IShader* pVS = m_ShaderCache.GetShader("BasicVS.vs");
+		IShader* pPS = m_ShaderCache.GetShader("BasicPS.ps");
+
 		PipelineStateDesc psDesc;
 		ZeroMemory(&psDesc, sizeof(PipelineStateDesc));
-		psDesc.VertexShader = m_ShaderCache.GetShader("BasicVS.vs");
-		psDesc.PixelShader = m_ShaderCache.GetShader("BasicPS.ps");
+		psDesc.VertexShader = { pVS->GetBytecode(), pVS->GetBytecodeSize() };
+		psDesc.PixelShader = { pPS->GetBytecode(), pPS->GetBytecodeSize() };
 		psDesc.InputLayout = { inputLayout, _countof(inputLayout) };
 		psDesc.RootSignature = m_pBasicRS.Get();
 
@@ -170,10 +173,13 @@ bool RendererD3D12::CreatePipelineState(void)
 			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		};
 
+		IShader* pVS = m_ShaderCache.GetShader("AlbedoVS.vs");
+		IShader* pPS = m_ShaderCache.GetShader("AlbedoPS.ps");
+
 		PipelineStateDesc psDesc;
 		ZeroMemory(&psDesc, sizeof(PipelineStateDesc));
-		psDesc.VertexShader = m_ShaderCache.GetShader("AlbedoVS.vs");
-		psDesc.PixelShader = m_ShaderCache.GetShader("AlbedoPS.ps");
+		psDesc.VertexShader = { pVS->GetBytecode(), pVS->GetBytecodeSize() };
+		psDesc.PixelShader = { pPS->GetBytecode(), pPS->GetBytecodeSize() };
 		psDesc.InputLayout = { inputLayout, _countof(inputLayout) };
 		psDesc.RootSignature = m_pAlbedoRS.Get();
 

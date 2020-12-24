@@ -1,29 +1,54 @@
 #include "Defines.h"
 
 #include "ShaderCache.h"
-#include "ShaderCompiler.h"
+#include "ShaderCompilerDXC.h"
+#include "ShaderCompilerFXC.h"
 
 #include <Windows.h>
 #include <stdlib.h>
 
+#include "CLParser.h"
+
 ShaderCache::ShaderCache(void)
 {
-
 }
 
 ShaderCache::ShaderCache(const char* _pShaderPaths)
 {
+	LogInfo_Renderer("Loading ShaderCache:");
+
+	InitCompiler();
+
 	Load(_pShaderPaths);
 }
 
 ShaderCache::~ShaderCache(void)
 {
-	float x = 1e-6f;
 }
 
-void ShaderCache::Load(const char* _pShadersPath)
+void ShaderCache::InitCompiler(void)
 {
-	LogInfo_Renderer("Loading ShaderCache:");
+	m_pShaderCompiler = nullptr;
+
+	if (CLParser::Instance()->HasArgument("dxc"))
+	{
+		LogInfo_Renderer("\tDXCompiler");
+		m_pShaderCompiler = new ShaderCompilerDXC();
+	}
+	else
+	{
+		LogInfo_Renderer("\tD3DCompiler");
+		m_pShaderCompiler = new ShaderCompilerFXC();
+	}
+}
+
+bool ShaderCache::Load(const char* _pShadersPath)
+{
+	if (!m_pShaderCompiler)
+	{
+		LogError_Renderer("\tInvalid Shader Compiler");
+		return false;
+	}
 
 	WIN32_FIND_DATAA data = { };
 	ZeroMemory(&data, sizeof(WIN32_FIND_DATAA));
@@ -56,8 +81,9 @@ void ShaderCache::Load(const char* _pShadersPath)
 				);
 
 				char* aError = nullptr;
-				ShaderData sd = ShaderCompiler::CompileDXIL(pFullFilepath, "main", aError);
-				strncpy_s(sd.ShaderName, strlen(data.cFileName)+1, data.cFileName, strlen(data.cFileName));
+				
+				IShader* sd = m_pShaderCompiler->Compile(pFullFilepath, "main", aError);
+				sd->SetName(data.cFileName);
 
 				m_vLoadedShaders.push_back(sd);
 
@@ -69,20 +95,18 @@ void ShaderCache::Load(const char* _pShadersPath)
 
 		FindClose(hFind);
 	}
+
+	return true;
 }
 
-D3D12_SHADER_BYTECODE ShaderCache::GetShader(const char* _pName)
+IShader* ShaderCache::GetShader(const char* _pName)
 {
 	for (size_t i = 0; i < m_vLoadedShaders.size(); ++i)
 	{
-		if (strncmp(_pName, m_vLoadedShaders[i].ShaderName, ARRAYSIZE(m_vLoadedShaders[i].ShaderName)) == 0)
+		if (strcmp(_pName, m_vLoadedShaders[i]->GetShaderName()) == 0)
 		{
-			D3D12_SHADER_BYTECODE sbc = {};
-			ZeroMemory(&sbc, sizeof(D3D12_SHADER_BYTECODE));
-			sbc.BytecodeLength = m_vLoadedShaders[i].ShaderByteCodeSize;
-			sbc.pShaderBytecode = m_vLoadedShaders[i].ShaderByteCode;
-			return sbc;
+			return m_vLoadedShaders[i];
 		}
 	}
-	return {};
+	return nullptr;
 }

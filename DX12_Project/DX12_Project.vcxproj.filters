@@ -117,9 +117,6 @@
     <ClCompile Include="_Renderer\D3D12\Shaders\ShaderCache.cpp">
       <Filter>Source Files\Renderer\D3D12\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="_Renderer\D3D12\Shaders\ShaderCompiler.cpp">
-      <Filter>Source Files\Renderer\D3D12\Shaders</Filter>
-    </ClCompile>
     <ClCompile Include="_Renderer\D3D12\Resources\DescriptorHeap.cpp">
       <Filter>Source Files\Renderer\D3D12\Resource</Filter>
     </ClCompile>
@@ -141,6 +138,12 @@
     <ClCompile Include="_Utilities\Logger.cpp">
       <Filter>Source Files\Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="_Renderer\D3D12\Shaders\ShaderCompilerDXC.cpp">
+      <Filter>Source Files\Renderer\D3D12\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="_Renderer\D3D12\Shaders\ShaderCompilerFXC.cpp">
+      <Filter>Source Files\Renderer\D3D12\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Core\CoreWindow.h">
@@ -154,9 +157,6 @@
     </ClInclude>
     <ClInclude Include="_Renderer\IBufferResource.h">
       <Filter>Header Files\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="_Renderer\ShaderData.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="_Utilities\PixScopedEvent.h">
       <Filter>Header Files\Utilities</Filter>
@@ -197,12 +197,6 @@
     <ClInclude Include="_Renderer\D3D12\Shaders\ShaderCache.h">
       <Filter>Header Files\Renderer\D3D12\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="_Renderer\D3D12\Shaders\ShaderCompiler.h">
-      <Filter>Header Files\Renderer\D3D12\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="_Renderer\D3D12\Shaders\ShaderData.h">
-      <Filter>Header Files\Renderer\D3D12\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="_Renderer\D3D12\Resources\DescriptorHeap.h">
       <Filter>Header Files\Renderer\D3D12\Resource</Filter>
     </ClInclude>
@@ -235,6 +229,21 @@
     </ClInclude>
     <ClInclude Include="_Utilities\ProfileMarker.h">
       <Filter>Header Files\Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="_Interfaces\IShaderCompiler.h">
+      <Filter>Header Files\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="_Interfaces\IShader.h">
+      <Filter>Header Files\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="_Renderer\D3D12\Shaders\ShaderCompilerDXC.h">
+      <Filter>Header Files\Renderer\D3D12\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="_Renderer\D3D12\Shaders\ShaderCompilerFXC.h">
+      <Filter>Header Files\Renderer\D3D12\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="_Renderer\D3D12\Shaders\ShaderD3D12.h">
+      <Filter>Header Files\Renderer\D3D12\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
