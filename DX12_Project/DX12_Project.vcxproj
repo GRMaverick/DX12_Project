@@ -157,7 +157,6 @@ xcopy /y /s /q $(ProjectDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configurati
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="_Core\Camera.cpp" />
     <ClCompile Include="_Core\CoreWindow.cpp" />
@@ -175,6 +174,7 @@ xcopy /y /s /q $(ProjectDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configurati
     <ClCompile Include="_Renderer\Scene\RenderEntity.cpp" />
     <ClCompile Include="_Utilities\AssimpLoader.cpp" />
     <ClCompile Include="_Utilities\CLParser.cpp" />
+    <ClCompile Include="_Utilities\Logger.cpp" />
     <ClCompile Include="_Utilities\TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -207,6 +207,7 @@ xcopy /y /s /q $(ProjectDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configurati
     <ClInclude Include="_Utilities\CLParser.h" />
     <ClInclude Include="_Utilities\Logger.h" />
     <ClInclude Include="_Utilities\PixScopedEvent.h" />
+    <ClInclude Include="_Utilities\ProfileMarker.h" />
     <ClInclude Include="_Utilities\TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>

@@ -24,10 +24,6 @@
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
-PRAGMA_TODO("Debug Flags for Device Creation")
-PRAGMA_TODO("\tDRED Features")
-PRAGMA_TODO("\tInfo Queue Features");
-
 DeviceD3D12* DeviceD3D12::Instance(void)
 {
 	static DeviceD3D12 device;

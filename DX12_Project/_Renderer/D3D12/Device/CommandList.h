@@ -7,6 +7,8 @@
 
 #include "DeviceD3D12.h"
 
+#include "pix3.h"
+
 // #define BREADCRUMB
 class CommandList
 {
@@ -56,6 +58,16 @@ public:
 
 	void DrawImGUI();
 	void DrawIndexedInstanced(UINT _indicesPerInstance, UINT _instanceCount, UINT _startIndexLocation, UINT _baseVertexLocation, UINT _startInstanceLocation);
+
+	template<typename... Args>
+	void StartMarker(const char* _pFormatString, Args... _args)
+	{
+		PIXBeginEvent(m_pList.Get(), PIX_COLOR_INDEX(0), _pFormatString, _args...);
+	}
+	void EndMarker(void)
+	{
+		PIXEndEvent(m_pList.Get());
+	}
 
 private:
 	D3D12_COMMAND_LIST_TYPE								m_Type;

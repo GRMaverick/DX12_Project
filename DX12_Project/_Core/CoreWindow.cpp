@@ -7,9 +7,6 @@
 
 #include <ImGUI\imgui_impl_win32.h>
 
-PRAGMA_TODO("Fullscreen Toggle")
-PRAGMA_TODO("Variable Window Size")
-
 static CoreWindow* g_pWindow = nullptr;
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

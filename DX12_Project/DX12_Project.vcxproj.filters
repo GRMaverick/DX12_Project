@@ -129,9 +129,6 @@
     <ClCompile Include="_Renderer\Scene\RenderEntity.cpp">
       <Filter>Source Files\Renderer\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Logger.cpp">
-      <Filter>Source Files\Utilities</Filter>
-    </ClCompile>
     <ClCompile Include="_Utilities\CLParser.cpp">
       <Filter>Source Files\Utilities</Filter>
     </ClCompile>
@@ -140,6 +137,9 @@
     </ClCompile>
     <ClCompile Include="_Core\InputManager.cpp">
       <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="_Utilities\Logger.cpp">
+      <Filter>Source Files\Utilities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -232,6 +232,9 @@
     </ClInclude>
     <ClInclude Include="_Core\InputManager.h">
       <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="_Utilities\ProfileMarker.h">
+      <Filter>Header Files\Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

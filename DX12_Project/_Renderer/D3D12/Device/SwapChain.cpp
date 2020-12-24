@@ -13,8 +13,6 @@
 
 #include <PixScopedEvent.h>
 
-PRAGMA_TODO("Resize Handling")
-
 using namespace Microsoft::WRL;
 
 SwapChain::SwapChain(void)

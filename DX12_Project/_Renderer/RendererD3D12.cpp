@@ -14,18 +14,14 @@
 
 #include "Scene\RenderEntity.h"
 
+#include "ProfileMarker.h"
+
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "DirectXTK12.lib")
 
 using namespace Microsoft::WRL;
 using namespace DirectX;
-
-PRAGMA_TODO("Memory Profiling")
-PRAGMA_TODO("Integrate ASSIMP")
-PRAGMA_TODO("\tTest different formats/materials")
-PRAGMA_TODO("Data Driven Pipelines")
-PRAGMA_TODO("Scene Configuration File")
 
 #define SHADER_CACHE_LOCATION "Shaders\\*"
 
@@ -75,6 +71,7 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 const char* g_ModelList[] =
 {
 	"Content\\AnalogMeter.Needle.Dark\\AnalogMeter.fbx",
+	//"Content\\Sponza\\Sponza.fbx",
 	//"Content\\S&W_45ACP\\Handgun_fbx_7.4_binary.fbx",
 	//"Content\\Room\\OBJ\\Room.obj",
 	//"Content\\Cube\\Cube.obj",
@@ -84,14 +81,17 @@ bool RendererD3D12::LoadContent(void)
 {	
 	m_bNewModelsLoaded = true;
 
+	LogInfo_Renderer("Loading Models:");
 	m_pRenderEntity = new RenderEntity*[_countof(g_ModelList)];
 	for (UINT i = 0; i < _countof(g_ModelList); ++i)
 	{
+		LogInfo_Renderer("\t%s", g_ModelList[i]);
+
 		m_pRenderEntity[i] = new RenderEntity();
 		m_pRenderEntity[i]->LoadModelFromFile(g_ModelList[i]);
 		m_pRenderEntity[i]->SetScale(1.0f);
 		m_pRenderEntity[i]->SetRotation(0.0f, 0.0f, 0.0f);
-		m_pRenderEntity[i]->SetPosition(0.0f, 0.0f, -1.0f);
+		m_pRenderEntity[i]->SetPosition(0.0f, 0.0f, 0.0f);
 		m_ModelCount++;
 	}
 
@@ -237,7 +237,9 @@ bool RendererD3D12::Render(void)
 		MainRenderPass(pGfxCmdList);
 
 		// ImGui
-		{		
+		{
+			RenderMarker profile(pGfxCmdList, "%s", "ImGUI");
+
 			ID3D12DescriptorHeap* pHeaps[] = { m_pImGuiSRVHeap->GetHeap() };
 			pGfxCmdList->SetDescriptorHeaps(pHeaps, _countof(pHeaps));
 
@@ -264,6 +266,8 @@ bool RendererD3D12::Render(void)
 }
 void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 {
+	RenderMarker profile(_pGfxCmdList, "MainRenderPass");
+
 	UINT objCBByteSize = CONSTANT_BUFFER_SIZE(sizeof(ObjectCB));
 
 	_pGfxCmdList->SetPipelineState(m_pAlbedoPSO.Get());

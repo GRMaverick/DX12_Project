@@ -23,6 +23,8 @@ ShaderCache::~ShaderCache(void)
 
 void ShaderCache::Load(const char* _pShadersPath)
 {
+	LogInfo_Renderer("Loading ShaderCache:");
+
 	WIN32_FIND_DATAA data = { };
 	ZeroMemory(&data, sizeof(WIN32_FIND_DATAA));
 
@@ -42,7 +44,7 @@ void ShaderCache::Load(const char* _pShadersPath)
 			if (strncmp(data.cFileName, ".", strlen(data.cFileName)) != 0 && 
 				strncmp(data.cFileName, "..", strlen(data.cFileName)) != 0)
 			{
-				LogInfo_Renderer("Loading %s", data.cFileName);
+				LogInfo_Renderer("\t%s", data.cFileName);
 
 				char* pFullFilepath = new char[strlen(pDirectoryNoWildcard) + strlen(data.cFileName) + 1];
 				snprintf(

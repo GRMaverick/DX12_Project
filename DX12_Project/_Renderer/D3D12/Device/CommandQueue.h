@@ -8,9 +8,6 @@
 
 #include "CommandList.h"
 
-PRAGMA_TODO("MT Command Buffers")
-PRAGMA_TODO("\t - Submission / Execution needs proper synchronisation")
-
 class CommandQueue
 {
 	friend class SwapChain;

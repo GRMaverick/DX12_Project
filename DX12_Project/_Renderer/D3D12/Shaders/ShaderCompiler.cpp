@@ -185,9 +185,7 @@ ShaderData ShaderCompiler::CompileDXIL(const char* _pFilename, const char* _pFun
 
 void ShaderCompiler::Preprocess(const char* _pFilename)
 {
-	PRAGMA_TODO("ShaderCompiler Preprocessor")
 }
 void ShaderCompiler::Reflect(const char* _pFilename, const char* _pFunctionName)
 {
-	PRAGMA_TODO("ShaderCompiler Reflection")
 }
