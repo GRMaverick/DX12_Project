@@ -42,13 +42,23 @@ void ImGUIEngine::Update()
 {
 	static bool bOpen = true;
 	
-	ImGui::Begin("Hello, ImGUI");
-	ImGui::Text("Wassssup");
-	ImGui::End();
 }
+
 void ImGUIEngine::End()
 {
+	ImGui::End();
 	ImGui::EndFrame();
+}
+
+void ImGUIEngine::DrawSlider3f(const char* _pLabel, float* _pX, float* _pY, float* _pZ)
+{
+	float v[3];
+	if (ImGui::SliderFloat3(_pLabel, v, -1000.0f, 1000.0f))
+	{
+		*_pX = v[0];
+		*_pY = v[1];
+		*_pZ = v[2];
+	}
 }
 
 void ImGUIEngine::Draw(CommandList* _pCommandList)

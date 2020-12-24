@@ -224,7 +224,7 @@ extern const char* ExtractExtension(const char* _pFilename);
 
 Texture2DResource* AssimpLoader::ProcessMaterial(DeviceD3D12* _pDevice, CommandList* _pCommandList, DescriptorHeap* pDescHeapSRV, const aiMaterial* _pMaterial, const aiTextureType _type, const char* _typeName, const aiScene* _pScene)
 {
-	assert((_pMaterial->GetTextureCount(_type) == 1) && "More than one textures of this type");
+	//assert((_pMaterial->GetTextureCount(_type) == 1) && "More than one textures of this type");
 
 	for (UINT i = 0; i < _pMaterial->GetTextureCount(_type); ++i)
 	{

@@ -17,6 +17,10 @@ public:
 	void SetAspectRatio(float _aspectRatio);
 	void Update(void);
 
+	DirectX::XMFLOAT3 GetUp(void);
+	DirectX::XMFLOAT3 GetTarget(void);
+	DirectX::XMFLOAT3 GetPosition(void);
+
 	DirectX::XMMATRIX GetView(void);
 	DirectX::XMMATRIX GetProjection(void);
 
@@ -24,9 +28,9 @@ private:
 	float m_FieldOfView = 0.0f;
 	float m_AspectRatio = 0.0f;
 
-	DirectX::XMVECTOR m_Up;
-	DirectX::XMVECTOR m_Target;
-	DirectX::XMVECTOR m_Position;
+	DirectX::XMFLOAT3 m_Up;
+	DirectX::XMFLOAT3 m_Target;
+	DirectX::XMFLOAT3 m_Position;
 
 	DirectX::XMMATRIX m_View;
 	DirectX::XMMATRIX m_Projection;

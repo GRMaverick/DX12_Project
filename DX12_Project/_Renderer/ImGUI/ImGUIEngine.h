@@ -18,6 +18,7 @@ public:
 	// Call from Renderer
 	static void Begin();
 	static void Update();
+	static void DrawSlider3f(const char* _pLabel, float* _pX, float* _pY, float* _pZ);
 	static void End();
 
 	//

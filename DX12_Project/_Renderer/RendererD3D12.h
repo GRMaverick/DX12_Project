@@ -71,6 +71,7 @@ private:
 	void UpdatePassConstants();
 
 	void MainRenderPass(CommandList* _pGfxCmdList);
+	void ImGuiPass(CommandList* _pGfxCmdList);
 };
 
 #endif // __RendererD3D12_h__

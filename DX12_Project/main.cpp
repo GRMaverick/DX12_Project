@@ -10,25 +10,21 @@
 
 PRAGMA_TODO("Memory Profiling")
 
-PRAGMA_TODO("Integrate ASSIMP")
-PRAGMA_TODO("\tTest different formats/materials")
-
 PRAGMA_TODO("Data Driven Pipelines")
-PRAGMA_TODO("\tShaderCompiler Preprocessor?")
-//PRAGMA_TODO("\tShader Reflection")
 PRAGMA_TODO("\tConstant Table Generation")
-PRAGMA_TODO("\tPSO Caching")
 PRAGMA_TODO("\tSamplerState Table")
+PRAGMA_TODO("\tShaderCompiler Preprocessor?")
+PRAGMA_TODO("\tPSO Caching")
 
 PRAGMA_TODO("Scene Configuration File")
 
 PRAGMA_TODO("Fullscreen Toggle")
 PRAGMA_TODO("Variable Window Size")
+PRAGMA_TODO("\tResize Handling")
 
 PRAGMA_TODO("MT Command Buffers")
 PRAGMA_TODO("\t - Submission / Execution needs proper synchronisation")
 
-PRAGMA_TODO("Resize Handling")
 
 static CoreWindow*	g_pWindow = nullptr;
 static IRenderer*	g_pRenderer = nullptr;

@@ -70,8 +70,8 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 
 const char* g_ModelList[] =
 {
-	"Content\\AnalogMeter.Needle.Dark\\AnalogMeter.fbx",
-	//"Content\\Sponza\\Sponza.fbx",
+	//"Content\\AnalogMeter.Needle.Dark\\AnalogMeter.fbx",
+	"Content\\Sponza\\Sponza.fbx",
 	//"Content\\S&W_45ACP\\Handgun_fbx_7.4_binary.fbx",
 	//"Content\\Room\\OBJ\\Room.obj",
 	//"Content\\Cube\\Cube.obj",
@@ -95,7 +95,7 @@ bool RendererD3D12::LoadContent(void)
 		m_ModelCount++;
 	}
 
-	m_Camera.SetPosition(0.0f, 0.0f, -5.0f);
+	m_Camera.SetPosition(90.0f, 90.0f, 0.0f);
 	m_Camera.SetUp(0.0f, 1.0f, 0.0f);
 	m_Camera.SetTarget(0.0f, 0.0f, 0.0f);
 	m_Camera.SetFieldOfView(45.0f);
@@ -297,18 +297,7 @@ bool RendererD3D12::Render(void)
 		pGfxCmdList->SetIAPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		MainRenderPass(pGfxCmdList);
-
-		// ImGui
-		{
-			RenderMarker profile(pGfxCmdList, "%s", "ImGUI");
-
-			ID3D12DescriptorHeap* pHeaps[] = { m_pImGuiSRVHeap->GetHeap() };
-			pGfxCmdList->SetDescriptorHeaps(pHeaps, _countof(pHeaps));
-
-			ImGUIEngine::Begin();
-			ImGUIEngine::End();
-			ImGUIEngine::Draw(pGfxCmdList);
-		}
+		ImGuiPass(pGfxCmdList);
 	}
 
 	// Presentation
@@ -326,6 +315,48 @@ bool RendererD3D12::Render(void)
 
 	return true;
 }
+void RendererD3D12::ImGuiPass(CommandList* _pGfxCmdList)
+{
+	RenderMarker profile(_pGfxCmdList, "%s", "ImGUI");
+
+	ID3D12DescriptorHeap* pHeaps[] = { m_pImGuiSRVHeap->GetHeap() };
+	_pGfxCmdList->SetDescriptorHeaps(pHeaps, _countof(pHeaps));
+
+	ImGUIEngine::Begin();
+
+	if (ImGui::Begin("Main Camera"))
+	{
+		float v[3]; 
+		v[0] = m_Camera.GetPosition().x;
+		v[1] = m_Camera.GetPosition().y;
+		v[2] = m_Camera.GetPosition().z;
+
+		if (ImGui::SliderFloat3("Position:", v, -1000.0f, 1000.0f))
+		{
+			m_Camera.SetPosition(v[0], v[1], v[2]);
+		}
+
+		v[0] = m_Camera.GetTarget().x;
+		v[1] = m_Camera.GetTarget().y;
+		v[2] = m_Camera.GetTarget().z;
+		if (ImGui::SliderFloat3("Target:", v, -1000.0f, 1000.0f))
+		{
+			m_Camera.SetTarget(v[0], v[1], v[2]);
+		}
+
+		v[0] = m_Camera.GetUp().x;
+		v[1] = m_Camera.GetUp().y;
+		v[2] = m_Camera.GetUp().z;
+		if (ImGui::SliderFloat3("Up:", v, -1000.0f, 1000.0f))
+		{
+			m_Camera.SetUp(v[0], v[1], v[2]);
+		}
+	}
+
+	ImGUIEngine::End();
+	ImGUIEngine::Draw(_pGfxCmdList);
+}
+
 void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 {
 	RenderMarker profile(_pGfxCmdList, "MainRenderPass");
