@@ -13,7 +13,10 @@
 
 #include <PixScopedEvent.h>
 
+#include "SysMemory/include/ScopedMemoryContext.h"
+
 using namespace Microsoft::WRL;
+using namespace SysMemory;
 
 SwapChain::SwapChain(void)
 {
@@ -28,6 +31,8 @@ bool SwapChain::Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, Micros
 	CommandQueue* _pCommandQueue, UINT _backBuffers, DescriptorHeap* _pDescHeapRTV,	DescriptorHeap* _pDescHeapDSV, CoreWindow* _pWindow)
 {
 	HRESULT hr = S_OK;
+
+	ScopedMemoryContext ctx(MemoryContextCategory::eRenderTarget);
 
 	// Check Feature Support
 	{

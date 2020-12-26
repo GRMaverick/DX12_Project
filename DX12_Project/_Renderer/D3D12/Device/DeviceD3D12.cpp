@@ -21,8 +21,12 @@
 #include "TextureLoader.h"
 #include <WICTextureLoader.h>
 
+#include "SysMemory/include/ScopedMemoryContext.h"
+
 using namespace DirectX;
 using namespace Microsoft::WRL;
+
+using namespace SysMemory;
 
 DeviceD3D12* DeviceD3D12::Instance(void)
 {
@@ -245,6 +249,7 @@ bool DeviceD3D12::UploadResource(CommandList* _pCommandList, UINT _sizeInBytes, 
 
 bool DeviceD3D12::CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, Texture2DResource** _pTexture, DescriptorHeap* _pDescHeapSRV, const wchar_t* _pDebugName)
 {
+	ScopedMemoryContext ctx(MemoryContextCategory::eTextureGPU);
 	(*_pTexture) = new Texture2DResource();
 	(*_pTexture)->Initialise(_pDescHeapSRV->GetFreeIndex());
 	_pDescHeapSRV->Increment();
@@ -282,6 +287,7 @@ bool DeviceD3D12::CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _p
 
 bool DeviceD3D12::CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, Texture2DResource** _pTexture, DescriptorHeap* _pDescHeapSRV, const wchar_t* _pDebugName)
 {
+	ScopedMemoryContext ctx(MemoryContextCategory::eTextureGPU);
 	ComPtr<ID3D12Resource> pCPUTexture = nullptr;
 	ComPtr<ID3D12Resource> pGPUTexture = nullptr;
 
@@ -340,6 +346,7 @@ bool DeviceD3D12::CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList*
 
 bool DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, VertexBufferResource** _ppResource, const wchar_t* _pDebugName)
 {
+	ScopedMemoryContext ctx(MemoryContextCategory::eGeometryGPU);
 	*_ppResource = new VertexBufferResource();
 	if (!UploadResource(_pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, (IBufferResource**)_ppResource))
 		return false;
@@ -355,6 +362,7 @@ bool DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, UINT _s
 }
 bool DeviceD3D12::CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, IndexBufferResource** _ppResource, const wchar_t* _pDebugName)
 {
+	ScopedMemoryContext ctx(MemoryContextCategory::eGeometryGPU);
 	*_ppResource = new IndexBufferResource();
 	if (!UploadResource(_pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, (IBufferResource**)_ppResource))
 		return false;

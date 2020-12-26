@@ -8,6 +8,8 @@
 #include "RendererD3D12.h"
 #include "InputManager.h"
 
+#include "SysMemory/include/MemoryGlobalTracking.h"
+
 PRAGMA_TODO("Memory Profiling")
 
 PRAGMA_TODO("Data Driven Pipelines")

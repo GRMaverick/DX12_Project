@@ -3,6 +3,8 @@
 #include "D3D12\Device\CommandList.h"
 #include "AssimpLoader.h"
 
+#include "SysMemory/include/ScopedMemoryContext.h"
+
 #include <assert.h>
 
 #include <assimp\Importer.hpp>
@@ -10,6 +12,8 @@
 #include <assimp\postprocess.h>
 
 #include <WICTextureLoader.h>
+
+using namespace SysMemory;
 
 #define ALBEDO 0
 
@@ -110,6 +114,8 @@ void AssimpLoader::ProcessNode(DeviceD3D12* _pDevice, CommandList* _pCommandList
 
 Mesh AssimpLoader::ProcessMesh(DeviceD3D12* _pDevice, CommandList* _pCommandList, DescriptorHeap* pDescHeapSRV, const aiMesh* _pMesh, const aiScene* _pScene)
 {
+	ScopedMemoryContext ctx(MemoryContextCategory::eGeometryCPU);
+
 	//
 	// Vertices
 	//
@@ -130,13 +136,22 @@ Mesh AssimpLoader::ProcessMesh(DeviceD3D12* _pDevice, CommandList* _pCommandList
 	//
 	// Indices
 	//
-	std::vector<DWORD> vIndices;
+	UINT32 iIndices = 0;
 	for (UINT i = 0; i < _pMesh->mNumFaces; ++i)
 	{
 		const aiFace face = _pMesh->mFaces[i];
 		for (UINT j = 0; j < face.mNumIndices; ++j)
 		{
-			vIndices.push_back(face.mIndices[j]);
+			iIndices++;
+		}
+	}
+	DWORD* pIndices = new DWORD[iIndices];
+	for (UINT i = 0, index = 0; i < _pMesh->mNumFaces; ++i)
+	{
+		const aiFace face = _pMesh->mFaces[i];
+		for (UINT j = 0; j < face.mNumIndices; ++j,++index)
+		{
+			pIndices[index] = (DWORD)face.mIndices[j];
 		}
 	}
 
@@ -153,15 +168,19 @@ Mesh AssimpLoader::ProcessMesh(DeviceD3D12* _pDevice, CommandList* _pCommandList
 	//
 	// Upload GPU resources
 	//
-	mesh.Indices = (UINT32)vIndices.size();
+	mesh.Indices = iIndices;
 	if (!_pDevice->CreateVertexBufferResource(_pCommandList, _pMesh->mNumVertices, sizeof(Vertex), D3D12_RESOURCE_FLAG_NONE, (void*)pVertices, &mesh.pVertexBuffer))
 	{
 		assert(false && "AssimpLoader: Could not load Vertex Buffer Resource");
 	}
-	if (!_pDevice->CreateIndexBufferResource(_pCommandList, (UINT)vIndices.size(), sizeof(DWORD), D3D12_RESOURCE_FLAG_NONE, (void*)&vIndices[0], &mesh.pIndexBuffer))
+	if (!_pDevice->CreateIndexBufferResource(_pCommandList, iIndices, sizeof(DWORD), D3D12_RESOURCE_FLAG_NONE, pIndices, &mesh.pIndexBuffer))
 	{
 		assert(false && "AssimpLoad: Could not load Index Buffer Resource");
 	}
+
+	delete[] pVertices;
+	delete[] pIndices;
+
 	return mesh;
 }
 
@@ -255,6 +274,7 @@ Texture2DResource* AssimpLoader::ProcessMaterial(DeviceD3D12* _pDevice, CommandL
 					if (_pDevice->CreateWICTexture2D(wstrFilename.c_str(), _pCommandList, &pTexture, pDescHeapSRV, wstrFilename.c_str()))
 						return pTexture;
 				}
+				delete[] ext;
 			}
 		}
 	}

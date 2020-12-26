@@ -23,6 +23,10 @@
 using namespace Microsoft::WRL;
 using namespace DirectX;
 
+#include "SysMemory/include/MemoryGlobalTracking.h"
+
+using namespace SysMemory;
+
 #define SHADER_CACHE_LOCATION "Shaders\\*"
 
 struct VertexPosColor
@@ -351,6 +355,31 @@ void RendererD3D12::ImGuiPass(CommandList* _pGfxCmdList)
 		{
 			m_Camera.SetUp(v[0], v[1], v[2]);
 		}
+		ImGui::End();
+	}
+
+	if (ImGui::Begin("Memory"))
+	{
+		static const float kMB = 1024 * 1024;
+		float fTotalMemUsage = 0.0f;
+		int iTotalAllocations = 0;
+		for (unsigned int i = 0; i < (unsigned int)MemoryContextCategory::eCategories; ++i)
+		{
+			const char* pCatName = MemoryGlobalTracking::GetContextName((MemoryContextCategory)i);
+			const MemoryContextData& data = MemoryGlobalTracking::GetContextStats((MemoryContextCategory)i);
+
+			int iNetAllocations = data.Allocations - data.Deallocations;
+			ImGui::CollapsingHeader(pCatName, ImGuiTreeNodeFlags_Bullet);
+			ImGui::Text("Net Allocations: %i", iNetAllocations);
+			ImGui::Text("Allocated Size: %0.3f MB", data.TotalAllocationSize / kMB);
+
+			fTotalMemUsage += data.TotalAllocationSize;
+			iTotalAllocations += iNetAllocations;
+		}
+		ImGui::CollapsingHeader("Total Memory Usage:", ImGuiTreeNodeFlags_Bullet);
+		ImGui::Text("Size Allocation: %0.3f MB", fTotalMemUsage / kMB);
+		ImGui::Text("Net Allocations: %i", iTotalAllocations);
+		ImGui::End();
 	}
 
 	ImGUIEngine::End();

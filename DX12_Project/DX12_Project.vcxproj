@@ -123,7 +123,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)_Core;$(ProjectDir)_Interfaces;$(ProjectDir)_Renderer;$(ProjectDir)_Dependencies\include;$(ProjectDir)_Utilities;$(SolutionDir)DirectXTK12\Inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)_Core;$(ProjectDir)_Interfaces;$(ProjectDir)_Renderer;$(ProjectDir)_Dependencies\include;$(ProjectDir)_Utilities;$(SolutionDir)DirectXTK12\Inc;$(SolutionDir)_Modules</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -234,6 +234,11 @@ xcopy /y /s /q $(ProjectDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configurati
     <Library Include="_Dependencies\lib\IrrXMLd.lib" />
     <Library Include="_Dependencies\lib\zlibd.lib" />
     <Library Include="_Dependencies\lib\zlibstaticd.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\_Modules\SysMemory\SysMemory.vcxproj">
+      <Project>{1c9559d6-909b-4711-9a8e-850d83a33586}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

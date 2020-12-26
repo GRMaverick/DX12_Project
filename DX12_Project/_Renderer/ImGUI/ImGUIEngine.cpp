@@ -46,7 +46,6 @@ void ImGUIEngine::Update()
 
 void ImGUIEngine::End()
 {
-	ImGui::End();
 	ImGui::EndFrame();
 }
 
