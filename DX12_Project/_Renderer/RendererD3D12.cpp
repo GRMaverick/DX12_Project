@@ -27,7 +27,13 @@ using namespace DirectX;
 
 using namespace SysMemory;
 
-#define SHADER_CACHE_LOCATION "Shaders\\*"
+#if defined(_DEBUG)
+#	define SHADER_CACHE_LOCATION "H:\\Development\\DX12_Project\\_Shaders\\*"
+#	define CONTENT_LOCATION "H:\\Development\\DX12_Project\\_Content\\"
+#else
+#	define SHADER_CACHE_LOCATION "Shaders\\*"
+#	define CONTENT_LOCATION "Content\\"
+#endif
 
 struct VertexPosColor
 {
@@ -74,11 +80,11 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 
 const char* g_ModelList[] =
 {
-	//"Content\\AnalogMeter.Needle.Dark\\AnalogMeter.fbx",
-	"Content\\Sponza\\Sponza.fbx",
-	//"Content\\S&W_45ACP\\Handgun_fbx_7.4_binary.fbx",
-	//"Content\\Room\\OBJ\\Room.obj",
-	//"Content\\Cube\\Cube.obj",
+	//"AnalogMeter.Needle.Dark\\AnalogMeter.fbx",
+	"Sponza\\Sponza.fbx",
+	//"S&W_45ACP\\Handgun_fbx_7.4_binary.fbx",
+	//"Room\\OBJ\\Room.obj",
+	"Cube\\Cube.obj",
 };
 
 bool RendererD3D12::LoadContent(void)
@@ -91,8 +97,11 @@ bool RendererD3D12::LoadContent(void)
 	{
 		LogInfo_Renderer("\t%s", g_ModelList[i]);
 
+		char pModelPath[128];
+		snprintf(pModelPath, ARRAYSIZE(pModelPath), "%s\%s", CONTENT_LOCATION, g_ModelList[i]);
+
 		m_pRenderEntity[i] = new RenderEntity();
-		m_pRenderEntity[i]->LoadModelFromFile(g_ModelList[i]);
+		m_pRenderEntity[i]->LoadModelFromFile(pModelPath);
 		m_pRenderEntity[i]->SetScale(1.0f);
 		m_pRenderEntity[i]->SetRotation(0.0f, 0.0f, 0.0f);
 		m_pRenderEntity[i]->SetPosition(0.0f, 0.0f, 0.0f);
@@ -100,6 +109,8 @@ bool RendererD3D12::LoadContent(void)
 	}
 
 	m_Camera.SetPosition(90.0f, 90.0f, 0.0f);
+	//m_Camera.SetPosition(1.5f, 2.5f, 0.0f);
+
 	m_Camera.SetUp(0.0f, 1.0f, 0.0f);
 	m_Camera.SetTarget(0.0f, 0.0f, 0.0f);
 	m_Camera.SetFieldOfView(45.0f);

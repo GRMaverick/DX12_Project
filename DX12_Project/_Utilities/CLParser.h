@@ -18,7 +18,7 @@ private:
 	struct CLArgument
 	{
 		char pName[15];
-		char pValue[100];
+		char pValue[512];
 	};
 
 	CLParser(void);
