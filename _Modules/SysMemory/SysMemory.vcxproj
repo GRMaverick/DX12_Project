@@ -19,15 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\ExplicitAllocationRecordType.h" />
     <ClInclude Include="include\MemoryAllocationHeader.h" />
     <ClInclude Include="include\MemoryContextCategory.h" />
     <ClInclude Include="include\MemoryContextData.h" />
     <ClInclude Include="include\MemoryGlobalTracking.h" />
-    <ClInclude Include="include\ScopedMemoryContext.h" />
+    <ClInclude Include="include\ScopedMemoryRecord.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\MemoryGlobalTracking.cpp" />
-    <ClCompile Include="source\ScopedMemoryContext.cpp" />
+    <ClCompile Include="source\ScopedMemoryRecord.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

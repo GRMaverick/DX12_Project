@@ -13,7 +13,8 @@
 
 #include <PixScopedEvent.h>
 
-#include "SysMemory/include/ScopedMemoryContext.h"
+#include "SysMemory/include/ScopedMemoryRecord.h"
+#include "SysMemory/include/MemoryGlobalTracking.h"
 
 using namespace Microsoft::WRL;
 using namespace SysMemory;
@@ -24,7 +25,30 @@ SwapChain::SwapChain(void)
 }
 SwapChain::~SwapChain(void)
 {
+	if (m_pSwapChain)
+	{
+		MemoryGlobalTracking::RecordExplicitDellocation(m_pSwapChain.Get());
+		m_pSwapChain.Reset();
+	}
 
+	if (m_pDepthBuffer)
+	{
+		MemoryGlobalTracking::RecordExplicitDellocation(m_pDepthBuffer.Get());
+		m_pDepthBuffer.Reset();
+	}
+
+	if (m_pDxgiAdapter)
+	{
+		m_pDxgiAdapter.Reset();
+	}
+
+	for (unsigned int i = 0; i < BACK_BUFFERS; ++i)
+	{
+		if (m_pBackBuffers[i])
+		{
+			m_pBackBuffers[i].Reset();
+		}
+	}
 }
 
 bool SwapChain::Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, Microsoft::WRL::ComPtr<IDXGIFactory5> _pFactory,
@@ -32,7 +56,7 @@ bool SwapChain::Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, Micros
 {
 	HRESULT hr = S_OK;
 
-	ScopedMemoryContext ctx(MemoryContextCategory::eRenderTarget);
+	ScopedMemoryRecord ctx(MemoryContextCategory::eRenderTarget);
 
 	// Check Feature Support
 	{
@@ -87,6 +111,11 @@ bool SwapChain::Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, Micros
 			assert(false && "SwapChain4 cast failed");
 			return false;
 		}
+
+		const unsigned int kFormatInBytes = 4; // DXGI_FORMAT_R8G8B8A8_UNORM
+		MemoryGlobalTracking::RecordExplicitAllocation(MemoryContextCategory::eRenderTarget, m_pSwapChain.Get(),
+			swapChainDesc.Width * swapChainDesc.Height * BACK_BUFFERS * kFormatInBytes
+		);
 	}
 
 	// Create RTVs
@@ -137,6 +166,11 @@ bool SwapChain::Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, Micros
 
 		_pDevice->CreateDepthStencilView(m_pDepthBuffer.Get(), &dsv, dsvHandle);
 		m_pDepthBuffer->SetName(L"Depth Buffer");
+
+		const unsigned int kFormatInBytes = 4; // DXGI_FORMAT_D32_FLOAT
+		MemoryGlobalTracking::RecordExplicitAllocation(MemoryContextCategory::eRenderTarget, m_pDepthBuffer.Get(),
+			_pWindow->GetDimensions().WindowWidth* _pWindow->GetDimensions().WindowHeight* BACK_BUFFERS* kFormatInBytes
+		);
 	}
 
 	// Crete Viewport 

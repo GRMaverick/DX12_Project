@@ -166,7 +166,10 @@ xcopy /y /s /q $(ProjectDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configurati
     <ClCompile Include="_Renderer\D3D12\Device\DeviceD3D12.cpp" />
     <ClCompile Include="_Renderer\D3D12\Device\SwapChain.cpp" />
     <ClCompile Include="_Renderer\D3D12\Resources\DescriptorHeap.cpp" />
+    <ClCompile Include="_Renderer\D3D12\Resources\IBufferResource.cpp" />
+    <ClCompile Include="_Renderer\D3D12\Resources\IndexBufferResource.cpp" />
     <ClCompile Include="_Renderer\D3D12\Resources\Texture2DResource.cpp" />
+    <ClCompile Include="_Renderer\D3D12\Resources\VertexBufferResource.cpp" />
     <ClCompile Include="_Renderer\D3D12\Shaders\ShaderCache.cpp" />
     <ClCompile Include="_Renderer\D3D12\Shaders\ShaderCompilerDX.cpp" />
     <ClCompile Include="_Renderer\D3D12\Shaders\ShaderCompilerDXC.cpp" />

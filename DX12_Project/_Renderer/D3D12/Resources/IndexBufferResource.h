@@ -6,11 +6,10 @@
 class IndexBufferResource : public IBufferResource
 {
 public:
-	IndexBufferResource(void) { }
-	~IndexBufferResource(void) { }
+	IndexBufferResource(ID3D12Device* _pDevice, CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, const void* _pData, const wchar_t* _pDebugName = nullptr);
+	~IndexBufferResource(void);
 
-	void SetView(D3D12_INDEX_BUFFER_VIEW _ibv) { m_View = _ibv; }
-	D3D12_INDEX_BUFFER_VIEW GetView() { return m_View; }
+	D3D12_INDEX_BUFFER_VIEW GetView();
 
 private:
 	D3D12_INDEX_BUFFER_VIEW m_View;

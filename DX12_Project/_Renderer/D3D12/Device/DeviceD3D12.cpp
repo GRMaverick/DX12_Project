@@ -21,7 +21,7 @@
 #include "TextureLoader.h"
 #include <WICTextureLoader.h>
 
-#include "SysMemory/include/ScopedMemoryContext.h"
+#include "SysMemory/include/ScopedMemoryRecord.h"
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -198,182 +198,30 @@ bool DeviceD3D12::CreateSwapChain(SwapChain** _ppSwapChain, CoreWindow* _pWindow
 	return true;
 }
 
-bool DeviceD3D12::UploadResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, const void* _pData,IBufferResource** _ppResource, const wchar_t* _pDebugName)
-{
-	HRESULT hr = S_OK;
-
-	UINT bufferSize = _sizeInBytes * _strideInBytes;
-	ComPtr<ID3D12Resource> pDestination = nullptr;
-
-	D3D12_RESOURCE_DESC dRdBuffer = CD3DX12_RESOURCE_DESC::Buffer(bufferSize, _flags);
-	D3D12_HEAP_PROPERTIES dHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-
-	hr = m_pDevice->CreateCommittedResource(&dHeapProperties, D3D12_HEAP_FLAG_NONE, &dRdBuffer, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(pDestination.GetAddressOf()));
-	if (FAILED(hr))
-	{
-		assert(false && "Destination Buffer Setup Failed");
-		return false;
-	}
-
-	if (pDestination.Get())
-		(*_ppResource)->SetGPUBuffer(pDestination);
-
-	if (_pData)
-	{
-		ComPtr<ID3D12Resource> pIntermediate = nullptr;
-
-		D3D12_HEAP_PROPERTIES iHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-		D3D12_RESOURCE_DESC iRdBuffer = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
-
-		hr = m_pDevice->CreateCommittedResource( &iHeapProperties, D3D12_HEAP_FLAG_NONE, &iRdBuffer, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(pIntermediate.GetAddressOf()));
-		if (FAILED(hr))
-		{
-			assert(false && "Upload Buffer Setup Failed");
-			return false;
-		}
-		
-		if (pIntermediate.Get())
-			(*_ppResource)->SetCPUBuffer(pIntermediate);
-
-		D3D12_SUBRESOURCE_DATA srData = {};
-		ZeroMemory(&srData, sizeof(D3D12_SUBRESOURCE_DATA));
-		srData.pData = _pData;
-		srData.RowPitch = bufferSize;
-		srData.SlicePitch = srData.RowPitch;
-
-		_pCommandList->UpdateSubresource((*_ppResource)->GetGPUBuffer().Get(), (*_ppResource)->GetCPUBuffer().Get(), 0, 0, 1, &srData);
-	}
-
-	return true;
-}
-
 bool DeviceD3D12::CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, Texture2DResource** _pTexture, DescriptorHeap* _pDescHeapSRV, const wchar_t* _pDebugName)
 {
-	ScopedMemoryContext ctx(MemoryContextCategory::eTextureGPU);
-	(*_pTexture) = new Texture2DResource();
-	(*_pTexture)->Initialise(_pDescHeapSRV->GetFreeIndex());
-	_pDescHeapSRV->Increment();
+	(*_pTexture) = new Texture2DResource(_pWstrFilename, true, _pDescHeapSRV, m_pDevice.Get(), _pCommandList);
 
-	ComPtr<ID3D12Resource> pCPUTexture = nullptr;
-	ComPtr<ID3D12Resource> pGPUTexture = nullptr;
-	VALIDATE_D3D(CreateDDSTextureFromFile12(m_pDevice.Get(), _pCommandList, _pWstrFilename, pGPUTexture, pCPUTexture));
-		
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	ZeroMemory(&srvDesc, sizeof(D3D12_SHADER_RESOURCE_VIEW_DESC));
-	srvDesc.Format = pCPUTexture->GetDesc().Format;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = pCPUTexture->GetDesc().MipLevels;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-
-	CD3DX12_CPU_DESCRIPTOR_HANDLE srvHandle(_pDescHeapSRV->GetCPUStartHandle());
-	m_pDevice->CreateShaderResourceView(pGPUTexture.Get(), &srvDesc, srvHandle);
-
-	wchar_t pCPUDebugName[256];
-	wchar_t pGPUDebugName[256];
-
-	wsprintf(pCPUDebugName, L"%s_%s", _pDebugName, L"CPU");
-	wsprintf(pGPUDebugName, L"%s_%s", _pDebugName, L"GPU");
-
-	pCPUTexture->SetName(pCPUDebugName);
-	pGPUTexture->SetName(pGPUDebugName);
-
-	(*_pTexture)->SetCPUBuffer(pCPUTexture);
-	(*_pTexture)->SetGPUBuffer(pGPUTexture);
-	
 	return true;
 }
 
 bool DeviceD3D12::CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, Texture2DResource** _pTexture, DescriptorHeap* _pDescHeapSRV, const wchar_t* _pDebugName)
 {
-	ScopedMemoryContext ctx(MemoryContextCategory::eTextureGPU);
-	ComPtr<ID3D12Resource> pCPUTexture = nullptr;
-	ComPtr<ID3D12Resource> pGPUTexture = nullptr;
-
-	D3D12_SUBRESOURCE_DATA srData; 
-	std::unique_ptr<uint8_t[]> decodedData;
-	if (FAILED(LoadWICTextureFromFile(m_pDevice.Get(), _pWstrFilename, pGPUTexture.GetAddressOf(), decodedData, srData)))
-		return false;
-
-	D3D12_HEAP_PROPERTIES uploadHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-	D3D12_RESOURCE_DESC uploadRdBuffer = CD3DX12_RESOURCE_DESC::Buffer(srData.SlicePitch);
-	VALIDATE_D3D(m_pDevice->CreateCommittedResource(
-		&uploadHeapProperties,
-		D3D12_HEAP_FLAG_NONE,
-		&uploadRdBuffer,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&pCPUTexture)
-	));
-
-	_pCommandList->UpdateSubresource(pGPUTexture.Get(), pCPUTexture.Get(), 0, 0, 1, &srData);
-
-	(*_pTexture) = new Texture2DResource();
-	(*_pTexture)->Initialise(_pDescHeapSRV->GetFreeIndex());
-	_pDescHeapSRV->Increment();
-
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	ZeroMemory(&srvDesc, sizeof(D3D12_SHADER_RESOURCE_VIEW_DESC));
-	srvDesc.Format = pCPUTexture->GetDesc().Format;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = pCPUTexture->GetDesc().MipLevels;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-
-	CD3DX12_CPU_DESCRIPTOR_HANDLE srvHandle(_pDescHeapSRV->GetCPUStartHandle());
-	srvHandle.Offset((*_pTexture)->GetHeapIndex(), _pDescHeapSRV->GetIncrementSize());
-
-	m_pDevice->CreateShaderResourceView(pGPUTexture.Get(), &srvDesc, srvHandle);
-
-
-	if (_pDebugName)
-	{
-		wchar_t pCPUDebugName[256];
-		wchar_t pGPUDebugName[256];
-		wsprintf(pCPUDebugName, L"%s_%s", _pDebugName, L"CPU");
-		wsprintf(pGPUDebugName, L"%s_%s", _pDebugName, L"GPU");
-		pCPUTexture->SetName(pCPUDebugName);
-		pGPUTexture->SetName(pGPUDebugName);
-	}
-
-	(*_pTexture)->SetCPUBuffer(pCPUTexture);
-	(*_pTexture)->SetGPUBuffer(pGPUTexture);
+	(*_pTexture) = new Texture2DResource(_pWstrFilename, false, _pDescHeapSRV, m_pDevice.Get(), _pCommandList);
 
 	return true;
 }
 
 bool DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, VertexBufferResource** _ppResource, const wchar_t* _pDebugName)
 {
-	ScopedMemoryContext ctx(MemoryContextCategory::eGeometryGPU);
-	*_ppResource = new VertexBufferResource();
-	if (!UploadResource(_pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, (IBufferResource**)_ppResource))
-		return false;
+	(*_ppResource) = new VertexBufferResource(m_pDevice.Get(), _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData);
 
-	D3D12_VERTEX_BUFFER_VIEW vbv = { };
-	ZeroMemory(&vbv, sizeof(D3D12_VERTEX_BUFFER_VIEW));
-	vbv.BufferLocation = (*_ppResource)->GetGPUBuffer()->GetGPUVirtualAddress();
-	vbv.SizeInBytes = _sizeInBytes * _strideInBytes;
-	vbv.StrideInBytes = _strideInBytes;
-
-	(*_ppResource)->SetView(vbv);
 	return true;
 }
 bool DeviceD3D12::CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, IndexBufferResource** _ppResource, const wchar_t* _pDebugName)
 {
-	ScopedMemoryContext ctx(MemoryContextCategory::eGeometryGPU);
-	*_ppResource = new IndexBufferResource();
-	if (!UploadResource(_pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, (IBufferResource**)_ppResource))
-		return false;
+	(*_ppResource) = new IndexBufferResource(m_pDevice.Get(), _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData);
 
-	D3D12_INDEX_BUFFER_VIEW ibv = { };
-	ZeroMemory(&ibv, sizeof(D3D12_INDEX_BUFFER_VIEW));
-	ibv.BufferLocation = (*_ppResource)->GetGPUBuffer()->GetGPUVirtualAddress();
-	ibv.SizeInBytes = _sizeInBytes * _strideInBytes;
-	ibv.Format = DXGI_FORMAT_R32_UINT;
-
-	(*_ppResource)->SetView(ibv);
 	return true;
 }
 bool DeviceD3D12::CreateRootSignature(D3D12_ROOT_PARAMETER* _pRootParameters, UINT _numParameters, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName)

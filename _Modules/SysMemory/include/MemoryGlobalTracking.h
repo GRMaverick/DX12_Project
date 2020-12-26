@@ -1,10 +1,12 @@
 #ifndef __MemoryTracking_h__
 #define __MemoryTracking_h__
 
+#include <vector>
 #include <cstdlib>
 
 #include "MemoryContextData.h"
 #include "MemoryContextCategory.h"
+#include "ExplicitAllocationRecordType.h"
 
 namespace SysMemory
 {
@@ -18,8 +20,19 @@ namespace SysMemory
 		static MemoryContextData GetContextStats(MemoryContextCategory _eCategory);
 		static MemoryContextCategory GetCurrentContext(void);
 
+		static void			RecordExplicitAllocation(MemoryContextCategory _eCategory, void* _pAddress, std::size_t _szAllocation);
+		static void			RecordExplicitDellocation(void* _pAddress);
 	private:
+		struct ExplicitRecord
+		{
+			void* Address;
+			std::size_t Size;
+			MemoryContextCategory Category;
+		};
+		typedef std::vector<ExplicitRecord> ExplicitRecords;
+
 		static MemoryContextCategory m_eCategory;
+		static ExplicitRecords m_vExplicitRecords;
 	};
 }
 

@@ -3,8 +3,6 @@
 #include "D3D12\Device\CommandList.h"
 #include "AssimpLoader.h"
 
-#include "SysMemory/include/ScopedMemoryContext.h"
-
 #include <assert.h>
 
 #include <assimp\Importer.hpp>
@@ -12,8 +10,6 @@
 #include <assimp\postprocess.h>
 
 #include <WICTextureLoader.h>
-
-using namespace SysMemory;
 
 #define ALBEDO 0
 
@@ -114,8 +110,6 @@ void AssimpLoader::ProcessNode(DeviceD3D12* _pDevice, CommandList* _pCommandList
 
 Mesh AssimpLoader::ProcessMesh(DeviceD3D12* _pDevice, CommandList* _pCommandList, DescriptorHeap* pDescHeapSRV, const aiMesh* _pMesh, const aiScene* _pScene)
 {
-	ScopedMemoryContext ctx(MemoryContextCategory::eGeometryCPU);
-
 	//
 	// Vertices
 	//
@@ -221,23 +215,6 @@ Texture2DResource* GetTextureFromModel(DeviceD3D12* _pDevice, const aiScene* sce
 
 	return nullptr;
 }
-//const char* ExtractExtension(const char* _pFilename)
-//{
-//	size_t extensionStart = 0;
-//	size_t size = strlen(_pFilename);
-//	for (size_t i = size - 1; i >= 0; --i)
-//	{
-//		if (_pFilename[i] == '.')
-//		{
-//			extensionStart = i + 1;
-//			break;
-//		}
-//	}
-//
-//	char ext[5];
-//	snprintf(ext, ARRAYSIZE(ext), "%s", &_pFilename[extensionStart]);
-//	return ext;
-//}
 
 extern const char* ExtractExtension(const char* _pFilename);
 

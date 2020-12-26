@@ -4,22 +4,22 @@
 #include <d3d12.h>
 #include <wrl.h>
 
+class CommandList;
+
 class IBufferResource
 {
 public:
-	~IBufferResource(void)
-	{
-		if (m_CPUBuffer) m_CPUBuffer.Reset();
-		if (m_GPUBuffer) m_GPUBuffer.Reset();
-	}
+	virtual ~IBufferResource(void);
 
-	void SetCPUBuffer(Microsoft::WRL::ComPtr<ID3D12Resource> _pBuffer) { m_CPUBuffer = _pBuffer; }
-	void SetGPUBuffer(Microsoft::WRL::ComPtr<ID3D12Resource> _pBuffer) { m_GPUBuffer = _pBuffer; }
+	bool UploadResource(ID3D12Device* _pDevice, CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, const void* _pData, const wchar_t* _pDebugName = nullptr);
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> GetCPUBuffer(void) { return m_CPUBuffer; }
-	Microsoft::WRL::ComPtr<ID3D12Resource> GetGPUBuffer(void) { return m_GPUBuffer; }
+	void SetCPUBuffer(Microsoft::WRL::ComPtr<ID3D12Resource> _pBuffer);
+	void SetGPUBuffer(Microsoft::WRL::ComPtr<ID3D12Resource> _pBuffer);
 
-private:
+	Microsoft::WRL::ComPtr<ID3D12Resource> GetCPUBuffer(void);
+	Microsoft::WRL::ComPtr<ID3D12Resource> GetGPUBuffer(void);
+
+protected:
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_CPUBuffer;
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_GPUBuffer;
 };

@@ -6,18 +6,30 @@
 
 #include "IBufferResource.h"
 
+class CommandList;
+class DescriptorHeap;
+
 class Texture2DResource : public IBufferResource
 {
 public:
-	Texture2DResource(void);
-	~Texture2DResource(void);
+	Texture2DResource(
+		const wchar_t* _pWstrFilename, 
+		const bool _bIsDDS, 
+		DescriptorHeap* _pTargetSRVHeap, 
+		ID3D12Device* _pDevice, 
+		CommandList* _pCmdList,
+		const char* _pDebugName = nullptr
+	);
 
-	bool Initialise(UINT32 _heapIndex);
+	~Texture2DResource(void);
 
 	UINT32 GetHeapIndex(void) { return m_HeapIndex; }
 	
 private:
-	UINT32 m_HeapIndex = 0;
+	UINT m_HeapIndex = 0;
+
+	bool CreateFromDDS(const wchar_t* _pWstrFilename, ID3D12Device* _pDevice, CommandList* _pCmdList);
+	bool CreateFromWIC(const wchar_t* _pWstrFilename, ID3D12Device* _pDevice, CommandList* _pCmdList);
 };
 
 #endif __Texture2DResource_h__

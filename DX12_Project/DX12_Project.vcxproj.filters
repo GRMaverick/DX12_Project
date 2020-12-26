@@ -147,6 +147,15 @@
     <ClCompile Include="_Renderer\D3D12\Shaders\ShaderCompilerDX.cpp">
       <Filter>Source Files\Renderer\D3D12\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="_Renderer\D3D12\Resources\IBufferResource.cpp">
+      <Filter>Source Files\Renderer\D3D12\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="_Renderer\D3D12\Resources\VertexBufferResource.cpp">
+      <Filter>Source Files\Renderer\D3D12\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="_Renderer\D3D12\Resources\IndexBufferResource.cpp">
+      <Filter>Source Files\Renderer\D3D12\Resource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Core\CoreWindow.h">

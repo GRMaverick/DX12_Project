@@ -6,11 +6,10 @@
 class VertexBufferResource : public IBufferResource
 {
 public:
-	VertexBufferResource(void) { }
-	~VertexBufferResource(void) { }
+	VertexBufferResource(ID3D12Device* _pDevice, CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, const void* _pData, const wchar_t* _pDebugName = nullptr);
+	~VertexBufferResource(void);
 
-	void SetView(D3D12_VERTEX_BUFFER_VIEW _vbv) { m_View = _vbv; }
-	D3D12_VERTEX_BUFFER_VIEW GetView() { return m_View; }
+	D3D12_VERTEX_BUFFER_VIEW GetView();
 
 private:
 	D3D12_VERTEX_BUFFER_VIEW m_View;

@@ -1,14 +1,14 @@
-#include "../include/ScopedMemoryContext.h"
+#include "../include/ScopedMemoryRecord.h"
 #include "../include/MemoryGlobalTracking.h"
 
 namespace SysMemory
 {
-	ScopedMemoryContext::ScopedMemoryContext(MemoryContextCategory eCategory)
+	ScopedMemoryRecord::ScopedMemoryRecord(MemoryContextCategory eCategory)
 	{
 		m_ePreviousCategory = MemoryGlobalTracking::GetCurrentContext();
 		MemoryGlobalTracking::SetContext(eCategory);
 	}
-	ScopedMemoryContext::~ScopedMemoryContext(void)
+	ScopedMemoryRecord::~ScopedMemoryRecord(void)
 	{
 		MemoryGlobalTracking::SetContext(m_ePreviousCategory);
 	}

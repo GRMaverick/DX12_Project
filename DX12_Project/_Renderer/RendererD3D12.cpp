@@ -82,9 +82,7 @@ const char* g_ModelList[] =
 {
 	//"AnalogMeter.Needle.Dark\\AnalogMeter.fbx",
 	"Sponza\\Sponza.fbx",
-	//"S&W_45ACP\\Handgun_fbx_7.4_binary.fbx",
-	//"Room\\OBJ\\Room.obj",
-	"Cube\\Cube.obj",
+	//"Cube\\Cube.obj",
 };
 
 bool RendererD3D12::LoadContent(void)
@@ -98,7 +96,7 @@ bool RendererD3D12::LoadContent(void)
 		LogInfo_Renderer("\t%s", g_ModelList[i]);
 
 		char pModelPath[128];
-		snprintf(pModelPath, ARRAYSIZE(pModelPath), "%s\%s", CONTENT_LOCATION, g_ModelList[i]);
+		snprintf(pModelPath, ARRAYSIZE(pModelPath), "%s\\%s", CONTENT_LOCATION, g_ModelList[i]);
 
 		m_pRenderEntity[i] = new RenderEntity();
 		m_pRenderEntity[i]->LoadModelFromFile(pModelPath);
@@ -286,7 +284,7 @@ void RendererD3D12::Update(double _deltaTime)
 	for (UINT i = 0; i < m_ModelCount; ++i)
 	{
 		m_pRenderEntity[i]->Update();
-		for (int j = 0; j < m_pRenderEntity[i]->GetModel()->MeshCount; ++j)
+		for (unsigned int j = 0; j < m_pRenderEntity[i]->GetModel()->MeshCount; ++j)
 		{
 			ObjectCB objectCb;
 			objectCb.MVP = m_pRenderEntity[i]->GetWorld() * m_Camera.GetView() * m_Camera.GetProjection();

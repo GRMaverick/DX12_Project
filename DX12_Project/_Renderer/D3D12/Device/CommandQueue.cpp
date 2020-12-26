@@ -105,7 +105,7 @@ void CommandQueue::ExecuteCommandLists(void)
 	
 	Flush();
 
-	for (INT listIdx = m_pAwaitingExecution.size() - 1; listIdx >= 0 ; --listIdx)
+	for (unsigned int listIdx = m_pAwaitingExecution.size() - 1; listIdx >= 0 ; --listIdx)
 	{
 		delete m_pAwaitingExecution[listIdx];
 		m_pAwaitingExecution.pop_back();

@@ -6,6 +6,7 @@ namespace SysMemory
 	enum class MemoryContextCategory : unsigned int
 	{
 		eDefaultHeap = 0,
+		eTextureCPU,
 		eTextureGPU,
 		eGeometryCPU,
 		eGeometryGPU,

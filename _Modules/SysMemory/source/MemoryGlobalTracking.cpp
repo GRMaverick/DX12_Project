@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include "../include/ScopedMemoryContext.h"
+#include "../include/ScopedMemoryRecord.h"
 #include "../include/MemoryAllocationHeader.h"
 
 void* ::operator new(std::size_t _size)
@@ -31,6 +31,7 @@ namespace SysMemory
 	const char* g_ContextName[] =
 	{
 		"Default Heap",
+		"CPU Textures",
 		"GPU Textures",
 		"CPU Geometry",
 		"GPU Geometry",
@@ -41,7 +42,8 @@ namespace SysMemory
 
 	MemoryContextData g_AllocationData[(unsigned int)MemoryContextCategory::eCategories];
 
-	MemoryContextCategory MemoryGlobalTracking::m_eCategory = MemoryContextCategory::eDefaultHeap;
+	MemoryContextCategory					MemoryGlobalTracking::m_eCategory = MemoryContextCategory::eDefaultHeap;
+	MemoryGlobalTracking::ExplicitRecords	MemoryGlobalTracking::m_vExplicitRecords = MemoryGlobalTracking::ExplicitRecords();
 
 	void*			MemoryGlobalTracking::Allocate(std::size_t _size)
 	{
@@ -80,6 +82,28 @@ namespace SysMemory
 		return free(pHeader);
 	}
 	
+	void			MemoryGlobalTracking::RecordExplicitAllocation(MemoryContextCategory _eCategory, void* _pAddress, std::size_t _szAllocation)
+	{
+		ScopedMemoryRecord ctx(MemoryContextCategory::eMemoryTracking);
+		m_vExplicitRecords.push_back({ _pAddress, _szAllocation, _eCategory });
+		g_AllocationData[(unsigned int)_eCategory].Allocations++;
+		g_AllocationData[(unsigned int)_eCategory].TotalAllocationSize += _szAllocation;
+	}
+
+	void			MemoryGlobalTracking::RecordExplicitDellocation(void* _pAddress)
+	{
+		for (unsigned int i = 0; i < m_vExplicitRecords.size(); ++i)
+		{
+			if (_pAddress == m_vExplicitRecords[i].Address)
+			{
+				m_vExplicitRecords.erase(m_vExplicitRecords.begin() + i);
+				g_AllocationData[(unsigned int)m_vExplicitRecords[i].Category].Deallocations++;
+				g_AllocationData[(unsigned int)m_vExplicitRecords[i].Category].TotalAllocationSize -= m_vExplicitRecords[i].Size;
+				return;
+			}
+		}
+	}
+
 	void			MemoryGlobalTracking::SetContext(MemoryContextCategory _eCategory)
 	{
 		m_eCategory = _eCategory;
