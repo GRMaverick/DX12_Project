@@ -95,6 +95,12 @@ void CommandQueue::ExecuteCommandLists(void)
 		vpLists.push_back(m_pAwaitingExecution[listIdx]->m_pList.Get());
 	}
 
+	if (!vpLists.size())
+	{
+		LogWarning_Renderer("Execute requested on empty queue");
+		return;
+	}
+
 	m_pQueue->ExecuteCommandLists((UINT)vpLists.size(), &vpLists[0]);
 	
 	Flush();
