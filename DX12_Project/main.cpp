@@ -8,10 +8,6 @@
 #include "RendererD3D12.h"
 #include "InputManager.h"
 
-#include "SysMemory/include/MemoryGlobalTracking.h"
-
-PRAGMA_TODO("Memory Profiling")
-
 PRAGMA_TODO("Data Driven Pipelines")
 PRAGMA_TODO("\tConstant Table Generation")
 PRAGMA_TODO("\tSamplerState Table")
@@ -26,7 +22,6 @@ PRAGMA_TODO("\tResize Handling")
 
 PRAGMA_TODO("MT Command Buffers")
 PRAGMA_TODO("\t - Submission / Execution needs proper synchronisation")
-
 
 static CoreWindow*	g_pWindow = nullptr;
 static IRenderer*	g_pRenderer = nullptr;

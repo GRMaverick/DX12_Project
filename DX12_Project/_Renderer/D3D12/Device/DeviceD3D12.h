@@ -51,6 +51,7 @@ public:
 	bool CreatePipelineState(PipelineStateDesc _psDesc, ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName = L"");
 	bool CreateSamplerState(D3D12_SAMPLER_DESC* _pSamplerDesc, D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const wchar_t* _pDebugName = L"");
 
+	bool FlushState() { }
 private:
 	DeviceD3D12(void);
 	Microsoft::WRL::ComPtr<ID3D12Device6>			m_pDevice = nullptr;

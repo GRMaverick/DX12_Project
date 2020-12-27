@@ -105,9 +105,15 @@ void CommandQueue::ExecuteCommandLists(void)
 	
 	Flush();
 
-	for (unsigned int listIdx = m_pAwaitingExecution.size() - 1; listIdx >= 0 ; --listIdx)
+	if (!m_pAwaitingExecution.size())
+	{
+		LogWarning_Renderer("Execute requested on empty queue");
+		return;
+	}
+
+	for (unsigned int listIdx = 0; listIdx < m_pAwaitingExecution.size(); ++listIdx)
 	{
 		delete m_pAwaitingExecution[listIdx];
-		m_pAwaitingExecution.pop_back();
+		m_pAwaitingExecution.erase(m_pAwaitingExecution.begin() + listIdx);
 	}
 }

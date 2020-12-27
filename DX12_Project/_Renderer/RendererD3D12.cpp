@@ -78,10 +78,16 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 	return true;
 }
 
-const char* g_ModelList[] =
+struct ModelDefinition
+{
+	const char* Name = nullptr;
+	const char* MaterialName = nullptr;
+};
+
+ModelDefinition g_ModelList[] =
 {
 	//"AnalogMeter.Needle.Dark\\AnalogMeter.fbx",
-	"Sponza\\Sponza.fbx",
+	{ "Sponza\\Sponza.fbx", "Albedo" }
 	//"Cube\\Cube.obj",
 };
 
@@ -93,16 +99,17 @@ bool RendererD3D12::LoadContent(void)
 	m_pRenderEntity = new RenderEntity*[_countof(g_ModelList)];
 	for (UINT i = 0; i < _countof(g_ModelList); ++i)
 	{
-		LogInfo_Renderer("\t%s", g_ModelList[i]);
+		LogInfo_Renderer("\t%s", g_ModelList[i].Name);
 
 		char pModelPath[128];
-		snprintf(pModelPath, ARRAYSIZE(pModelPath), "%s\\%s", CONTENT_LOCATION, g_ModelList[i]);
+		snprintf(pModelPath, ARRAYSIZE(pModelPath), "%s\\%s", CONTENT_LOCATION, g_ModelList[i].Name);
 
 		m_pRenderEntity[i] = new RenderEntity();
 		m_pRenderEntity[i]->LoadModelFromFile(pModelPath);
 		m_pRenderEntity[i]->SetScale(1.0f);
 		m_pRenderEntity[i]->SetRotation(0.0f, 0.0f, 0.0f);
 		m_pRenderEntity[i]->SetPosition(0.0f, 0.0f, 0.0f);
+		m_pRenderEntity[i]->SetMaterial(g_ModelList[i].MaterialName);
 		m_ModelCount++;
 	}
 
@@ -128,7 +135,7 @@ void GenerateInputLayout(IShader* _pShader, std::vector<D3D12_INPUT_ELEMENT_DESC
 		return;
 	}
 
-	ShaderIOParameters parameters = _pShader->GetParameters();
+	ShaderIOParameters parameters = _pShader->GetShaderParameters();
 
 	_pLayout->reserve(parameters.NumberInputs);
 
@@ -330,6 +337,7 @@ bool RendererD3D12::Render(void)
 }
 void RendererD3D12::ImGuiPass(CommandList* _pGfxCmdList)
 {
+#if defined(_DEBUG)
 	RenderMarker profile(_pGfxCmdList, "%s", "ImGUI");
 
 	ID3D12DescriptorHeap* pHeaps[] = { m_pImGuiSRVHeap->GetHeap() };
@@ -393,18 +401,18 @@ void RendererD3D12::ImGuiPass(CommandList* _pGfxCmdList)
 
 	ImGUIEngine::End();
 	ImGUIEngine::Draw(_pGfxCmdList);
+#endif
 }
 
 void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 {
 	RenderMarker profile(_pGfxCmdList, "MainRenderPass");
 
-	UINT objCBByteSize = CONSTANT_BUFFER_SIZE(sizeof(ObjectCB));
-
 	_pGfxCmdList->SetPipelineState(m_pAlbedoPSO.Get());
 	_pGfxCmdList->SetGraphicsRootSignature(m_pAlbedoRS.Get());
 
 	// Per Object Draws
+	UINT objCBByteSize = CONSTANT_BUFFER_SIZE(sizeof(ObjectCB));
 	for (UINT i = 0; i < m_ModelCount; ++i)
 	{
 		RenderEntity* pModel = m_pRenderEntity[i];
