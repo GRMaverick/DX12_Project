@@ -15,6 +15,8 @@
 #include "Scene\RenderEntity.h"
 
 #include "ProfileMarker.h"
+#include "D3D12\Resources\ConstantTable.h"
+#include "D3D12\Resources\ConstantBufferResource.h"
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d12.lib")
@@ -237,12 +239,12 @@ bool RendererD3D12::CreatePipelineState(void)
 
 		CD3DX12_DESCRIPTOR_RANGE srvRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 		CD3DX12_DESCRIPTOR_RANGE samplerRange(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
+		CD3DX12_DESCRIPTOR_RANGE cbvRange(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
 
-		CD3DX12_ROOT_PARAMETER rootParameters[4];
+		CD3DX12_ROOT_PARAMETER rootParameters[3];
 		rootParameters[0].InitAsDescriptorTable(1, &srvRange, D3D12_SHADER_VISIBILITY_PIXEL);
 		rootParameters[1].InitAsDescriptorTable(1, &samplerRange, D3D12_SHADER_VISIBILITY_PIXEL);
-		rootParameters[2].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX); // Pass
-		rootParameters[3].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_VERTEX); // Object
+		rootParameters[2].InitAsDescriptorTable(1, &cbvRange, D3D12_SHADER_VISIBILITY_ALL);
 
 		if (!DeviceD3D12::Instance()->CreateRootSignature(rootParameters, _countof(rootParameters), m_pAlbedoRS.GetAddressOf()))
 			return false;
@@ -270,34 +272,9 @@ void RendererD3D12::Update(double _deltaTime)
 {
 	UpdatePassConstants();
 
-	if (m_bNewModelsLoaded)
-	{
-		m_bNewModelsLoaded = false;
-
-		UINT numNewCBs = 0;
-		for (UINT i = 0; i < m_ModelCount; ++i)
-		{
-			numNewCBs += m_pRenderEntity[i]->GetModel()->MeshCount;
-		}
-
-		if (m_ObjectCBs)
-			delete m_ObjectCBs;
-
-		m_ObjectCBs = new UploadBuffer<ObjectCB>(DeviceD3D12::Instance()->m_pDevice.Get(), numNewCBs, true);
-		m_ObjectCBCount = numNewCBs;
-	}
-
-	UINT cbIndex = 0;
 	for (UINT i = 0; i < m_ModelCount; ++i)
 	{
 		m_pRenderEntity[i]->Update();
-		for (unsigned int j = 0; j < m_pRenderEntity[i]->GetModel()->MeshCount; ++j)
-		{
-			ObjectCB objectCb;
-			objectCb.MVP = m_pRenderEntity[i]->GetWorld() * m_Camera.GetView() * m_Camera.GetProjection();
-			m_ObjectCBs->CopyData(cbIndex, objectCb);
-			cbIndex++;
-		}
 	}
 }
 
@@ -417,31 +394,41 @@ void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 	{
 		RenderEntity* pModel = m_pRenderEntity[i];
 
-		ID3D12DescriptorHeap* pHeaps[] = { pModel->GetModel()->pSRVHeap->GetHeap(), m_pDescHeapSampler->GetHeap() };
+		DirectX::XMMATRIX MVP = pModel->GetWorld() * m_Camera.GetView() * m_Camera.GetProjection();
+		ConstantTable::Instance()->UpdateValue("ObjectCB", "MVP", &MVP, sizeof(pModel->GetWorld()));
+
+		DescriptorHeap* pDescHeapSrvCbv = DeviceD3D12::Instance()->GetSrvCbvHeap();
+
+		ID3D12DescriptorHeap* pHeaps[] = { pDescHeapSrvCbv->GetHeap(), m_pDescHeapSampler->GetHeap() };
 		_pGfxCmdList->SetDescriptorHeaps(pHeaps, _countof(pHeaps));
 
 		for (UINT i = 0; i < pModel->GetModel()->MeshCount; ++i)
 		{
 			Mesh& rMesh = pModel->GetModel()->pMeshList[i];
-
-			D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = m_ObjectCBs->Resource()->GetGPUVirtualAddress() + (i * objCBByteSize);
-			_pGfxCmdList->SetGraphicsRootConstantBufferView(2, objCBAddress);
+			
+			CD3DX12_GPU_DESCRIPTOR_HANDLE cbHandle(pDescHeapSrvCbv->GetGPUStartHandle());
+			
+			cbHandle.Offset(ConstantTable::Instance()->GetConstantBuffer("ObjectCB")->GetHeapIndex(), pDescHeapSrvCbv->GetIncrementSize());
+			_pGfxCmdList->SetGraphicsRootDescriptorTable(2, cbHandle);
 
 			if (rMesh.pTexture)
 			{
-				CD3DX12_GPU_DESCRIPTOR_HANDLE texHandle(pModel->GetModel()->pSRVHeap->GetGPUStartHandle());
-				texHandle.Offset(rMesh.pTexture->GetHeapIndex(), pModel->GetModel()->pSRVHeap->GetIncrementSize());
+				CD3DX12_GPU_DESCRIPTOR_HANDLE texHandle(pDescHeapSrvCbv->GetGPUStartHandle());
+				texHandle.Offset(rMesh.pTexture->GetHeapIndex(), pDescHeapSrvCbv->GetIncrementSize());
 				_pGfxCmdList->SetGraphicsRootDescriptorTable(0, texHandle);
 			}
 
 			CD3DX12_GPU_DESCRIPTOR_HANDLE samplerHandle(m_pDescHeapSampler->GetGPUStartHandle());
 			_pGfxCmdList->SetGraphicsRootDescriptorTable(1, samplerHandle);
 
-			auto vbView = rMesh.pVertexBuffer->GetView();
-			auto ibView = rMesh.pIndexBuffer->GetView();
-			_pGfxCmdList->SetIAVertexBuffers(0, 1, &vbView);
-			_pGfxCmdList->SetIAIndexBuffer(&ibView);
-			_pGfxCmdList->DrawIndexedInstanced(rMesh.Indices, 1, 0, 0, 0);
+			if (DeviceD3D12::Instance()->FlushState())
+			{
+				auto vbView = rMesh.pVertexBuffer->GetView();
+				auto ibView = rMesh.pIndexBuffer->GetView();
+				_pGfxCmdList->SetIAVertexBuffers(0, 1, &vbView);
+				_pGfxCmdList->SetIAIndexBuffer(&ibView);
+				_pGfxCmdList->DrawIndexedInstanced(rMesh.Indices, 1, 0, 0, 0);
+			}
 		}
 	}
 }

@@ -28,7 +28,6 @@ struct RenderModel
 {
 	UINT				MeshCount = 0;
 	Mesh*				pMeshList = nullptr;
-	DescriptorHeap*		pSRVHeap = nullptr;
 };
 
 struct AssimpPreprocessResult
@@ -50,8 +49,8 @@ class AssimpLoader
 public:
 	static bool						LoadModel(DeviceD3D12* _pDevice, CommandList* _pCommandList, const char* _pFilename, RenderModel** _pModelOut);
 	static void						ProcessNode(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiNode* _pNode, const aiScene* _pScene, RenderModel** _pModelOut);
-	static Mesh						ProcessMesh(DeviceD3D12* _pDevice, CommandList* _pCommandList, DescriptorHeap* pDescHeapSRV, const aiMesh* _pMesh, const aiScene* _pScene);
-	static Texture2DResource*		ProcessMaterial(DeviceD3D12* _pDevice, CommandList* _pCommandList, DescriptorHeap* pDescHeapSRV, const aiMaterial* _pMaterial, const aiTextureType _type, const char* _typeName, const aiScene* _pScene);
+	static Mesh						ProcessMesh(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiMesh* _pMesh, const aiScene* _pScene);
+	static Texture2DResource*		ProcessMaterial(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiMaterial* _pMaterial, const aiTextureType _type, const char* _typeName, const aiScene* _pScene);
 private:
 	static std::map<std::string, RenderModel*>				m_LoadedModels;
 	static std::map<std::string, Texture2DResource*>	m_LoadedTextures;

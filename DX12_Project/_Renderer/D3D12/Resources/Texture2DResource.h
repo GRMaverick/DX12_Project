@@ -18,7 +18,7 @@ public:
 		DescriptorHeap* _pTargetSRVHeap, 
 		ID3D12Device* _pDevice, 
 		CommandList* _pCmdList,
-		const char* _pDebugName = nullptr
+		const wchar_t* _pDebugName = nullptr
 	);
 
 	~Texture2DResource(void);

@@ -139,7 +139,7 @@ void ShaderCompilerDXC::Reflect(IShader* _pShader)
 	VALIDATE_D3D(DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&pLibrary)));
 
 	IDxcBlobEncoding* pBlob = nullptr;
-	VALIDATE_D3D(pLibrary->CreateBlobWithEncodingOnHeapCopy(_pShader->GetBytecode(), _pShader->GetBytecodeSize(), CP_ACP, &pBlob));
+	VALIDATE_D3D(pLibrary->CreateBlobWithEncodingOnHeapCopy(_pShader->GetBytecode(), (UINT32)_pShader->GetBytecodeSize(), CP_ACP, &pBlob));
 	
 	IDxcContainerReflection* pReflectionCntr = nullptr;
 	VALIDATE_D3D(DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(&pReflectionCntr)));

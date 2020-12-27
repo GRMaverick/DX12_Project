@@ -8,6 +8,8 @@
 
 #include "d3dx12.h"
 
+#include "D3D12\Resources\ConstantBufferParameters.h"
+
 class CommandQueue;
 class CommandList;
 class SwapChain;
@@ -17,6 +19,7 @@ class IBufferResource;
 class Texture2DResource;
 class VertexBufferResource;
 class IndexBufferResource;
+class ConstantBufferResource;
 
 struct PipelineStateDesc
 {
@@ -42,18 +45,24 @@ public:
 	bool CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE _type, DescriptorHeap** _ppDescriptorHeap, UINT _numBuffers = 1, D3D12_DESCRIPTOR_HEAP_FLAGS _flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, const wchar_t* _pDebugName = L"");
 	bool CreateSwapChain(SwapChain** _ppSwapChain, CoreWindow* _pWindow, UINT _numBackBuffers, const wchar_t* _pDebugName = L"");
 
-	bool CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, Texture2DResource** _pTexture, DescriptorHeap* _pDescHeapSRV, const wchar_t* _pDebugName = L"");
-	bool CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, Texture2DResource** _pTexture, DescriptorHeap* _pDescHeapSRV, const wchar_t* _pDebugName = L"");
+	bool CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, Texture2DResource** _pTexture, const wchar_t* _pDebugName = L"");
+	bool CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, Texture2DResource** _pTexture, const wchar_t* _pDebugName = L"");
 	bool CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, IndexBufferResource** _ppResource, const wchar_t* _pDebugName = L"");
 	bool CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, VertexBufferResource** _ppResource, const wchar_t* _pDebugName = L"");
-
+	ConstantBufferResource* CreateConstantBufferResource(const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"");
+	
 	bool CreateRootSignature(D3D12_ROOT_PARAMETER* _pRootParameters, UINT _numParameters, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName = L"");
 	bool CreatePipelineState(PipelineStateDesc _psDesc, ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName = L"");
 	bool CreateSamplerState(D3D12_SAMPLER_DESC* _pSamplerDesc, D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const wchar_t* _pDebugName = L"");
 
-	bool FlushState() { }
+	bool FlushState();
+
+	DescriptorHeap* GetSrvCbvHeap(void) { return m_pDescHeapSrvCbv; }
 private:
 	DeviceD3D12(void);
+
+	DescriptorHeap*									m_pDescHeapSrvCbv;
+
 	Microsoft::WRL::ComPtr<ID3D12Device6>			m_pDevice = nullptr;
 
 	Microsoft::WRL::ComPtr<IDXGIFactory5>			m_pDxgiFactory = nullptr;

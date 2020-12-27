@@ -156,6 +156,12 @@
     <ClCompile Include="_Renderer\D3D12\Resources\IndexBufferResource.cpp">
       <Filter>Source Files\Renderer\D3D12\Resource</Filter>
     </ClCompile>
+    <ClCompile Include="_Renderer\D3D12\Resources\ConstantBufferResource.cpp">
+      <Filter>Source Files\Renderer\D3D12\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="_Renderer\D3D12\Resources\ConstantTable.cpp">
+      <Filter>Source Files\Renderer\D3D12\Resource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Core\CoreWindow.h">
@@ -259,6 +265,15 @@
     </ClInclude>
     <ClInclude Include="_Renderer\D3D12\Shaders\ShaderCompilerDX.h">
       <Filter>Header Files\Renderer\D3D12\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="_Renderer\D3D12\Resources\ConstantBufferResource.h">
+      <Filter>Header Files\Renderer\D3D12\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="_Renderer\D3D12\Resources\ConstantBufferParameters.h">
+      <Filter>Header Files\Renderer\D3D12\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="_Renderer\D3D12\Resources\ConstantTable.h">
+      <Filter>Header Files\Renderer\D3D12\Resource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

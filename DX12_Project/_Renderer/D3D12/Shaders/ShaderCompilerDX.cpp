@@ -4,6 +4,8 @@
 
 #include <d3dcompiler.h>
 
+#include "D3D12\Resources\ConstantBufferParameters.h"
+
 void ShaderCompilerDX::ReflectInternal(IShader* _pShader, ID3D12ShaderReflection* _pReflection)
 {
 	if (_pReflection)
@@ -113,6 +115,7 @@ void ShaderCompilerDX::ReflectInternal(IShader* _pShader, ID3D12ShaderReflection
 				resource.Type = ibDesc.Type;
 				resource.BindPoint = ibDesc.BindPoint;
 				resource.BindCount = ibDesc.BindCount;
+
 #if defined(DUMP_CONSTANTS)
 				LogInfo_Renderer("\tBR Name: %s", resource.Name);
 				LogInfo_Renderer("\t\tType: %u", resource.Type);
@@ -126,5 +129,6 @@ void ShaderCompilerDX::ReflectInternal(IShader* _pShader, ID3D12ShaderReflection
 
 		_pShader->SetShaderParameters(shaderIO);
 		_pShader->SetConstantParameters(cbInfo);
+
 	}
 }

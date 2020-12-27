@@ -44,6 +44,11 @@ bool CommandList::Initialise(ComPtr<ID3D12Device> _pDevice, D3D12_COMMAND_LIST_T
 		if (FAILED(hr))
 		{
 			assert(false && "Command Allocator Creation Failed");
+			hr = _pDevice->GetDeviceRemovedReason();
+			if (FAILED(hr))
+			{
+				assert(false);
+			}
 			return false;
 		}
 		m_pAllocator->SetName(_pDebugName);
@@ -64,10 +69,12 @@ bool CommandList::Initialise(ComPtr<ID3D12Device> _pDevice, D3D12_COMMAND_LIST_T
 #if defined(_DEBUG) && defined(BREADCRUMB)
 	// Init Breadcrumb Debugging
 	{
+		auto props = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK);
+		auto buff = CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT32));
 		VALIDATE_D3D(_pDevice->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
+			&props,
 			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT32)),
+			&buff,
 			D3D12_RESOURCE_STATE_COPY_DEST,
 			nullptr,
 			IID_PPV_ARGS(&m_BreadcrumbBuffer)));

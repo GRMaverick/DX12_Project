@@ -1,6 +1,8 @@
 #ifndef __IShader_h__
 #define __IShader_h__
 
+#include "D3D12\Resources\ConstantTable.h"
+
 struct ShaderIOParameters
 {
 	struct Parameter
@@ -20,39 +22,6 @@ struct ShaderIOParameters
 	Parameter*			Outputs = nullptr;
 };
 
-struct ConstantBufferParameters
-{
-	struct Variable
-	{
-		char			Name[32] = { 0 };
-		unsigned int	Size = 0;
-		unsigned int	Offset = 0;
-	};
-
-	struct ConstantBuffer
-	{
-		char			Name[32] = { 0 };
-		unsigned int	Size = 0;
-		unsigned int	Type = 0;
-		unsigned int	NumberVariables = 0;
-		Variable*		Variables = nullptr;
-	};
-
-	struct BoundResource
-	{
-		char			Name[32] = { 0 };
-		unsigned int	Type = 0;
-		unsigned int	BindPoint = 0;
-		unsigned int	BindCount = 0;
-	};
-
-	unsigned int		NumberBuffers = 0;
-	ConstantBuffer*		Buffers = nullptr;
-
-	unsigned int		NumberResources = 0;
-	BoundResource*		Resources = nullptr;
-};
-
 class IShader
 {
 public:
@@ -66,7 +35,7 @@ public:
 
 	void SetName(const char* _pName) { strncpy_s(m_pShaderName, strlen(_pName) + 1, _pName, strlen(_pName)); }
 	void SetShaderParameters(const ShaderIOParameters& _params) { m_ShaderParameters = _params; }
-	void SetConstantParameters(const ConstantBufferParameters& _params) { m_ConstantParameters = _params; }
+	void SetConstantParameters(const ConstantBufferParameters& _params) { m_ConstantParameters = _params; ConstantTable::Instance()->CreateConstantBuffers(_params);  }
 
 	ShaderType GetType(void) { return m_Type; }
 	const char* GetShaderName(void) { return m_pShaderName; }

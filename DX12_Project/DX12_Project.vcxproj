@@ -165,6 +165,8 @@ xcopy /y /s /q $(ProjectDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configurati
     <ClCompile Include="_Renderer\D3D12\Device\CommandQueue.cpp" />
     <ClCompile Include="_Renderer\D3D12\Device\DeviceD3D12.cpp" />
     <ClCompile Include="_Renderer\D3D12\Device\SwapChain.cpp" />
+    <ClCompile Include="_Renderer\D3D12\Resources\ConstantBufferResource.cpp" />
+    <ClCompile Include="_Renderer\D3D12\Resources\ConstantTable.cpp" />
     <ClCompile Include="_Renderer\D3D12\Resources\DescriptorHeap.cpp" />
     <ClCompile Include="_Renderer\D3D12\Resources\IBufferResource.cpp" />
     <ClCompile Include="_Renderer\D3D12\Resources\IndexBufferResource.cpp" />
@@ -196,6 +198,9 @@ xcopy /y /s /q $(ProjectDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configurati
     <ClInclude Include="_Renderer\D3D12\Device\CommandQueue.h" />
     <ClInclude Include="_Renderer\D3D12\Device\DeviceD3D12.h" />
     <ClInclude Include="_Renderer\D3D12\Device\SwapChain.h" />
+    <ClInclude Include="_Renderer\D3D12\Resources\ConstantBufferParameters.h" />
+    <ClInclude Include="_Renderer\D3D12\Resources\ConstantBufferResource.h" />
+    <ClInclude Include="_Renderer\D3D12\Resources\ConstantTable.h" />
     <ClInclude Include="_Renderer\D3D12\Resources\DescriptorHeap.h" />
     <ClInclude Include="_Renderer\D3D12\Resources\IBufferResource.h" />
     <ClInclude Include="_Renderer\D3D12\Resources\IndexBufferResource.h" />

@@ -85,8 +85,6 @@ bool AssimpLoader::LoadModel(DeviceD3D12* _pDevice, CommandList* _pCommandList, 
 
 	(*_pModelOut) = new RenderModel();
 	(*_pModelOut)->pMeshList = new Mesh[result.MeshCount];
-	if (!_pDevice->CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, &(*_pModelOut)->pSRVHeap, result.TextureCount, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, L"AssimpLoader"))
-		return false;
 
 	ProcessNode(_pDevice, _pCommandList, pScene->mRootNode, pScene, _pModelOut);
 
@@ -98,7 +96,7 @@ void AssimpLoader::ProcessNode(DeviceD3D12* _pDevice, CommandList* _pCommandList
 	for (UINT i = 0; i < _pNode->mNumMeshes; ++i)
 	{
 		const aiMesh* pMesh = _pScene->mMeshes[_pNode->mMeshes[i]];
-		(*_pModelOut)->pMeshList[(*_pModelOut)->MeshCount] = ProcessMesh(_pDevice, _pCommandList, (*_pModelOut)->pSRVHeap, pMesh, _pScene);
+		(*_pModelOut)->pMeshList[(*_pModelOut)->MeshCount] = ProcessMesh(_pDevice, _pCommandList, pMesh, _pScene);
 		(*_pModelOut)->MeshCount++;
 	}
 
@@ -108,7 +106,7 @@ void AssimpLoader::ProcessNode(DeviceD3D12* _pDevice, CommandList* _pCommandList
 	}
 }
 
-Mesh AssimpLoader::ProcessMesh(DeviceD3D12* _pDevice, CommandList* _pCommandList, DescriptorHeap* pDescHeapSRV, const aiMesh* _pMesh, const aiScene* _pScene)
+Mesh AssimpLoader::ProcessMesh(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiMesh* _pMesh, const aiScene* _pScene)
 {
 	//
 	// Vertices
@@ -156,7 +154,7 @@ Mesh AssimpLoader::ProcessMesh(DeviceD3D12* _pDevice, CommandList* _pCommandList
 	if (_pMesh->mMaterialIndex >= 0)
 	{
 		const aiMaterial* pMaterial = _pScene->mMaterials[_pMesh->mMaterialIndex];
-		mesh.pTexture = ProcessMaterial(_pDevice, _pCommandList, pDescHeapSRV, pMaterial, aiTextureType_DIFFUSE, "texture_diffuse", _pScene);
+		mesh.pTexture = ProcessMaterial(_pDevice, _pCommandList, pMaterial, aiTextureType_DIFFUSE, "texture_diffuse", _pScene);
 	}
 
 	//
@@ -218,7 +216,7 @@ Texture2DResource* GetTextureFromModel(DeviceD3D12* _pDevice, const aiScene* sce
 
 extern const char* ExtractExtension(const char* _pFilename);
 
-Texture2DResource* AssimpLoader::ProcessMaterial(DeviceD3D12* _pDevice, CommandList* _pCommandList, DescriptorHeap* pDescHeapSRV, const aiMaterial* _pMaterial, const aiTextureType _type, const char* _typeName, const aiScene* _pScene)
+Texture2DResource* AssimpLoader::ProcessMaterial(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiMaterial* _pMaterial, const aiTextureType _type, const char* _typeName, const aiScene* _pScene)
 {
 	//assert((_pMaterial->GetTextureCount(_type) == 1) && "More than one textures of this type");
 
@@ -243,12 +241,12 @@ Texture2DResource* AssimpLoader::ProcessMaterial(DeviceD3D12* _pDevice, CommandL
 				const char* ext = ExtractExtension(str.C_Str());
 				if (strncmp(ext, "dds", 3) == 0)
 				{
-					if (_pDevice->CreateTexture2D(wstrFilename.c_str(), _pCommandList, &pTexture, pDescHeapSRV, wstrFilename.c_str()))
+					if (_pDevice->CreateTexture2D(wstrFilename.c_str(), _pCommandList, &pTexture, wstrFilename.c_str()))
 						return pTexture;
 				}
 				else
 				{
-					if (_pDevice->CreateWICTexture2D(wstrFilename.c_str(), _pCommandList, &pTexture, pDescHeapSRV, wstrFilename.c_str()))
+					if (_pDevice->CreateWICTexture2D(wstrFilename.c_str(), _pCommandList, &pTexture, wstrFilename.c_str()))
 						return pTexture;
 				}
 				delete[] ext;
