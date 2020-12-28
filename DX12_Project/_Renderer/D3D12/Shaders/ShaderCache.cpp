@@ -28,6 +28,12 @@ ShaderCache::~ShaderCache(void)
 {
 }
 
+ShaderCache* ShaderCache::Instance(void)
+{
+	static ShaderCache cache;
+	return &cache;
+}
+
 void ShaderCache::InitCompiler(void)
 {
 	m_pShaderCompiler = nullptr;
@@ -48,8 +54,12 @@ bool ShaderCache::Load(const char* _pShadersPath)
 {
 	if (!m_pShaderCompiler)
 	{
-		LogError_Renderer("\tInvalid Shader Compiler");
-		return false;
+		InitCompiler();
+		if (!m_pShaderCompiler)
+		{
+			LogError_Renderer("\tInvalid Shader Compiler");
+			return false;
+		}
 	}
 
 	WIN32_FIND_DATAA data = { };

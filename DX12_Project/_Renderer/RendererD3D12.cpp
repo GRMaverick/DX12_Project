@@ -58,7 +58,7 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 	if (!DeviceD3D12::Instance()->Initialise(CLParser::Instance()->HasArgument("d3ddebug")))
 		return false;
 
-	m_ShaderCache = ShaderCache(SHADER_CACHE_LOCATION);
+	ShaderCache::Instance()->Load(SHADER_CACHE_LOCATION);
 
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_DIRECT);
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY);
@@ -74,9 +74,6 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 	if (!LoadContent())
 		return false;
 
-	if (!CreatePipelineState())
-		return false;
-
 	return true;
 }
 
@@ -89,8 +86,8 @@ struct ModelDefinition
 ModelDefinition g_ModelList[] =
 {
 	//"AnalogMeter.Needle.Dark\\AnalogMeter.fbx",
-	{ "Sponza\\Sponza.fbx", "Albedo" }
-	//"Cube\\Cube.obj",
+	//{ "Sponza\\Sponza.fbx", "Albedo" }
+	{ "Cube\\Cube.obj", "Albedo" }
 };
 
 bool RendererD3D12::LoadContent(void)
@@ -115,8 +112,8 @@ bool RendererD3D12::LoadContent(void)
 		m_ModelCount++;
 	}
 
-	m_Camera.SetPosition(90.0f, 90.0f, 0.0f);
-	//m_Camera.SetPosition(1.5f, 2.5f, 0.0f);
+	//m_Camera.SetPosition(90.0f, 90.0f, 0.0f);
+	m_Camera.SetPosition(1.5f, 2.5f, 0.0f);
 
 	m_Camera.SetUp(0.0f, 1.0f, 0.0f);
 	m_Camera.SetTarget(0.0f, 0.0f, 0.0f);
@@ -125,145 +122,6 @@ bool RendererD3D12::LoadContent(void)
 
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY)->ExecuteCommandLists();
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY)->Flush();
-
-	return true;
-}
-
-void GenerateInputLayout(IShader* _pShader, std::vector<D3D12_INPUT_ELEMENT_DESC>* _pLayout)
-{
-	if (_pShader->GetType() != IShader::ShaderType::VertexShader)
-	{
-		LogError_Renderer("Shader generating Input Layout IS NOT a Vertex Shader");
-		return;
-	}
-
-	ShaderIOParameters parameters = _pShader->GetShaderParameters();
-
-	_pLayout->reserve(parameters.NumberInputs);
-
-	for (unsigned int input = 0; input < parameters.NumberInputs; ++input)
-	{
-		const ShaderIOParameters::Parameter& p = parameters.Inputs[input];
-		D3D12_INPUT_ELEMENT_DESC desc;
-		ZeroMemory(&desc, sizeof(D3D12_INPUT_ELEMENT_DESC));
-		desc.SemanticIndex = p.SemanticIndex;
-		desc.SemanticName = p.SemanticName;
-		desc.InputSlot = 0;
-		desc.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-		desc.InstanceDataStepRate = 0;
-		desc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-
-		if (p.Mask == 1)
-		{
-			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32) 
-				desc.Format = DXGI_FORMAT_R32_UINT;
-			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32) 
-				desc.Format = DXGI_FORMAT_R32_SINT;
-			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) 
-				desc.Format = DXGI_FORMAT_R32_FLOAT;
-		}
-		else if (p.Mask <= 3)
-		{
-			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32) 
-				desc.Format = DXGI_FORMAT_R32G32_UINT;
-			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32) 
-				desc.Format = DXGI_FORMAT_R32G32_SINT;
-			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) 
-				desc.Format = DXGI_FORMAT_R32G32_FLOAT;
-		}
-		else if (p.Mask <= 7)
-		{
-			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32) 
-				desc.Format = DXGI_FORMAT_R32G32B32_UINT;
-			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32) 
-				desc.Format = DXGI_FORMAT_R32G32B32_SINT;
-			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) 
-				desc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		}
-		else if (p.Mask <= 15)
-		{
-			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32) 
-				desc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
-			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32) 
-				desc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
-			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) 
-				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		}
-		_pLayout->push_back(desc);
-	}
-}
-
-bool RendererD3D12::CreatePipelineState(void)
-{
-	// Basic Colour PSO
-	{
-		CD3DX12_ROOT_PARAMETER rootParameters[1];
-		rootParameters[0].InitAsConstants(sizeof(XMMATRIX) / 4, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-
-		if (!DeviceD3D12::Instance()->CreateRootSignature(rootParameters, _countof(rootParameters), m_pBasicRS.GetAddressOf()))
-			return false;
-						
-		ShaderSet set = m_ShaderCache.GetShader("Basic");
-
-		std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
-		GenerateInputLayout(set.VertexShader, &inputLayout);
-
-		PipelineStateDesc psDesc;
-		ZeroMemory(&psDesc, sizeof(PipelineStateDesc));
-		psDesc.VertexShader = { set.VertexShader->GetBytecode(), set.VertexShader->GetBytecodeSize() };
-		psDesc.PixelShader = { set.PixelShader->GetBytecode(), set.PixelShader->GetBytecodeSize() };
-		psDesc.InputLayout = { &inputLayout[0], (UINT)inputLayout.size() };
-		psDesc.RootSignature = m_pBasicRS.Get();
-
-		if (!DeviceD3D12::Instance()->CreatePipelineState(psDesc, m_pBasicPSO.GetAddressOf()))
-			return false;
-	}
-
-	// Albedo PSO
-	{
-		if (!DeviceD3D12::Instance()->CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, &m_pDescHeapSampler, 1, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE))
-			return false;
-
-		D3D12_SAMPLER_DESC samplerDesc = {};
-		samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-		samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-		samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-		samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-		samplerDesc.MinLOD = 0;
-		samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
-		samplerDesc.MipLODBias = 0.0f;
-		samplerDesc.MaxAnisotropy = 1;
-		samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-		if (!DeviceD3D12::Instance()->CreateSamplerState(&samplerDesc, m_pDescHeapSampler->GetCPUStartHandle()))
-			return false;
-
-		CD3DX12_DESCRIPTOR_RANGE srvRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
-		CD3DX12_DESCRIPTOR_RANGE samplerRange(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
-		CD3DX12_DESCRIPTOR_RANGE cbvRange(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
-
-		CD3DX12_ROOT_PARAMETER rootParameters[3];
-		rootParameters[0].InitAsDescriptorTable(1, &srvRange, D3D12_SHADER_VISIBILITY_PIXEL);
-		rootParameters[1].InitAsDescriptorTable(1, &samplerRange, D3D12_SHADER_VISIBILITY_PIXEL);
-		rootParameters[2].InitAsDescriptorTable(1, &cbvRange, D3D12_SHADER_VISIBILITY_ALL);
-
-		if (!DeviceD3D12::Instance()->CreateRootSignature(rootParameters, _countof(rootParameters), m_pAlbedoRS.GetAddressOf()))
-			return false;
-
-		ShaderSet set = m_ShaderCache.GetShader("Albedo");
-
-		std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
-		GenerateInputLayout(set.VertexShader, &inputLayout);
-
-		PipelineStateDesc psDesc;
-		ZeroMemory(&psDesc, sizeof(PipelineStateDesc));
-		psDesc.VertexShader = { set.VertexShader->GetBytecode(), set.VertexShader->GetBytecodeSize() };
-		psDesc.PixelShader = { set.PixelShader->GetBytecode(), set.PixelShader->GetBytecodeSize() };
-		psDesc.InputLayout = { &inputLayout[0], (UINT)inputLayout.size() };
-		psDesc.RootSignature = m_pAlbedoRS.Get();
-
-		if (!DeviceD3D12::Instance()->CreatePipelineState(psDesc, m_pAlbedoPSO.GetAddressOf()))
-			return false;
-	}
 
 	return true;
 }
@@ -285,7 +143,9 @@ void RendererD3D12::UpdatePassConstants()
 
 bool RendererD3D12::Render(void)
 {
-	CommandList* pGfxCmdList = CommandList::Build(D3D12_COMMAND_LIST_TYPE_DIRECT);
+	DeviceD3D12::Instance()->BeginFrame();
+
+	CommandList* pGfxCmdList = DeviceD3D12::Instance()->GetImmediateContext();
 
 	// Rendering
 	{
@@ -310,8 +170,11 @@ bool RendererD3D12::Render(void)
 		pGfxCmdQueue->Wait();
 	}
 
+	DeviceD3D12::Instance()->EndFrame();
+
 	return true;
 }
+
 void RendererD3D12::ImGuiPass(CommandList* _pGfxCmdList)
 {
 #if defined(_DEBUG)
@@ -385,8 +248,16 @@ void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 {
 	RenderMarker profile(_pGfxCmdList, "MainRenderPass");
 
-	_pGfxCmdList->SetPipelineState(m_pAlbedoPSO.Get());
-	_pGfxCmdList->SetGraphicsRootSignature(m_pAlbedoRS.Get());
+	D3D12_SAMPLER_DESC samplerDesc = {};
+	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 
 	// Per Object Draws
 	UINT objCBByteSize = CONSTANT_BUFFER_SIZE(sizeof(ObjectCB));
@@ -396,30 +267,17 @@ void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 
 		DirectX::XMMATRIX MVP = pModel->GetWorld() * m_Camera.GetView() * m_Camera.GetProjection();
 		ConstantTable::Instance()->UpdateValue("ObjectCB", "MVP", &MVP, sizeof(pModel->GetWorld()));
-
-		DescriptorHeap* pDescHeapSrvCbv = DeviceD3D12::Instance()->GetSrvCbvHeap();
-
-		ID3D12DescriptorHeap* pHeaps[] = { pDescHeapSrvCbv->GetHeap(), m_pDescHeapSampler->GetHeap() };
-		_pGfxCmdList->SetDescriptorHeaps(pHeaps, _countof(pHeaps));
+		
+		DeviceD3D12* pDevice = DeviceD3D12::Instance();
+		pDevice->SetShader(pModel->GetMaterialName());
 
 		for (UINT i = 0; i < pModel->GetModel()->MeshCount; ++i)
 		{
 			Mesh& rMesh = pModel->GetModel()->pMeshList[i];
 			
-			CD3DX12_GPU_DESCRIPTOR_HANDLE cbHandle(pDescHeapSrvCbv->GetGPUStartHandle());
-			
-			cbHandle.Offset(ConstantTable::Instance()->GetConstantBuffer("ObjectCB")->GetHeapIndex(), pDescHeapSrvCbv->GetIncrementSize());
-			_pGfxCmdList->SetGraphicsRootDescriptorTable(2, cbHandle);
-
-			if (rMesh.pTexture)
-			{
-				CD3DX12_GPU_DESCRIPTOR_HANDLE texHandle(pDescHeapSrvCbv->GetGPUStartHandle());
-				texHandle.Offset(rMesh.pTexture->GetHeapIndex(), pDescHeapSrvCbv->GetIncrementSize());
-				_pGfxCmdList->SetGraphicsRootDescriptorTable(0, texHandle);
-			}
-
-			CD3DX12_GPU_DESCRIPTOR_HANDLE samplerHandle(m_pDescHeapSampler->GetGPUStartHandle());
-			_pGfxCmdList->SetGraphicsRootDescriptorTable(1, samplerHandle);
+			pDevice->SetConstantBuffer(0, ConstantTable::Instance()->GetConstantBuffer("ObjectCB"));
+			pDevice->SetTexture(0, rMesh.pTexture);
+			pDevice->SetSamplerState(samplerDesc);
 
 			if (DeviceD3D12::Instance()->FlushState())
 			{

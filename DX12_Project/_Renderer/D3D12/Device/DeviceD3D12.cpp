@@ -1,10 +1,11 @@
 #include "Defines.h"
 
-#include "DeviceD3D12.h"
-#include "CommandList.h"
-#include "CommandQueue.h"
-#include "SwapChain.h"
 #include "CoreWindow.h"
+
+#include "D3D12\Device\DeviceD3D12.h"
+#include "D3D12\Device\CommandList.h"
+#include "D3D12\Device\CommandQueue.h"
+#include "D3D12\Device\SwapChain.h"
 
 #include "D3D12\Resources\DescriptorHeap.h"
 #include "D3D12\Resources\Texture2DResource.h"
@@ -12,6 +13,8 @@
 #include "D3D12\Resources\IndexBufferResource.h"
 #include "D3D12\Resources\ConstantBufferResource.h"
 #include "D3D12\Resources\UploadBuffer.h"
+
+#include "D3D12\Shaders\ShaderCache.h"
 
 #include <assert.h>
 #include <DirectXMath.h>
@@ -28,6 +31,20 @@ using namespace DirectX;
 using namespace Microsoft::WRL;
 
 using namespace SysMemory;
+
+unsigned long HashString(char* _pObject, size_t _szlength)
+{
+	unsigned long hash = 5381;
+
+	int c = 0;
+	for (unsigned int i = 0; i < _szlength; ++i)
+	{
+		int c = _pObject[i];
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+	}
+
+	return hash;
+}
 
 DeviceD3D12* DeviceD3D12::Instance(void)
 {
@@ -151,6 +168,10 @@ bool DeviceD3D12::Initialise(bool _bDebugging)
 	if (!DeviceD3D12::Instance()->CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, &m_pDescHeapSrvCbv, kMaxSrvCbvs, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, L"MainSrvCbvHeap"))
 		return false;
 
+	const unsigned int kMaxSamplerDescs = 1;
+	if (!DeviceD3D12::Instance()->CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, &m_pDescHeapSampler, kMaxSamplerDescs, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE))
+		return false;
+
 	return true;
 }
 
@@ -264,8 +285,20 @@ bool DeviceD3D12::CreateRootSignature(D3D12_ROOT_PARAMETER* _pRootParameters, UI
 		return false;
 	}
 
-	VALIDATE_D3D(m_pDevice->CreateRootSignature(0, pRootSigBlob->GetBufferPointer(), pRootSigBlob->GetBufferSize(), IID_PPV_ARGS(_ppRootSignature)));
-	(*_ppRootSignature)->SetName(_pDebugName);
+	unsigned long ulHash = HashString((char*)pRootSigBlob->GetBufferPointer(), pRootSigBlob->GetBufferSize());
+	if (m_mapRootSignatures.find(ulHash) != m_mapRootSignatures.end())
+	{
+		(*_ppRootSignature) = m_mapRootSignatures[ulHash];
+	}
+	else
+	{
+		ID3D12RootSignature* pRootSig = nullptr;
+		VALIDATE_D3D(m_pDevice->CreateRootSignature(0, pRootSigBlob->GetBufferPointer(), pRootSigBlob->GetBufferSize(), IID_PPV_ARGS(&pRootSig)));
+		pRootSig->SetName(_pDebugName);
+
+		m_mapRootSignatures[ulHash] = pRootSig;
+		(*_ppRootSignature) = pRootSig;
+	}
 
 	return true;
 }
@@ -293,6 +326,8 @@ bool DeviceD3D12::CreatePipelineState(PipelineStateDesc _psDesc, ID3D12PipelineS
 	pipelineStateStream.InputLayout = _psDesc.InputLayout;
 	pipelineStateStream.pRootSignature = _psDesc.RootSignature;
 	pipelineStateStream.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	
+	PRAGMA_TODO("Change Formats on Changed RTV/DSV");
 	pipelineStateStream.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	pipelineStateStream.RTVFormats = rtvFormats;
 
@@ -300,8 +335,20 @@ bool DeviceD3D12::CreatePipelineState(PipelineStateDesc _psDesc, ID3D12PipelineS
 		sizeof(PipelineStateStream), &pipelineStateStream
 	};
 
-	VALIDATE_D3D(m_pDevice->CreatePipelineState(&pipelineStateStreamDesc, IID_PPV_ARGS(_ppPipelineState)));
-	(*_ppPipelineState)->SetName(_pDebugName);
+	unsigned long ulHash = HashString((char*)&pipelineStateStreamDesc, sizeof(D3D12_PIPELINE_STATE_STREAM_DESC));
+	if (m_mapPSO.find(ulHash) != m_mapPSO.end())
+	{
+		(*_ppPipelineState) = m_mapPSO[ulHash];
+	}
+	else
+	{
+		ID3D12PipelineState* pPSO = nullptr;
+		VALIDATE_D3D(m_pDevice->CreatePipelineState(&pipelineStateStreamDesc, IID_PPV_ARGS(&pPSO)));
+		pPSO->SetName(_pDebugName);
+
+		m_mapPSO[ulHash] = pPSO;
+		(*_ppPipelineState) = pPSO;
+	}
 
 	return true;
 }
@@ -312,7 +359,222 @@ bool DeviceD3D12::CreateSamplerState(D3D12_SAMPLER_DESC* _pSamplerDesc, D3D12_CP
 	return true;
 }
 
+void DeviceD3D12::BeginFrame(void)
+{
+	m_ImmediateContext = CommandList::Build(D3D12_COMMAND_LIST_TYPE_DIRECT);
+}
+
+void DeviceD3D12::EndFrame(void)
+{
+
+}
+
+void GenerateInputLayout(IShader* _pShader, std::vector<D3D12_INPUT_ELEMENT_DESC>* _pLayout)
+{
+	if (_pShader->GetType() != IShader::ShaderType::VertexShader)
+	{
+		LogError_Renderer("Shader generating Input Layout IS NOT a Vertex Shader");
+		return;
+	}
+
+	ShaderIOParameters parameters = _pShader->GetShaderParameters();
+
+	_pLayout->reserve(parameters.NumberInputs);
+
+	for (unsigned int input = 0; input < parameters.NumberInputs; ++input)
+	{
+		const ShaderIOParameters::Parameter& p = parameters.Inputs[input];
+		D3D12_INPUT_ELEMENT_DESC desc;
+		ZeroMemory(&desc, sizeof(D3D12_INPUT_ELEMENT_DESC));
+		desc.SemanticIndex = p.SemanticIndex;
+		desc.SemanticName = p.SemanticName;
+		desc.InputSlot = 0;
+		desc.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+		desc.InstanceDataStepRate = 0;
+		desc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+
+		if (p.Mask == 1)
+		{
+			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+				desc.Format = DXGI_FORMAT_R32_UINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+				desc.Format = DXGI_FORMAT_R32_SINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+				desc.Format = DXGI_FORMAT_R32_FLOAT;
+		}
+		else if (p.Mask <= 3)
+		{
+			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+				desc.Format = DXGI_FORMAT_R32G32_UINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+				desc.Format = DXGI_FORMAT_R32G32_SINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+				desc.Format = DXGI_FORMAT_R32G32_FLOAT;
+		}
+		else if (p.Mask <= 7)
+		{
+			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+				desc.Format = DXGI_FORMAT_R32G32B32_UINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+				desc.Format = DXGI_FORMAT_R32G32B32_SINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+				desc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		}
+		else if (p.Mask <= 15)
+		{
+			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+				desc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+				desc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		}
+		_pLayout->push_back(desc);
+	}
+}
+
 bool DeviceD3D12::FlushState()
 {
+	CommandList* pGfxCmdList = GetImmediateContext();
+
+	ID3D12DescriptorHeap* pHeaps[] = { m_pDescHeapSrvCbv->GetHeap(), m_pDescHeapSampler->GetHeap() };
+	pGfxCmdList->SetDescriptorHeaps(pHeaps, _countof(pHeaps));
+
+	CD3DX12_DESCRIPTOR_RANGE srvRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+	CD3DX12_DESCRIPTOR_RANGE samplerRange(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
+	CD3DX12_DESCRIPTOR_RANGE cbvRange(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
+
+	CD3DX12_ROOT_PARAMETER rootParameters[3];
+	rootParameters[0].InitAsDescriptorTable(1, &srvRange, D3D12_SHADER_VISIBILITY_PIXEL);
+	rootParameters[1].InitAsDescriptorTable(1, &samplerRange, D3D12_SHADER_VISIBILITY_PIXEL);
+	rootParameters[2].InitAsDescriptorTable(1, &cbvRange, D3D12_SHADER_VISIBILITY_ALL);
+
+	ID3D12RootSignature* pRootSignature = nullptr;
+	if (!CreateRootSignature(rootParameters, _countof(rootParameters), &pRootSignature))
+		return false;
+
+	pGfxCmdList->SetGraphicsRootSignature(pRootSignature);
+
+	std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
+	GenerateInputLayout(m_DeviceState.VertexShader, &inputLayout);
+
+	PipelineStateDesc psDesc;
+	ZeroMemory(&psDesc, sizeof(PipelineStateDesc));
+	psDesc.VertexShader = { m_DeviceState.VertexShader->GetBytecode(), m_DeviceState.VertexShader->GetBytecodeSize() };
+	psDesc.PixelShader = { m_DeviceState.PixelShader->GetBytecode(), m_DeviceState.PixelShader->GetBytecodeSize() };
+	psDesc.InputLayout = { &inputLayout[0], (UINT)inputLayout.size() };
+	psDesc.RootSignature = pRootSignature;
+
+	ID3D12PipelineState* pPSO = nullptr;
+	if (!CreatePipelineState(psDesc, &pPSO))
+		return false;
+
+	pGfxCmdList->SetPipelineState(pPSO);
+
+	if (m_DeviceState.IsDirty(kDirtyTexture) && m_DeviceState.Texture)
+	{
+		CD3DX12_GPU_DESCRIPTOR_HANDLE texHandle(m_pDescHeapSrvCbv->GetGPUStartHandle());
+		texHandle.Offset(m_DeviceState.Texture->GetHeapIndex(), m_pDescHeapSrvCbv->GetIncrementSize());
+		pGfxCmdList->SetGraphicsRootDescriptorTable(0, texHandle);
+
+		CD3DX12_GPU_DESCRIPTOR_HANDLE samplerHandle(m_pDescHeapSampler->GetGPUStartHandle());
+		samplerHandle.Offset(m_DeviceState.Sampler.HeapIndex, m_pDescHeapSampler->GetIncrementSize());
+		pGfxCmdList->SetGraphicsRootDescriptorTable(1, samplerHandle);
+	}
+
+	if (m_DeviceState.IsDirty(kDirtySamplerState))
+	{
+	}
+
+	if (m_DeviceState.IsDirty(kDirtyConstantBuffer) && m_DeviceState.ConstantBuffer)
+	{
+		CD3DX12_GPU_DESCRIPTOR_HANDLE cbHandle(m_pDescHeapSrvCbv->GetGPUStartHandle());
+		cbHandle.Offset(m_DeviceState.ConstantBuffer->GetHeapIndex(), m_pDescHeapSrvCbv->GetIncrementSize());
+		pGfxCmdList->SetGraphicsRootDescriptorTable(2, cbHandle);
+	}
+
+	m_DeviceState.DirtyFlags = 0;
+
+	return true;
+}
+
+bool DeviceD3D12::SetShader(const char* _pName)
+{
+	ShaderSet set = ShaderCache::Instance()->GetShader(_pName);
+
+	if (m_DeviceState.VertexShader != set.VertexShader)
+	{
+		m_DeviceState.VertexShader = set.VertexShader;
+		m_DeviceState.DirtyFlags |= kDirtyShaders;
+	}
+
+	if (m_DeviceState.PixelShader != set.PixelShader)
+	{
+		m_DeviceState.PixelShader = set.PixelShader;
+		m_DeviceState.DirtyFlags |= kDirtyShaders;
+	}
+
+	return true;
+}
+
+bool DeviceD3D12::SetRenderTarget(void)
+{
+	return true;
+}
+
+bool DeviceD3D12::SetDepthBuffer(void)
+{
+	return true;
+}
+
+bool DeviceD3D12::SetTexture(unsigned int _iRegister, Texture2DResource* _pTexture)
+{
+	m_DeviceState.DirtyFlags |= kDirtyTexture;
+	m_DeviceState.Texture = _pTexture;
+	return true;
+}
+
+bool DeviceD3D12::SetConstantBuffer(unsigned int _iRegister, ConstantBufferResource* _pCBuffer)
+{
+	m_DeviceState.DirtyFlags |= kDirtyConstantBuffer;
+	m_DeviceState.ConstantBuffer = _pCBuffer;
+	return true;
+}
+
+bool DeviceD3D12::SetSamplerState(D3D12_SAMPLER_DESC _state)
+{
+	unsigned long ulHash = HashString((char*)&_state, sizeof(D3D12_SAMPLER_DESC));
+	if (m_mapSamplers.find(ulHash) != m_mapSamplers.end())
+	{
+		if (ulHash != m_DeviceState.Sampler.Hash)
+		{
+			m_DeviceState.Sampler = m_mapSamplers[ulHash];
+			m_DeviceState.DirtyFlags |= kDirtySamplerState;
+
+			return true;
+		}
+
+		return true;
+	}
+	else
+	{
+		m_DeviceState.DirtyFlags |= kDirtySamplerState;
+
+		SamplerStateEntry newState;
+		newState.Hash = ulHash;
+		newState.HeapIndex = m_pDescHeapSampler->GetFreeIndex();
+		m_pDescHeapSampler->Increment();
+
+		m_mapSamplers[ulHash] = newState;
+
+		CD3DX12_CPU_DESCRIPTOR_HANDLE sampHandle(m_pDescHeapSampler->GetCPUStartHandle());
+		sampHandle.Offset(newState.HeapIndex, m_pDescHeapSampler->GetIncrementSize());
+
+		if (!CreateSamplerState(&_state, sampHandle))
+			return false;
+
+		m_DeviceState.Sampler = m_mapSamplers[ulHash];
+	}
+
 	return true;
 }

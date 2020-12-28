@@ -6,16 +6,20 @@
 #include <dxgi1_6.h>
 #include <wrl.h>
 
+#include <map>
+
 #include "d3dx12.h"
 
 #include "D3D12\Resources\ConstantBufferParameters.h"
+
+class IShader;
+class IBufferResource;
 
 class CommandQueue;
 class CommandList;
 class SwapChain;
 class DescriptorHeap;
 class CoreWindow;
-class IBufferResource;
 class Texture2DResource;
 class VertexBufferResource;
 class IndexBufferResource;
@@ -56,17 +60,65 @@ public:
 	bool CreateSamplerState(D3D12_SAMPLER_DESC* _pSamplerDesc, D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const wchar_t* _pDebugName = L"");
 
 	bool FlushState();
+	bool SetShader(const char* _pName);
+	bool SetRenderTarget(void);
+	bool SetDepthBuffer(void);
+	bool SetTexture(unsigned int _iRegister, Texture2DResource* _pTexture);
+	bool SetConstantBuffer(unsigned int _iRegister, ConstantBufferResource* _pCBuffer);
+	bool SetSamplerState(D3D12_SAMPLER_DESC _state);
 
 	DescriptorHeap* GetSrvCbvHeap(void) { return m_pDescHeapSrvCbv; }
+
+	void BeginFrame(void);
+	void EndFrame(void);
+
+	CommandList* GetImmediateContext(void) { return m_ImmediateContext; }
 private:
+	struct SamplerStateEntry
+	{
+		unsigned int Hash = 0;
+		unsigned int HeapIndex = 0;
+	};
+
+	struct DeviceState
+	{
+		unsigned int			DirtyFlags = 0;
+		IShader*				VertexShader = nullptr;
+		IShader*				PixelShader = nullptr;
+		SamplerStateEntry		Sampler;
+		Texture2DResource*		Texture = nullptr;
+		ConstantBufferResource* ConstantBuffer = nullptr;
+
+		bool IsDirty(const unsigned int _dirtyFlags)
+		{
+			return (DirtyFlags & _dirtyFlags) == _dirtyFlags;
+		}
+	};
+
+	const unsigned int kDirtyShaders		= 1 << 0;
+	const unsigned int kDirtySamplerState	= 1 << 1;
+	const unsigned int kDirtyRenderTarget	= 1 << 2;
+	const unsigned int kDirtyDepthBuffer	= 1 << 3;
+	const unsigned int kDirtyTexture		= 1 << 4;
+	const unsigned int kDirtyConstantBuffer = 1 << 5;
+
 	DeviceD3D12(void);
 
+	DeviceState										m_DeviceState;
+
 	DescriptorHeap*									m_pDescHeapSrvCbv;
+	DescriptorHeap*									m_pDescHeapSampler;
+
+	CommandList*									m_ImmediateContext;
 
 	Microsoft::WRL::ComPtr<ID3D12Device6>			m_pDevice = nullptr;
 
 	Microsoft::WRL::ComPtr<IDXGIFactory5>			m_pDxgiFactory = nullptr;
 	Microsoft::WRL::ComPtr<IDXGIAdapter4>			m_pDxgiAdapter = nullptr;
+
+	std::map<unsigned int, SamplerStateEntry>			m_mapSamplers;
+	std::map<unsigned int, ID3D12RootSignature*>		m_mapRootSignatures;
+	std::map<unsigned int, ID3D12PipelineState*>		m_mapPSO;
 };
 
 #endif // __DeviceD3D12_h__

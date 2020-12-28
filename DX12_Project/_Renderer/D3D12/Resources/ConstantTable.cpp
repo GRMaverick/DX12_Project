@@ -20,16 +20,16 @@ ConstantTable* ConstantTable::Instance(void)
 	return &table;
 }
 
-unsigned long HashString(const char* _pString)
-{
-    unsigned long hash = 5381;
-
-    int c = 0;
-    while (c = *_pString++)
-        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-
-    return hash;
-}
+extern unsigned long HashString(char* _pObject, size_t _szlength);
+//{
+//    unsigned long hash = 5381;
+//
+//    int c = 0;
+//    while (c = *_pString++)
+//        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+//
+//    return hash;
+//}
 
 bool ConstantTable::CreateConstantBuffers(const ConstantBufferParameters& _params)
 {
@@ -37,7 +37,7 @@ bool ConstantTable::CreateConstantBuffers(const ConstantBufferParameters& _param
 
     for (unsigned int cb = 0; cb < _params.NumberBuffers; ++cb)
     {
-        unsigned long ulHashName = HashString(_params.Buffers[cb].Name);
+        unsigned long ulHashName = HashString(_params.Buffers[cb].Name, strlen(_params.Buffers[cb].Name));
 
         if (m_mapConstantBuffers.find(ulHashName) != m_mapConstantBuffers.end())
         {
@@ -54,7 +54,7 @@ bool ConstantTable::CreateConstantBuffers(const ConstantBufferParameters& _param
 
 bool ConstantTable::UpdateValue(const char* _pBufferName, const char* _pValueName, void* _pValue, unsigned int _szValue)
 {
-    unsigned long ulHashName = HashString(_pBufferName);
+    unsigned long ulHashName = HashString((char*)_pBufferName, strlen(_pBufferName));
 
     if (m_mapConstantBuffers.find(ulHashName) != m_mapConstantBuffers.end())
     {
@@ -66,7 +66,7 @@ bool ConstantTable::UpdateValue(const char* _pBufferName, const char* _pValueNam
 
 ConstantBufferResource* ConstantTable::GetConstantBuffer(const char* _pBufferName)
 {
-    unsigned long ulHashName = HashString(_pBufferName);
+    unsigned long ulHashName = HashString((char*)_pBufferName, strlen(_pBufferName));
     if (m_mapConstantBuffers.find(ulHashName) != m_mapConstantBuffers.end())
     {
         return m_mapConstantBuffers[ulHashName];

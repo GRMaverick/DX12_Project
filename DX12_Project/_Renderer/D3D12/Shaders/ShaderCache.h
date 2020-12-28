@@ -17,9 +17,9 @@ struct ShaderSet
 class ShaderCache
 {
 public:
-	ShaderCache(void);
-	ShaderCache(const char* _pShadersPath);
 	~ShaderCache(void);
+
+	static ShaderCache* Instance(void);
 
 	void InitCompiler(void);
 	bool Load(const char* _pCachePath);
@@ -27,6 +27,9 @@ public:
 	ShaderSet GetShader(const char* _pName);
 
 private:
+	ShaderCache(void);
+	ShaderCache(const char* _pShadersPath);
+
 	IShaderCompiler*		m_pShaderCompiler;
 	std::vector<IShader*>	m_vLoadedShaders;
 

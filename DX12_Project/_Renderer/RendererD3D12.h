@@ -43,7 +43,6 @@ public:
 
 private:
 	UINT											m_ModelCount;
-	UINT											m_ObjectCBCount;
 	bool											m_bNewModelsLoaded;
 
 	SwapChain*										m_pSwapChain;
@@ -51,22 +50,9 @@ private:
 	Camera											m_Camera;
 	RenderEntity**									m_pRenderEntity;
 
-	ShaderCache										m_ShaderCache;
-
 	DescriptorHeap*									m_pImGuiSRVHeap;
-	DescriptorHeap*									m_pDescHeapSampler;
-
-	UploadBuffer<ObjectCB>*							m_ObjectCBs;
-
-	// Refactor Required
-	Microsoft::WRL::ComPtr<ID3D12RootSignature>		m_pBasicRS = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12RootSignature>		m_pAlbedoRS = nullptr;
-
-	Microsoft::WRL::ComPtr<ID3D12PipelineState>		m_pBasicPSO = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState>		m_pAlbedoPSO = nullptr;
 
 	bool LoadContent();
-	bool CreatePipelineState();
 
 	void UpdatePassConstants();
 
