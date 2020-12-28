@@ -15,9 +15,13 @@ public:
 
 	unsigned int GetHeapIndex(void) { return m_HeapIndex; }
 
+	CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuHandle(void) { return m_CpuHandle; }
+
 private:
 	unsigned int m_HeapIndex;
 	char* m_pCPUMapped = nullptr;
 	ConstantBufferParameters::ConstantBuffer m_ConstantParameters;
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE m_CpuHandle;
 };
 #endif // __ConstantBufferResource_h__

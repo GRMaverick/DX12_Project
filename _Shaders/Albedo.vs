@@ -1,8 +1,23 @@
+#include "RootSignatures/Albedo.rs"
+
+//
+// Constant Buffers / Resource Bindings
+//
 struct Object
 {
-	matrix MVP;
+	float4x4 World;
 };
+ConstantBuffer<Object> ObjectCB : register(b1);
 
+struct Pass
+{
+	float4x4 ViewProjection;
+};
+ConstantBuffer<Pass> PassCB : register(b0);
+
+//
+// Input/Outputs
+//
 struct VSInput
 {
 	float3 Position : POSITION;
@@ -15,12 +30,15 @@ struct VSOutput
 	float2 Texture : TEXCOORD;
 };
 
-ConstantBuffer<Object> ObjectCB : register(b0);
-
+//
+// Entry Point
+//
+[RootSignature(RootSignatureDef)]
 VSOutput main(VSInput _input)
 {
 	VSOutput output;
-	output.Position = mul(ObjectCB.MVP, float4(_input.Position, 1.0f));
+	output.Position = mul(ObjectCB.World, float4(_input.Position, 1.0f));
+	output.Position = mul(PassCB.ViewProjection, float4(output.Position.xyz, 1.0f));
 	output.Texture = _input.Texture;
 	return output;
 }

@@ -17,6 +17,7 @@ public:
 
 	void						Increment(void);
 	UINT						GetFreeIndex(void);
+	UINT						GetFreeIndexAndIncrement(void);
 	ID3D12DescriptorHeap*		GetHeap(void) const;
 	UINT						GetIncrementSize(void) const;
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUStartHandle(void) const;

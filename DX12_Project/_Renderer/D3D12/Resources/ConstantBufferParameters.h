@@ -15,8 +15,9 @@ struct ConstantBufferParameters
 		char			Name[32] = { 0 };
 		unsigned int	Size = 0;
 		unsigned int	Type = 0;
+		unsigned int	BindPoint = 0;
 		unsigned int	NumberVariables = 0;
-		Variable* Variables = nullptr;
+		Variable*		Variables = nullptr;
 	};
 
 	struct BoundResource
@@ -28,10 +29,13 @@ struct ConstantBufferParameters
 	};
 
 	unsigned int		NumberBuffers = 0;
-	ConstantBuffer* Buffers = nullptr;
+	ConstantBuffer*		Buffers = nullptr;
 
-	unsigned int		NumberResources = 0;
-	BoundResource* Resources = nullptr;
+	unsigned int		NumberTextures = 0;
+	BoundResource*		Textures = nullptr;
+
+	unsigned int		NumberSamplers = 0;
+	BoundResource*		Samplers = nullptr;
 };
 
 #endif // __ConstantBufferParameters_h__

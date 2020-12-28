@@ -1,13 +1,24 @@
-Texture2D albedo : register(t0);
+#include "RootSignatures/Albedo.rs"
 
+//
+// Constant Buffers / Resource Bindings
+//
+Texture2D albedo : register(t0);
 SamplerState samLinear : register(s0);
 
+//
+// Inputs/Outputs
+//
 struct PSInput
 {
 	float4 Position		: SV_Position;
 	float2 Texture		: TEXCOORD;
 };
 
+//
+// Entry Point
+//
+[RootSignature(RootSignatureDef)]
 float4 main(PSInput _input) : SV_TARGET
 {
 	return albedo.Sample(samLinear, _input.Texture);

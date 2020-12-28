@@ -50,7 +50,9 @@ private:
 	Camera											m_Camera;
 	RenderEntity**									m_pRenderEntity;
 
-	DescriptorHeap*									m_pImGuiSRVHeap;
+	DescriptorHeap									m_pImGuiSRVHeap;
+
+	ConstantBufferResource*							m_pMainPassCB;
 
 	bool LoadContent();
 

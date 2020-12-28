@@ -101,20 +101,40 @@ void ShaderCompilerDX::ReflectInternal(IShader* _pShader, ID3D12ShaderReflection
 			}
 		}
 
-		cbInfo.NumberResources = desc.BoundResources;
-		if (cbInfo.NumberResources)
+		if (desc.BoundResources)
 		{
-			cbInfo.Resources = new ConstantBufferParameters::BoundResource[cbInfo.NumberResources];
-			for (unsigned int br = 0; br < cbInfo.NumberResources; ++br)
+			std::vector<ConstantBufferParameters::BoundResource> textures;
+			std::vector<ConstantBufferParameters::BoundResource> samplers;
+
+			for (unsigned int br = 0; br < desc.BoundResources; ++br)
 			{
 				D3D12_SHADER_INPUT_BIND_DESC ibDesc;
 				VALIDATE_D3D(_pReflection->GetResourceBindingDesc(br, &ibDesc));
 
-				ConstantBufferParameters::BoundResource& resource = cbInfo.Resources[br];
+				ConstantBufferParameters::BoundResource resource;
 				strncpy_s(resource.Name, ibDesc.Name, ARRAYSIZE(resource.Name));
 				resource.Type = ibDesc.Type;
 				resource.BindPoint = ibDesc.BindPoint;
 				resource.BindCount = ibDesc.BindCount;
+
+				switch (resource.Type)
+				{
+					case D3D_SIT_CBUFFER:
+						for (unsigned int cb = 0; cb < cbInfo.NumberBuffers; ++cb)
+						{
+							if (strncmp(cbInfo.Buffers[cb].Name, resource.Name, ARRAYSIZE(cbInfo.Buffers[cb].Name)))
+							{
+								cbInfo.Buffers[cb].BindPoint = resource.BindPoint;
+							}
+						}
+						break;
+					case D3D_SIT_TEXTURE:
+						textures.push_back(resource);
+						break;
+					case D3D_SIT_SAMPLER:
+						samplers.push_back(resource);
+						break;
+				}
 
 #if defined(DUMP_CONSTANTS)
 				LogInfo_Renderer("\tBR Name: %s", resource.Name);
@@ -122,6 +142,20 @@ void ShaderCompilerDX::ReflectInternal(IShader* _pShader, ID3D12ShaderReflection
 				LogInfo_Renderer("\t\tBind Point: %u", resource.BindPoint);
 				LogInfo_Renderer("\t\tBind Count: %u", resource.BindCount);
 #endif
+			}
+
+			cbInfo.NumberTextures = textures.size();
+			cbInfo.Textures = new ConstantBufferParameters::BoundResource[cbInfo.NumberTextures];
+			for (unsigned int cb = 0; cb < textures.size(); ++cb)
+			{
+				cbInfo.Textures[cb] = textures[cb];
+			}
+
+			cbInfo.NumberSamplers = samplers.size();
+			cbInfo.Samplers = new ConstantBufferParameters::BoundResource[cbInfo.NumberSamplers];
+			for (unsigned int sam = 0; sam < samplers.size(); ++sam)
+			{
+				cbInfo.Samplers[sam] = samplers[sam];
 			}
 		}
 

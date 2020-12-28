@@ -24,16 +24,16 @@
 #define LogError_Renderer(pFormat, ...)		Logger::Log(SEVERITY_ERR, CATEGORY_RENDERER, pFormat, __VA_ARGS__)
 #define LogFatal_Renderer(pFormat, ...)		Logger::Log(SEVERITY_FATAL, CATEGORY_RENDERER, pFormat, __VA_ARGS__)
 
-#define VALIDATE_D3D(test) test
+//#define VALIDATE_D3D(test) test
 
-//#define VALIDATE_D3D(test) { \
-//	HRESULT hr = test; \
-//	if(FAILED(hr)) \
-//	{ \
-//		LogError_Renderer("[HRESULT Failure]: 0x%i", hr); \
-//		assert(false); \
-//	} \
-//} \
+#define VALIDATE_D3D(test) { \
+	HRESULT hr = test; \
+	if(FAILED(hr)) \
+	{ \
+		LogError_Renderer("[HRESULT Failure]: 0x%i", hr); \
+		assert(false); \
+	} \
+} \
 
 #define DXIL_FOURCC(ch0, ch1, ch2, ch3) (                            \
   (uint32_t)(uint8_t)(ch0)        | (uint32_t)(uint8_t)(ch1) << 8  | \

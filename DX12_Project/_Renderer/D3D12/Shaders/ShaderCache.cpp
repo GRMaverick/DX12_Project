@@ -79,7 +79,8 @@ bool ShaderCache::Load(const char* _pShadersPath)
 		do
 		{
 			if (strncmp(data.cFileName, ".", strlen(data.cFileName)) != 0 && 
-				strncmp(data.cFileName, "..", strlen(data.cFileName)) != 0)
+				strncmp(data.cFileName, "..", strlen(data.cFileName)) != 0 &&
+				(data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY)
 			{
 				LogInfo_Renderer("\t%s", data.cFileName);
 
@@ -95,6 +96,7 @@ bool ShaderCache::Load(const char* _pShadersPath)
 				char* aError = nullptr;
 				
 				IShader* pShader = m_pShaderCompiler->Compile(pFullFilepath, "main", aError);
+				assert(pShader && "Shader is invalid!");
 				pShader->SetName(data.cFileName);
 
 				m_pShaderCompiler->Reflect(pShader);

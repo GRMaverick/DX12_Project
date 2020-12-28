@@ -66,7 +66,7 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 	if (!DeviceD3D12::Instance()->CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, &m_pImGuiSRVHeap, 1, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, L"ImGUI SRV"))
 		return false;
 
-	ImGUIEngine::Initialise(_pWindow->GetWindowHandle(), m_pImGuiSRVHeap);
+	ImGUIEngine::Initialise(_pWindow->GetWindowHandle(), &m_pImGuiSRVHeap);
 
 	if (!DeviceD3D12::Instance()->CreateSwapChain(&m_pSwapChain, _pWindow, BACK_BUFFERS, L"Swap Chain"))
 		return false;
@@ -81,13 +81,16 @@ struct ModelDefinition
 {
 	const char* Name = nullptr;
 	const char* MaterialName = nullptr;
+	float		Position[3] = { 0 };
 };
 
 ModelDefinition g_ModelList[] =
 {
 	//"AnalogMeter.Needle.Dark\\AnalogMeter.fbx",
 	//{ "Sponza\\Sponza.fbx", "Albedo" }
-	{ "Cube\\Cube.obj", "Albedo" }
+	{ "Cube\\Cube.obj", "Albedo", {0.0f, 0.0f, 0.0f} },
+	{ "Cube\\Cube.obj", "Albedo", {2.0f, 0.0f, 0.0f} },
+	{ "Cube\\Cube.obj", "Albedo", {-2.0f, 0.0f, 0.0f} },
 };
 
 bool RendererD3D12::LoadContent(void)
@@ -107,7 +110,7 @@ bool RendererD3D12::LoadContent(void)
 		m_pRenderEntity[i]->LoadModelFromFile(pModelPath);
 		m_pRenderEntity[i]->SetScale(1.0f);
 		m_pRenderEntity[i]->SetRotation(0.0f, 0.0f, 0.0f);
-		m_pRenderEntity[i]->SetPosition(0.0f, 0.0f, 0.0f);
+		m_pRenderEntity[i]->SetPosition(g_ModelList[i].Position[0], g_ModelList[i].Position[1], g_ModelList[i].Position[2]);
 		m_pRenderEntity[i]->SetMaterial(g_ModelList[i].MaterialName);
 		m_ModelCount++;
 	}
@@ -128,7 +131,7 @@ bool RendererD3D12::LoadContent(void)
 
 void RendererD3D12::Update(double _deltaTime)
 {
-	UpdatePassConstants();
+	m_Camera.Update();
 
 	for (UINT i = 0; i < m_ModelCount; ++i)
 	{
@@ -138,7 +141,6 @@ void RendererD3D12::Update(double _deltaTime)
 
 void RendererD3D12::UpdatePassConstants()
 {
-	m_Camera.Update();
 }
 
 bool RendererD3D12::Render(void)
@@ -180,7 +182,7 @@ void RendererD3D12::ImGuiPass(CommandList* _pGfxCmdList)
 #if defined(_DEBUG)
 	RenderMarker profile(_pGfxCmdList, "%s", "ImGUI");
 
-	ID3D12DescriptorHeap* pHeaps[] = { m_pImGuiSRVHeap->GetHeap() };
+	ID3D12DescriptorHeap* pHeaps[] = { m_pImGuiSRVHeap.GetHeap() };
 	_pGfxCmdList->SetDescriptorHeaps(pHeaps, _countof(pHeaps));
 
 	ImGUIEngine::Begin();
@@ -248,6 +250,19 @@ void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 {
 	RenderMarker profile(_pGfxCmdList, "MainRenderPass");
 
+	DeviceD3D12* pDevice = DeviceD3D12::Instance();
+	ConstantTable* pConstantTable = ConstantTable::Instance();
+
+	// Per Pass Setup
+	if (!m_pMainPassCB)
+	{
+		m_pMainPassCB = pConstantTable->CreateConstantBuffer("PassCB");
+	}
+
+	DirectX::XMMATRIX viewProjection = m_Camera.GetView() * m_Camera.GetProjection();
+	m_pMainPassCB->UpdateValue("ViewProjection", &viewProjection, sizeof(DirectX::XMMATRIX));
+	pDevice->SetConstantBuffer(0, m_pMainPassCB);
+
 	D3D12_SAMPLER_DESC samplerDesc = {};
 	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -258,27 +273,28 @@ void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 	samplerDesc.MipLODBias = 0.0f;
 	samplerDesc.MaxAnisotropy = 1;
 	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	pDevice->SetSamplerState(0, samplerDesc);
 
 	// Per Object Draws
-	UINT objCBByteSize = CONSTANT_BUFFER_SIZE(sizeof(ObjectCB));
 	for (UINT i = 0; i < m_ModelCount; ++i)
 	{
 		RenderEntity* pModel = m_pRenderEntity[i];
-
-		DirectX::XMMATRIX MVP = pModel->GetWorld() * m_Camera.GetView() * m_Camera.GetProjection();
-		ConstantTable::Instance()->UpdateValue("ObjectCB", "MVP", &MVP, sizeof(pModel->GetWorld()));
-		
-		DeviceD3D12* pDevice = DeviceD3D12::Instance();
 		pDevice->SetShader(pModel->GetMaterialName());
+
+		if (!pModel->GetConstantBuffer())
+		{
+			pModel->SetConstantBuffer(pConstantTable->CreateConstantBuffer("ObjectCB"));
+		}
+
+		DirectX::XMMATRIX world = pModel->GetWorld();
+		pModel->GetConstantBuffer()->UpdateValue("World", &world, sizeof(DirectX::XMMATRIX));
+		pDevice->SetConstantBuffer(1, pModel->GetConstantBuffer());
 
 		for (UINT i = 0; i < pModel->GetModel()->MeshCount; ++i)
 		{
 			Mesh& rMesh = pModel->GetModel()->pMeshList[i];
-			
-			pDevice->SetConstantBuffer(0, ConstantTable::Instance()->GetConstantBuffer("ObjectCB"));
-			pDevice->SetTexture(0, rMesh.pTexture);
-			pDevice->SetSamplerState(samplerDesc);
 
+			pDevice->SetTexture(0, rMesh.pTexture);
 			if (DeviceD3D12::Instance()->FlushState())
 			{
 				auto vbView = rMesh.pVertexBuffer->GetView();

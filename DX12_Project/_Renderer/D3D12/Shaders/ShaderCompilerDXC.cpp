@@ -10,6 +10,8 @@
 
 #pragma comment(lib, "dxcompiler.lib")
 
+//#define DUMP_BLOBS
+
 ShaderCompilerDXC::ShaderCompilerDXC(void)
 {
 
@@ -79,7 +81,8 @@ IShader* ShaderCompilerDXC::Compile(const char* _pFilename, const char* _pFuncti
 
 	LPCWSTR args[] = 
 	{
-		L"/Zi", L"/Od"
+		L"/Zi", 
+		L"/Od",
 	};
 
 	if (!pBlob)
@@ -88,8 +91,13 @@ IShader* ShaderCompilerDXC::Compile(const char* _pFilename, const char* _pFuncti
 		return nullptr;
 	}
 
+	IDxcIncludeHandler* pIncludeHandler = nullptr;
+	pLibrary->CreateIncludeHandler(&pIncludeHandler);
+
 	IDxcOperationResult* pOpsResult = nullptr;
-	VALIDATE_D3D(pCompiler->Compile(pBlob, pFilenameWstr, pFunctionNameWstr, targetProfile, args, _countof(args), nullptr, 0, nullptr, &pOpsResult));
+	VALIDATE_D3D(pCompiler->Compile(pBlob, pFilenameWstr, pFunctionNameWstr, targetProfile, args, _countof(args), nullptr, 0, pIncludeHandler, &pOpsResult));
+
+	pIncludeHandler->Release();
 
 	if (!pOpsResult)
 	{
@@ -145,6 +153,35 @@ void ShaderCompilerDXC::Reflect(IShader* _pShader)
 	VALIDATE_D3D(DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(&pReflectionCntr)));
 	VALIDATE_D3D(pReflectionCntr->Load(pBlob));
 
+#if defined(DUMP_BLOBS)
+	UINT32 parts = 0;
+	pReflectionCntr->GetPartCount(&parts);
+	for (unsigned int part = 0; part < parts; ++part)
+	{
+		UINT32 kind = 0;
+		VALIDATE_D3D(pReflectionCntr->GetPartKind(part, &kind));
+
+		UINT32 shaderIdx;
+		VALIDATE_D3D(pReflectionCntr->FindFirstPartKind(kind, &shaderIdx));
+
+		IDxcBlob* pContent;
+		VALIDATE_D3D(pReflectionCntr->GetPartContent(shaderIdx, &pContent));
+
+		char CC4[5];
+		CC4[0] = (char)(kind >> 0);
+		CC4[1] = (char)(kind >> 8);
+		CC4[2] = (char)(kind >> 16);
+		CC4[3] = (char)(kind >> 24);
+		CC4[4] = '\0';
+
+		if (pContent)
+		{
+			LogInfo_Renderer("%s: %u bytes", CC4, pContent->GetBufferSize());
+			pContent->Release();
+		}
+	}
+#endif
+	
 	UINT32 shaderIdx;
 	VALIDATE_D3D(pReflectionCntr->FindFirstPartKind(DFCC_DXIL, &shaderIdx));
 

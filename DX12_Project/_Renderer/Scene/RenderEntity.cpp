@@ -12,7 +12,7 @@ using namespace DirectX;
 
 bool RenderEntity::LoadModelFromFile(const char* _pFilename)
 {
-	CommandList* pCmdList = CommandList::Build(D3D12_COMMAND_LIST_TYPE_COPY);
+	CommandList* pCmdList = CommandList::Build(D3D12_COMMAND_LIST_TYPE_COPY, L"CopyContext");
 
 	m_pModel = nullptr;
 	if (!AssimpLoader::LoadModel(DeviceD3D12::Instance(), pCmdList, _pFilename, &m_pModel))

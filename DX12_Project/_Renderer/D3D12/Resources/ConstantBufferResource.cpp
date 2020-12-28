@@ -17,8 +17,7 @@ ConstantBufferResource::ConstantBufferResource(ID3D12Device* _pDevice, Descripto
     
     m_ConstantParameters = _params;
 
-    m_HeapIndex = _pDescHeapCBV->GetFreeIndex();
-    _pDescHeapCBV->Increment();
+    m_HeapIndex = _pDescHeapCBV->GetFreeIndexAndIncrement();
 
     unsigned int alignedSize = CONSTANT_BUFFER_SIZE(m_ConstantParameters.Size);
 
@@ -38,10 +37,10 @@ ConstantBufferResource::ConstantBufferResource(ID3D12Device* _pDevice, Descripto
     cbvDesc.BufferLocation = m_GPUBuffer->GetGPUVirtualAddress();
     cbvDesc.SizeInBytes = alignedSize;
 
-    CD3DX12_CPU_DESCRIPTOR_HANDLE cbvHandle(_pDescHeapCBV->GetCPUStartHandle());
-    cbvHandle.Offset(m_HeapIndex, _pDescHeapCBV->GetIncrementSize());
+    m_CpuHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(_pDescHeapCBV->GetCPUStartHandle());
+    m_CpuHandle.Offset(m_HeapIndex, _pDescHeapCBV->GetIncrementSize());
 
-    _pDevice->CreateConstantBufferView(&cbvDesc, cbvHandle);
+    _pDevice->CreateConstantBufferView(&cbvDesc, m_CpuHandle);
 
     // We do not need to unmap until we are done with the resource.  However, we must not write to
     // the resource while it is in use by the GPU (so we must use synchronization techniques).

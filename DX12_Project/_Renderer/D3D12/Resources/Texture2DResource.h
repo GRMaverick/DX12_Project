@@ -6,6 +6,8 @@
 
 #include "IBufferResource.h"
 
+#include "d3dx12.h"
+
 class CommandList;
 class DescriptorHeap;
 
@@ -24,9 +26,11 @@ public:
 	~Texture2DResource(void);
 
 	UINT32 GetHeapIndex(void) { return m_HeapIndex; }
-	
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuHandle(void) { return m_CpuHandle; }
 private:
 	UINT m_HeapIndex = 0;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE m_CpuHandle;
 
 	bool CreateFromDDS(const wchar_t* _pWstrFilename, ID3D12Device* _pDevice, CommandList* _pCmdList);
 	bool CreateFromWIC(const wchar_t* _pWstrFilename, ID3D12Device* _pDevice, CommandList* _pCmdList);

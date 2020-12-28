@@ -20,10 +20,10 @@ public:
 	CommandList(void);
 	~CommandList(void);
 
-	static CommandList* Build(D3D12_COMMAND_LIST_TYPE _type)
+	static CommandList* Build(D3D12_COMMAND_LIST_TYPE _type, const wchar_t* _pDebugName = L"")
 	{
 		CommandList* pCommandList = nullptr;
-		if (!DeviceD3D12::Instance()->CreateCommandList(D3D12_COMMAND_LIST_TYPE_COPY, &pCommandList, L"CPY"))
+		if (!DeviceD3D12::Instance()->CreateCommandList(_type, &pCommandList, _pDebugName))
 			return nullptr;
 		pCommandList->Reset();
 		return pCommandList;

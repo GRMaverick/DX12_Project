@@ -4,6 +4,7 @@
 #include <DirectXMath.h>
 
 struct RenderModel;
+class ConstantBufferResource;
 
 class RenderEntity
 {
@@ -19,6 +20,7 @@ public:
 	void SetRotation(float _x, float _y, float _z)	{ m_Rotation = DirectX::XMFLOAT3(_x, _y, _z); }
 	void SetScale(float _xyz)						{ m_Scale = _xyz; }
 	void SetMaterial(const char* _pMaterialName)	{ m_pMaterialName = _pMaterialName; }
+	void SetConstantBuffer(ConstantBufferResource* _pBuffer) { m_pConstantBuffer = _pBuffer; }
 
 	RenderModel*			GetModel(void) const	{ return m_pModel; }
 	DirectX::XMFLOAT3		GetPosition(void) const { return m_Position; }
@@ -27,6 +29,7 @@ public:
 	DirectX::XMMATRIX		GetWorld(void) const	{ return m_World; }
 	const char*				GetMaterialName(void) const { return m_pMaterialName; }
 
+	ConstantBufferResource* GetConstantBuffer(void) const { return m_pConstantBuffer; }
 private:
 	DirectX::XMFLOAT3		m_Position;
 	DirectX::XMFLOAT3		m_Rotation;
@@ -38,6 +41,7 @@ private:
 	RenderModel*			m_pModel;
 	DirectX::XMMATRIX		m_World;
 
+	ConstantBufferResource* m_pConstantBuffer;
 	const char* m_pMaterialName = nullptr;
 };
 

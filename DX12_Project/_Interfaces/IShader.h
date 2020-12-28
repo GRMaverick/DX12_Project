@@ -35,7 +35,7 @@ public:
 
 	void SetName(const char* _pName) { strncpy_s(m_pShaderName, strlen(_pName) + 1, _pName, strlen(_pName)); }
 	void SetShaderParameters(const ShaderIOParameters& _params) { m_ShaderParameters = _params; }
-	void SetConstantParameters(const ConstantBufferParameters& _params) { m_ConstantParameters = _params; ConstantTable::Instance()->CreateConstantBuffers(_params);  }
+	void SetConstantParameters(const ConstantBufferParameters& _params) { m_ConstantParameters = _params; ConstantTable::Instance()->CreateConstantBuffersEntries(_params);  }
 
 	ShaderType GetType(void) { return m_Type; }
 	const char* GetShaderName(void) { return m_pShaderName; }

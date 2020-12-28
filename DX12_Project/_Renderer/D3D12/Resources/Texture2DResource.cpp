@@ -19,8 +19,7 @@ using namespace SysMemory;
 Texture2DResource::Texture2DResource(const wchar_t* _pWstrFilename, const bool _bIsDDS, DescriptorHeap* _pTargetSRVHeap,
 	ID3D12Device* _pDevice, CommandList* _pCmdList, const wchar_t* _pDebugName)
 {
-	m_HeapIndex = _pTargetSRVHeap->GetFreeIndex();
-	_pTargetSRVHeap->Increment();
+	m_HeapIndex = _pTargetSRVHeap->GetFreeIndexAndIncrement();
 
 	if (_bIsDDS)
 	{
@@ -40,9 +39,9 @@ Texture2DResource::Texture2DResource(const wchar_t* _pWstrFilename, const bool _
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-	CD3DX12_CPU_DESCRIPTOR_HANDLE srvHandle(_pTargetSRVHeap->GetCPUStartHandle());
-	srvHandle.Offset(m_HeapIndex, _pTargetSRVHeap->GetIncrementSize());
-	_pDevice->CreateShaderResourceView(m_GPUBuffer.Get(), &srvDesc, srvHandle);
+	m_CpuHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(_pTargetSRVHeap->GetCPUStartHandle());
+	m_CpuHandle.Offset(m_HeapIndex, _pTargetSRVHeap->GetIncrementSize());
+	_pDevice->CreateShaderResourceView(m_GPUBuffer.Get(), &srvDesc, m_CpuHandle);
 
 	wchar_t pCPUDebugName[256];
 	wchar_t pGPUDebugName[256];

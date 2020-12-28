@@ -10,6 +10,7 @@
 
 #include "d3dx12.h"
 
+#include "D3D12\Resources\DescriptorHeap.h"
 #include "D3D12\Resources\ConstantBufferParameters.h"
 
 class IShader;
@@ -18,7 +19,6 @@ class IBufferResource;
 class CommandQueue;
 class CommandList;
 class SwapChain;
-class DescriptorHeap;
 class CoreWindow;
 class Texture2DResource;
 class VertexBufferResource;
@@ -46,7 +46,7 @@ public:
 
 	bool CreateCommandQueue(D3D12_COMMAND_LIST_TYPE _type, CommandQueue** _ppCommandQueue, const wchar_t* _pDebugName = L"");
 	bool CreateCommandList(D3D12_COMMAND_LIST_TYPE _type, CommandList** _ppCommandList, const wchar_t* _pDebugName = L"");
-	bool CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE _type, DescriptorHeap** _ppDescriptorHeap, UINT _numBuffers = 1, D3D12_DESCRIPTOR_HEAP_FLAGS _flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, const wchar_t* _pDebugName = L"");
+	bool CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE _type, DescriptorHeap* _ppDescriptorHeap, UINT _numBuffers = 1, D3D12_DESCRIPTOR_HEAP_FLAGS _flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, const wchar_t* _pDebugName = L"");
 	bool CreateSwapChain(SwapChain** _ppSwapChain, CoreWindow* _pWindow, UINT _numBackBuffers, const wchar_t* _pDebugName = L"");
 
 	bool CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, Texture2DResource** _pTexture, const wchar_t* _pDebugName = L"");
@@ -55,7 +55,7 @@ public:
 	bool CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, VertexBufferResource** _ppResource, const wchar_t* _pDebugName = L"");
 	ConstantBufferResource* CreateConstantBufferResource(const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"");
 	
-	bool CreateRootSignature(D3D12_ROOT_PARAMETER* _pRootParameters, UINT _numParameters, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName = L"");
+	bool CreateRootSignature(char* _pBuffer, unsigned int _pBufferSize, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName = L"");
 	bool CreatePipelineState(PipelineStateDesc _psDesc, ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName = L"");
 	bool CreateSamplerState(D3D12_SAMPLER_DESC* _pSamplerDesc, D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const wchar_t* _pDebugName = L"");
 
@@ -65,9 +65,9 @@ public:
 	bool SetDepthBuffer(void);
 	bool SetTexture(unsigned int _iRegister, Texture2DResource* _pTexture);
 	bool SetConstantBuffer(unsigned int _iRegister, ConstantBufferResource* _pCBuffer);
-	bool SetSamplerState(D3D12_SAMPLER_DESC _state);
+	bool SetSamplerState(unsigned int _iRegister, D3D12_SAMPLER_DESC _state);
 
-	DescriptorHeap* GetSrvCbvHeap(void) { return m_pDescHeapSrvCbv; }
+	DescriptorHeap* GetSrvCbvHeap(void) { return &m_DescHeapSrvCbv; }
 
 	void BeginFrame(void);
 	void EndFrame(void);
@@ -85,9 +85,9 @@ private:
 		unsigned int			DirtyFlags = 0;
 		IShader*				VertexShader = nullptr;
 		IShader*				PixelShader = nullptr;
-		SamplerStateEntry		Sampler;
-		Texture2DResource*		Texture = nullptr;
-		ConstantBufferResource* ConstantBuffer = nullptr;
+		SamplerStateEntry		Sampler[1] = { 0 };
+		Texture2DResource*		Texture[1] = { 0 };
+		ConstantBufferResource* ConstantBuffer[2] = { 0 };
 
 		bool IsDirty(const unsigned int _dirtyFlags)
 		{
@@ -101,13 +101,19 @@ private:
 	const unsigned int kDirtyDepthBuffer	= 1 << 3;
 	const unsigned int kDirtyTexture		= 1 << 4;
 	const unsigned int kDirtyConstantBuffer = 1 << 5;
+	const unsigned int kDirtyRootSignature	= 1 << 6;
 
 	DeviceD3D12(void);
 
 	DeviceState										m_DeviceState;
 
-	DescriptorHeap*									m_pDescHeapSrvCbv;
-	DescriptorHeap*									m_pDescHeapSampler;
+	DescriptorHeap									m_DescHeapRTV;
+	DescriptorHeap									m_DescHeapDSV;
+	DescriptorHeap									m_DescHeapSrvCbv;
+	DescriptorHeap									m_DescHeapSampler;
+
+	DescriptorHeap									m_ActiveResourceHeap;
+	DescriptorHeap									m_ActiveSamplerHeap;
 
 	CommandList*									m_ImmediateContext;
 
