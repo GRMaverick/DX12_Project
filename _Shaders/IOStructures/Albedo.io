@@ -4,8 +4,8 @@
 struct VSInput
 {
 	float3 Position : POSITION;
-	//float3 Normal : NORMAL;
-	float2 Texture : TEXCOORD;
+	float3 Normal	: NORMAL;
+	float2 Texture	: TEXCOORD;
 };
 
 struct VSOutput

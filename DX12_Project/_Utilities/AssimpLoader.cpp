@@ -23,7 +23,8 @@ std::map<std::string, IBufferResource*> AssimpLoader::m_LoadedTextures = std::ma
 
 struct Vertex
 {
-	float x, y, z = 0.0f;
+	float vX, vY, vZ = 0.0f;
+	float nX, nY, nZ = 0.0f;
 	float u, v = 0.0f;
 };
 
@@ -121,9 +122,13 @@ Mesh AssimpLoader::ProcessMesh(DeviceD3D12* _pDevice, CommandList* _pCommandList
 	Vertex* pVertices = new Vertex[_pMesh->mNumVertices];
 	for (UINT i = 0; i < _pMesh->mNumVertices; ++i)
 	{
-		pVertices[i].x = (float)_pMesh->mVertices[i].x;
-		pVertices[i].y = (float)_pMesh->mVertices[i].y;
-		pVertices[i].z = (float)_pMesh->mVertices[i].z;
+		pVertices[i].vX = (float)_pMesh->mVertices[i].x;
+		pVertices[i].vY = (float)_pMesh->mVertices[i].y;
+		pVertices[i].vZ = (float)_pMesh->mVertices[i].z;
+
+		pVertices[i].nX = (float)_pMesh->mNormals[i].x;
+		pVertices[i].nY = (float)_pMesh->mNormals[i].y;
+		pVertices[i].nZ = (float)_pMesh->mNormals[i].z;
 
 		if (_pMesh->mTextureCoords[ALBEDO])
 		{

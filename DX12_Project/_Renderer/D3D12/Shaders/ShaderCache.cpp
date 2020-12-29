@@ -150,8 +150,9 @@ ShaderSet ShaderCache::GetShader(const char* _pName)
 	ShaderSet set;
 	for (size_t i = 0; i < m_vLoadedShaders.size(); ++i)
 	{
-		const char* pName = m_vLoadedShaders[i]->GetShaderName();
-		if (strstr(pName, _pName))
+		char pName[32] = { 0 };
+		snprintf(pName, strlen(m_vLoadedShaders[i]->GetShaderName()) - 2, "%s", m_vLoadedShaders[i]->GetShaderName()); // Name minus extension
+		if (strncmp(pName, _pName, ARRAYSIZE(pName)) == 0)
 		{
 			if (m_vLoadedShaders[i]->GetType() == IShader::ShaderType::VertexShader)
 			{
