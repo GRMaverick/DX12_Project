@@ -81,12 +81,6 @@ private:
 	struct DeviceState
 	{
 		unsigned int			DirtyFlags = 0;
-		//IShader*				VertexShader = nullptr;
-		//IShader*				PixelShader = nullptr;
-		SamplerStateEntry		Sampler[1] = { 0 };
-		//IGpuBufferResource*		Texture[1] = { 0 };
-		//IGpuBufferResource*		ConstantBuffer[2] = { 0 };
-
 		GpuResourceTable		Resources;
 
 		bool IsDirty(const unsigned int _dirtyFlags)

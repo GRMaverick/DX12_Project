@@ -31,6 +31,7 @@ public:
 
 	unsigned long GetTextures(IGpuBufferResource*** _ppResources);
 	unsigned long GetConstantBuffers(IGpuBufferResource*** _ppResources);
+	unsigned long GetSamplers(SamplerStateEntry** _ppResources);
 
 private:
 	bool m_bIsInitialised = false;

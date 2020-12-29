@@ -134,3 +134,9 @@ unsigned long GpuResourceTable::GetConstantBuffers(IGpuBufferResource*** _pppRes
 	(*_pppResources) = m_pConstantBuffers;
 	return m_pVertexShader->GetConstantParameters().NumberBuffers;
 }
+
+unsigned long GpuResourceTable::GetSamplers(SamplerStateEntry** _ppResources)
+{
+	(*_ppResources) = m_pSamplers;
+	return m_pPixelShader->GetConstantParameters().NumberSamplers;
+}

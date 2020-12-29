@@ -511,11 +511,14 @@ bool DeviceD3D12::FlushState()
 	//
 	// Copy Sampler
 	//
+	SamplerStateEntry* pSamplers = nullptr;
+	ulResources = Resources.GetSamplers(&pSamplers);
+
 	unsigned int uiSamplerStartIndex = m_ActiveSamplerHeap.GetFreeIndex();
-	for (unsigned int i = 0; i < ARRAYSIZE(m_DeviceState.Sampler); ++i)
+	for (unsigned int i = 0; i < ulResources; ++i)
 	{
 		CD3DX12_CPU_DESCRIPTOR_HANDLE sampDescHandle(m_DescHeapSampler.GetCPUStartHandle());
-		sampDescHandle.Offset(m_DeviceState.Sampler[i].HeapIndex, m_DescHeapSampler.GetIncrementSize());
+		sampDescHandle.Offset(pSamplers[i].HeapIndex, m_DescHeapSampler.GetIncrementSize());
 		CD3DX12_CPU_DESCRIPTOR_HANDLE tempHandleLoc(m_ActiveSamplerHeap.GetCPUStartHandle(), m_ActiveSamplerHeap.GetFreeIndexAndIncrement(), m_ActiveSamplerHeap.GetIncrementSize());
 
 		UINT size1 = 1;
