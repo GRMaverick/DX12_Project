@@ -25,6 +25,8 @@
 #include "TextureLoader.h"
 #include <WICTextureLoader.h>
 
+#include "ProfileMarker.h"
+
 #include "SysMemory/include/ScopedMemoryRecord.h"
 
 using namespace DirectX;
@@ -259,39 +261,26 @@ ConstantBufferResource* DeviceD3D12::CreateConstantBufferResource(const Constant
 	return new ConstantBufferResource(m_pDevice.Get(), &m_DescHeapSrvCbv, _params, _pDebugName);
 }
 
-bool DeviceD3D12::CreateRootSignature(char* _pBuffer, unsigned int _pBufferSize, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName)
+bool DeviceD3D12::CreateRootSignature(IShader* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName)
 {
-	//D3D12_ROOT_SIGNATURE_FLAGS rootSigFlags =
-	//	D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-	//	D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-	//	D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-	//	D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS;
+	RenderMarker profile(GetImmediateContext(), "CreateRootSignature");
 
-	//D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
-	//ZeroMemory(&featureData, sizeof(D3D12_FEATURE_DATA_ROOT_SIGNATURE));
-	//featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
-	//VALIDATE_D3D(m_pDevice->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &featureData, sizeof(D3D12_FEATURE_DATA_ROOT_SIGNATURE)));
+	if (_pShader->GetType() != IShader::ShaderType::VertexShader)
+	{
+		assert(false && "Shader is not a VertexShader");
+		return false;
+	}
 
-	//CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSigDesc;
-	//rootSigDesc.Init_1_0(_numParameters, _pRootParameters, 0, nullptr, rootSigFlags);
-
-	//ComPtr<ID3DBlob> pRootSigBlob;
-	//ComPtr<ID3DBlob> pErrorBlob;
-	//if (FAILED(D3DX12SerializeVersionedRootSignature(&rootSigDesc, featureData.HighestVersion, &pRootSigBlob, &pErrorBlob)))
-	//{
-	//	const char* pErrorString = (const char*)pErrorBlob->GetBufferPointer();
-	//	return false;
-	//}
-
-	unsigned long ulHash = HashString(_pBuffer, _pBufferSize);
+	unsigned long ulHash = HashString((char*)_pShader->GetShaderName(), strlen(_pShader->GetShaderName()));
 	if (m_mapRootSignatures.find(ulHash) != m_mapRootSignatures.end())
 	{
 		(*_ppRootSignature) = m_mapRootSignatures[ulHash];
 	}
 	else
 	{
+		RenderMarker profile(GetImmediateContext(), "ID3D12Device::CreateRootSignature");
 		ID3D12RootSignature* pRootSig = nullptr;
-		VALIDATE_D3D(m_pDevice->CreateRootSignature(0, _pBuffer, _pBufferSize, IID_PPV_ARGS(&pRootSig)));
+		VALIDATE_D3D(m_pDevice->CreateRootSignature(0, _pShader->GetBytecode(), _pShader->GetBytecodeSize(), IID_PPV_ARGS(&pRootSig)));
 		pRootSig->SetName(_pDebugName);
 
 		m_mapRootSignatures[ulHash] = pRootSig;
@@ -340,6 +329,8 @@ bool DeviceD3D12::CreatePipelineState(PipelineStateDesc _psDesc, ID3D12PipelineS
 	}
 	else
 	{
+		RenderMarker profile(GetImmediateContext(), "ID3D12Device::CreatePipelineState");
+
 		ID3D12PipelineState* pPSO = nullptr;
 		VALIDATE_D3D(m_pDevice->CreatePipelineState(&pipelineStateStreamDesc, IID_PPV_ARGS(&pPSO)));
 		pPSO->SetName(_pDebugName);
@@ -361,7 +352,7 @@ void DeviceD3D12::BeginFrame(void)
 {
 	m_ImmediateContext = CommandList::Build(D3D12_COMMAND_LIST_TYPE_DIRECT, L"ImmediateContext");
 	
-	const unsigned int kElements = 15;
+	const unsigned int kElements = 2000;
 	if (!CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, &m_ActiveResourceHeap, kElements, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, L"Temp Texture Heap"))
 	{
 		assert(false && "Temp Texture Heap Creation Failure");
@@ -447,8 +438,10 @@ bool DeviceD3D12::FlushState()
 {
 	CommandList* pGfxCmdList = GetImmediateContext();
 
+	RenderMarker profile(pGfxCmdList, "FlushState");
+
 	ID3D12RootSignature* pRootSignature = nullptr;
-	if (!CreateRootSignature((char*)m_DeviceState.VertexShader->GetBytecode(), m_DeviceState.VertexShader->GetBytecodeSize(), &pRootSignature))
+	if (!CreateRootSignature(m_DeviceState.VertexShader, &pRootSignature))
 	{
 		assert(false && "Root Sig Creation Failure");
 	}
@@ -490,6 +483,7 @@ bool DeviceD3D12::FlushState()
 		CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuActual = m_DeviceState.ConstantBuffer[i]->GetCpuHandle();
 		CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource(m_ActiveResourceHeap.GetCPUStartHandle(), m_ActiveResourceHeap.GetFreeIndexAndIncrement(), m_ActiveResourceHeap.GetIncrementSize());
 
+		RenderMarker profile(pGfxCmdList, "CBV Desc Copies");
 		m_pDevice->CopyDescriptors(
 			1, &hCpuNewResource, &size1,
 			1, &hCpuActual, &size2,
@@ -503,12 +497,14 @@ bool DeviceD3D12::FlushState()
 	{
 		if (!m_DeviceState.Texture[i])
 		{
-			assert(false && "Invalid CB");
+			LogWarning_Renderer("Invalid Texture");
+			return false;
 		}
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuActual = m_DeviceState.Texture[i]->GetCpuHandle();
 		CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource(m_ActiveResourceHeap.GetCPUStartHandle(), m_ActiveResourceHeap.GetFreeIndexAndIncrement(), m_ActiveResourceHeap.GetIncrementSize());
 
+		RenderMarker profile(pGfxCmdList, "SRV Desc Copies");
 		m_pDevice->CopyDescriptors(
 			1, &hCpuNewResource, &size1,
 			1, &hCpuActual, &size2,
@@ -525,6 +521,7 @@ bool DeviceD3D12::FlushState()
 		sampDescHandle.Offset(m_DeviceState.Sampler[i].HeapIndex, m_DescHeapSampler.GetIncrementSize());
 		CD3DX12_CPU_DESCRIPTOR_HANDLE tempHandleLoc(m_ActiveSamplerHeap.GetCPUStartHandle(), m_ActiveSamplerHeap.GetFreeIndexAndIncrement(), m_ActiveSamplerHeap.GetIncrementSize());
 
+		RenderMarker profile(pGfxCmdList, "Sampler Desc Copies");
 		m_pDevice->CopyDescriptors(
 			1, &tempHandleLoc, &size1,
 			1, &sampDescHandle, &size2,

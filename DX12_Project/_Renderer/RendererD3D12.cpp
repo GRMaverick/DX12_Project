@@ -84,13 +84,20 @@ struct ModelDefinition
 	float		Position[3] = { 0 };
 };
 
+#define SPONZA
+//#define CUBES
+
 ModelDefinition g_ModelList[] =
 {
 	//"AnalogMeter.Needle.Dark\\AnalogMeter.fbx",
-	//{ "Sponza\\Sponza.fbx", "Albedo" }
+#if defined(SPONZA)
+	{ "Sponza\\Sponza.fbx", "Albedo" }
+#endif
+#if defined(CUBES)
 	{ "Cube\\Cube.obj", "Albedo", {0.0f, 0.0f, 0.0f} },
 	{ "Cube\\Cube.obj", "Albedo", {2.0f, 0.0f, 0.0f} },
 	{ "Cube\\Cube.obj", "Albedo", {-2.0f, 0.0f, 0.0f} },
+#endif
 };
 
 bool RendererD3D12::LoadContent(void)
@@ -115,8 +122,13 @@ bool RendererD3D12::LoadContent(void)
 		m_ModelCount++;
 	}
 
-	//m_Camera.SetPosition(90.0f, 90.0f, 0.0f);
+#if defined(SPONZA)
+	m_Camera.SetPosition(90.0f, 90.0f, 0.0f);
+#endif
+
+#if defined(CUBES)
 	m_Camera.SetPosition(1.5f, 2.5f, 0.0f);
+#endif
 
 	m_Camera.SetUp(0.0f, 1.0f, 0.0f);
 	m_Camera.SetTarget(0.0f, 0.0f, 0.0f);
