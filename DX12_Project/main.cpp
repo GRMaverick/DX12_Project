@@ -9,10 +9,7 @@
 #include "InputManager.h"
 
 PRAGMA_TODO("Data Driven Pipelines")
-PRAGMA_TODO("\tConstant Table Generation")
 PRAGMA_TODO("\tSamplerState Table")
-PRAGMA_TODO("\tShaderCompiler Preprocessor?")
-PRAGMA_TODO("\tPSO Caching")
 
 PRAGMA_TODO("Scene Configuration File")
 

@@ -168,6 +168,7 @@ xcopy /y /s /q $(ProjectDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configurati
     <ClCompile Include="_Renderer\D3D12\Resources\ConstantBufferResource.cpp" />
     <ClCompile Include="_Renderer\D3D12\Resources\ConstantTable.cpp" />
     <ClCompile Include="_Renderer\D3D12\Resources\DescriptorHeap.cpp" />
+    <ClCompile Include="_Renderer\D3D12\Resources\GpuResourceTable.cpp" />
     <ClCompile Include="_Renderer\D3D12\Resources\IBufferResource.cpp" />
     <ClCompile Include="_Renderer\D3D12\Resources\IndexBufferResource.cpp" />
     <ClCompile Include="_Renderer\D3D12\Resources\Texture2DResource.cpp" />
@@ -202,6 +203,7 @@ xcopy /y /s /q $(ProjectDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configurati
     <ClInclude Include="_Renderer\D3D12\Resources\ConstantBufferResource.h" />
     <ClInclude Include="_Renderer\D3D12\Resources\ConstantTable.h" />
     <ClInclude Include="_Renderer\D3D12\Resources\DescriptorHeap.h" />
+    <ClInclude Include="_Renderer\D3D12\Resources\GpuResourceTable.h" />
     <ClInclude Include="_Renderer\D3D12\Resources\IBufferResource.h" />
     <ClInclude Include="_Renderer\D3D12\Resources\IndexBufferResource.h" />
     <ClInclude Include="_Renderer\D3D12\Resources\Texture2DResource.h" />

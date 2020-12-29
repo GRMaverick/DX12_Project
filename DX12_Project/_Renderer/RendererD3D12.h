@@ -54,6 +54,7 @@ private:
 
 	ConstantBufferResource*							m_pMainPassCB;
 
+	D3D12_SAMPLER_DESC								m_DefaultSampler;
 	bool LoadContent();
 
 	void UpdatePassConstants();

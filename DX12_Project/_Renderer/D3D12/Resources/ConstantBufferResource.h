@@ -14,7 +14,7 @@ public:
 	bool UpdateValue(const char* _pValueName, void* _pValue, unsigned int _szValue);
 
 	unsigned int GetHeapIndex(void) { return m_HeapIndex; }
-
+	unsigned int GetBindPoint(void) { return m_ConstantParameters.BindPoint; }
 private:
 	unsigned int m_HeapIndex;
 	char* m_pCPUMapped = nullptr;

@@ -10,6 +10,7 @@
 
 #include "d3dx12.h"
 
+#include "D3D12\Resources\GpuResourceTable.h"
 #include "D3D12\Resources\DescriptorHeap.h"
 #include "D3D12\Resources\ConstantBufferParameters.h"
 
@@ -61,12 +62,12 @@ public:
 	bool CreateSamplerState(D3D12_SAMPLER_DESC* _pSamplerDesc, D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const wchar_t* _pDebugName = L"");
 
 	bool FlushState();
-	bool SetShader(const char* _pName);
+	bool SetMaterial(const char* _pName);
 	bool SetRenderTarget(void);
 	bool SetDepthBuffer(void);
-	bool SetTexture(unsigned int _iRegister, IGpuBufferResource* _pTexture);
-	bool SetConstantBuffer(unsigned int _iRegister, IGpuBufferResource* _pCBuffer);
-	bool SetSamplerState(unsigned int _iRegister, D3D12_SAMPLER_DESC _state);
+	bool SetTexture(const char* _pName, IGpuBufferResource* _pTexture);
+	bool SetConstantBuffer(const char* _pName, IGpuBufferResource* _pCBuffer);
+	bool SetSamplerState(const char* _pName, D3D12_SAMPLER_DESC _state);
 
 	DescriptorHeap* GetSrvCbvHeap(void) { return &m_DescHeapSrvCbv; }
 
@@ -74,21 +75,19 @@ public:
 	void EndFrame(void);
 
 	CommandList* GetImmediateContext(void) { return m_ImmediateContext; }
+
 private:
-	struct SamplerStateEntry
-	{
-		unsigned int Hash = 0;
-		unsigned int HeapIndex = 0;
-	};
 
 	struct DeviceState
 	{
 		unsigned int			DirtyFlags = 0;
-		IShader*				VertexShader = nullptr;
-		IShader*				PixelShader = nullptr;
+		//IShader*				VertexShader = nullptr;
+		//IShader*				PixelShader = nullptr;
 		SamplerStateEntry		Sampler[1] = { 0 };
-		IGpuBufferResource*		Texture[1] = { 0 };
-		IGpuBufferResource*		ConstantBuffer[2] = { 0 };
+		//IGpuBufferResource*		Texture[1] = { 0 };
+		//IGpuBufferResource*		ConstantBuffer[2] = { 0 };
+
+		GpuResourceTable		Resources;
 
 		bool IsDirty(const unsigned int _dirtyFlags)
 		{

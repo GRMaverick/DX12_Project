@@ -122,7 +122,7 @@ void ShaderCompilerDX::ReflectInternal(IShader* _pShader, ID3D12ShaderReflection
 					case D3D_SIT_CBUFFER:
 						for (unsigned int cb = 0; cb < cbInfo.NumberBuffers; ++cb)
 						{
-							if (strncmp(cbInfo.Buffers[cb].Name, resource.Name, ARRAYSIZE(cbInfo.Buffers[cb].Name)))
+							if (strncmp(cbInfo.Buffers[cb].Name, resource.Name, ARRAYSIZE(cbInfo.Buffers[cb].Name)) == 0)
 							{
 								cbInfo.Buffers[cb].BindPoint = resource.BindPoint;
 							}

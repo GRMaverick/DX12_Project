@@ -84,8 +84,8 @@ struct ModelDefinition
 	float		Position[3] = { 0 };
 };
 
-//#define SPONZA
-#define CUBES
+#define SPONZA
+//#define CUBES
 
 ModelDefinition g_ModelList[] =
 {
@@ -119,6 +119,7 @@ bool RendererD3D12::LoadContent(void)
 		m_pRenderEntity[i]->SetRotation(0.0f, 0.0f, 0.0f);
 		m_pRenderEntity[i]->SetPosition(g_ModelList[i].Position[0], g_ModelList[i].Position[1], g_ModelList[i].Position[2]);
 		m_pRenderEntity[i]->SetMaterial(g_ModelList[i].MaterialName);
+		m_pRenderEntity[i]->SetConstantBuffer(ConstantTable::Instance()->CreateConstantBuffer("ObjectCB"));
 		m_ModelCount++;
 	}
 
@@ -137,6 +138,17 @@ bool RendererD3D12::LoadContent(void)
 
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY)->ExecuteCommandLists();
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY)->Flush();
+
+	// Default Sampler
+	m_DefaultSampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	m_DefaultSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	m_DefaultSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	m_DefaultSampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	m_DefaultSampler.MinLOD = 0;
+	m_DefaultSampler.MaxLOD = D3D12_FLOAT32_MAX;
+	m_DefaultSampler.MipLODBias = 0.0f;
+	m_DefaultSampler.MaxAnisotropy = 1;
+	m_DefaultSampler.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 
 	return true;
 }
@@ -273,40 +285,27 @@ void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 
 	DirectX::XMMATRIX viewProjection = m_Camera.GetView() * m_Camera.GetProjection();
 	m_pMainPassCB->UpdateValue("ViewProjection", &viewProjection, sizeof(DirectX::XMMATRIX));
-	pDevice->SetConstantBuffer(0, m_pMainPassCB);
-
-	D3D12_SAMPLER_DESC samplerDesc = {};
-	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-	pDevice->SetSamplerState(0, samplerDesc);
 
 	// Per Object Draws
 	for (UINT i = 0; i < m_ModelCount; ++i)
 	{
 		RenderEntity* pModel = m_pRenderEntity[i];
-		pDevice->SetShader(pModel->GetMaterialName());
-
-		if (!pModel->GetConstantBuffer())
-		{
-			pModel->SetConstantBuffer(pConstantTable->CreateConstantBuffer("ObjectCB"));
-		}
-
 		DirectX::XMMATRIX world = pModel->GetWorld();
-		pModel->GetConstantBuffer()->UpdateValue("World", &world, sizeof(DirectX::XMMATRIX));
-		pDevice->SetConstantBuffer(1, pModel->GetConstantBuffer());
+		ConstantBufferResource* pModelCB = pModel->GetConstantBuffer();
+
+		pDevice->SetMaterial(pModel->GetMaterialName());
+		pDevice->SetSamplerState("Albedo", m_DefaultSampler);
+
+		pModelCB->UpdateValue("World", &world, sizeof(DirectX::XMMATRIX));
+
+		pDevice->SetConstantBuffer("ObjectCB", pModelCB);
+		pDevice->SetConstantBuffer("PassCB", m_pMainPassCB);
 
 		for (UINT i = 0; i < pModel->GetModel()->MeshCount; ++i)
 		{
 			Mesh& rMesh = pModel->GetModel()->pMeshList[i];
 
-			pDevice->SetTexture(0, (Texture2DResource*)rMesh.pTexture);
+			pDevice->SetTexture("Albedo", (Texture2DResource*)rMesh.pTexture);
 			if (DeviceD3D12::Instance()->FlushState())
 			{
 				auto vbView = ((VertexBufferResource*)rMesh.pVertexBuffer)->GetView();
