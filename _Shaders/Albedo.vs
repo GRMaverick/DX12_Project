@@ -1,34 +1,20 @@
+#include "IOStructures/Albedo.io"
 #include "RootSignatures/Albedo.rs"
 
 //
 // Constant Buffers / Resource Bindings
 //
-struct Object
-{
-	float4x4 World;
-};
-ConstantBuffer<Object> ObjectCB : register(b1);
-
 struct Pass
 {
 	float4x4 ViewProjection;
 };
 ConstantBuffer<Pass> PassCB : register(b0);
 
-//
-// Input/Outputs
-//
-struct VSInput
+struct Object
 {
-	float3 Position : POSITION;
-	float2 Texture : TEXCOORD;
+	float4x4 World;
 };
-
-struct VSOutput
-{
-	float4 Position : SV_Position;
-	float2 Texture : TEXCOORD;
-};
+ConstantBuffer<Object> ObjectCB : register(b1);
 
 //
 // Entry Point
