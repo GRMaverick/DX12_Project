@@ -48,6 +48,71 @@ unsigned long HashString(char* _pObject, size_t _szlength)
 	return hash;
 }
 
+
+void GenerateInputLayout(IShader* _pShader, std::vector<D3D12_INPUT_ELEMENT_DESC>* _pLayout)
+{
+	if (_pShader->GetType() != IShader::ShaderType::VertexShader)
+	{
+		LogError_Renderer("Shader generating Input Layout IS NOT a Vertex Shader");
+		return;
+	}
+
+	ShaderIOParameters parameters = _pShader->GetShaderParameters();
+
+	_pLayout->reserve(parameters.NumberInputs);
+
+	for (unsigned int input = 0; input < parameters.NumberInputs; ++input)
+	{
+		const ShaderIOParameters::Parameter& p = parameters.Inputs[input];
+		D3D12_INPUT_ELEMENT_DESC desc;
+		ZeroMemory(&desc, sizeof(D3D12_INPUT_ELEMENT_DESC));
+		desc.SemanticIndex = p.SemanticIndex;
+		desc.SemanticName = p.SemanticName;
+		desc.InputSlot = 0;
+		desc.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+		desc.InstanceDataStepRate = 0;
+		desc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+
+		if (p.Mask == 1)
+		{
+			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+				desc.Format = DXGI_FORMAT_R32_UINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+				desc.Format = DXGI_FORMAT_R32_SINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+				desc.Format = DXGI_FORMAT_R32_FLOAT;
+		}
+		else if (p.Mask <= 3)
+		{
+			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+				desc.Format = DXGI_FORMAT_R32G32_UINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+				desc.Format = DXGI_FORMAT_R32G32_SINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+				desc.Format = DXGI_FORMAT_R32G32_FLOAT;
+		}
+		else if (p.Mask <= 7)
+		{
+			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+				desc.Format = DXGI_FORMAT_R32G32B32_UINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+				desc.Format = DXGI_FORMAT_R32G32B32_SINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+				desc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		}
+		else if (p.Mask <= 15)
+		{
+			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+				desc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+				desc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
+			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+		}
+		_pLayout->push_back(desc);
+	}
+}
+
 DeviceD3D12* DeviceD3D12::Instance(void)
 {
 	static DeviceD3D12 device;
@@ -253,10 +318,8 @@ ConstantBufferResource* DeviceD3D12::CreateConstantBufferResource(const Constant
 	return new ConstantBufferResource(m_pDevice.Get(), &m_DescHeapSrvCbv, _params, _pDebugName);
 }
 
-bool DeviceD3D12::CreateRootSignature(IShader* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName)
+bool DeviceD3D12::GetRootSignature(IShader* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName)
 {
-	RenderMarker profile(GetImmediateContext(), "CreateRootSignature");
-
 	if (_pShader->GetType() != IShader::ShaderType::VertexShader)
 	{
 		assert(false && "Shader is not a VertexShader");
@@ -282,39 +345,53 @@ bool DeviceD3D12::CreateRootSignature(IShader* _pShader, ID3D12RootSignature** _
 	return true;
 }
 
-bool DeviceD3D12::CreatePipelineState(PipelineStateDesc _psDesc, ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName)
+bool DeviceD3D12::GetPipelineState(ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName)
 {
-	D3D12_RT_FORMAT_ARRAY rtvFormats = {};
-	ZeroMemory(&rtvFormats, sizeof(D3D12_RT_FORMAT_ARRAY));
-	rtvFormats.NumRenderTargets = 1;
-	rtvFormats.RTFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-
-	struct PipelineStateStream
+	ID3D12RootSignature* pRootSignature = nullptr;
+	if (!GetRootSignature(m_DeviceState.Resources.GetVShader(), &pRootSignature))
 	{
-		CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE pRootSignature;
-		CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT InputLayout;
-		CD3DX12_PIPELINE_STATE_STREAM_PRIMITIVE_TOPOLOGY PrimitiveTopologyType;
-		CD3DX12_PIPELINE_STATE_STREAM_VS VS;
-		CD3DX12_PIPELINE_STATE_STREAM_PS PS;
-		CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT DSVFormat;
-		CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS RTVFormats;
-	} pipelineStateStream;
-	
-	pipelineStateStream.VS = _psDesc.VertexShader;
-	pipelineStateStream.PS = _psDesc.PixelShader;
-	pipelineStateStream.InputLayout = _psDesc.InputLayout;
-	pipelineStateStream.pRootSignature = _psDesc.RootSignature;
-	pipelineStateStream.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	
-	PRAGMA_TODO("Change Formats on Changed RTV/DSV");
-	pipelineStateStream.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-	pipelineStateStream.RTVFormats = rtvFormats;
+		assert(false && "Root Sig Creation Failure");
+	}
 
-	D3D12_PIPELINE_STATE_STREAM_DESC pipelineStateStreamDesc = {
-		sizeof(PipelineStateStream), &pipelineStateStream
-	};
+	GetImmediateContext()->SetGraphicsRootSignature(pRootSignature);
 
-	unsigned long ulHash = HashString((char*)&pipelineStateStreamDesc, sizeof(D3D12_PIPELINE_STATE_STREAM_DESC));
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC stateDesc;
+	ZeroMemory(&stateDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+
+	// Default
+	{
+		stateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		stateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		stateDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		stateDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+		stateDesc.SampleMask = UINT_MAX;
+		stateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+
+		PRAGMA_TODO("Change Formats on Changed RTV/DSV");
+		stateDesc.NumRenderTargets = 1;
+		stateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		stateDesc.SampleDesc.Count = 1;
+	}
+
+	std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
+	GenerateInputLayout(m_DeviceState.Resources.GetVShader(), &inputLayout);
+
+	unsigned long ulHash = 0;
+	// Parameterised
+	{
+		RenderMarker profile(GetImmediateContext(), "GetPipelineState::Hash Ident");
+
+		stateDesc.InputLayout = { &inputLayout[0], (UINT)inputLayout.size() };
+		stateDesc.pRootSignature = pRootSignature;
+		stateDesc.VS = { m_DeviceState.Resources.GetVShader()->GetBytecode(), m_DeviceState.Resources.GetVShader()->GetBytecodeSize() };
+		stateDesc.PS = { m_DeviceState.Resources.GetPShader()->GetBytecode(), m_DeviceState.Resources.GetPShader()->GetBytecodeSize() };
+		
+		ulHash += HashString((char*)&inputLayout[0], sizeof(D3D12_INPUT_ELEMENT_DESC) * inputLayout.size());
+		ulHash += HashString((char*)&stateDesc.pRootSignature, sizeof(ID3D12RootSignature));
+		ulHash += HashString((char*)m_DeviceState.Resources.GetVShader()->GetShaderName(), strlen(m_DeviceState.Resources.GetVShader()->GetShaderName()));
+		ulHash += HashString((char*)m_DeviceState.Resources.GetPShader()->GetShaderName(), strlen(m_DeviceState.Resources.GetPShader()->GetShaderName()));
+	}
+	
 	if (m_mapPSO.find(ulHash) != m_mapPSO.end())
 	{
 		(*_ppPipelineState) = m_mapPSO[ulHash];
@@ -324,7 +401,7 @@ bool DeviceD3D12::CreatePipelineState(PipelineStateDesc _psDesc, ID3D12PipelineS
 		RenderMarker profile(GetImmediateContext(), "ID3D12Device::CreatePipelineState");
 
 		ID3D12PipelineState* pPSO = nullptr;
-		VALIDATE_D3D(m_pDevice->CreatePipelineState(&pipelineStateStreamDesc, IID_PPV_ARGS(&pPSO)));
+		VALIDATE_D3D(m_pDevice->CreateGraphicsPipelineState(&stateDesc, IID_PPV_ARGS(&pPSO)));
 		pPSO->SetName(_pDebugName);
 
 		m_mapPSO[ulHash] = pPSO;
@@ -362,70 +439,6 @@ void DeviceD3D12::EndFrame(void)
 	m_ActiveSamplerHeap.~DescriptorHeap();
 }
 
-void GenerateInputLayout(IShader* _pShader, std::vector<D3D12_INPUT_ELEMENT_DESC>* _pLayout)
-{
-	if (_pShader->GetType() != IShader::ShaderType::VertexShader)
-	{
-		LogError_Renderer("Shader generating Input Layout IS NOT a Vertex Shader");
-		return;
-	}
-
-	ShaderIOParameters parameters = _pShader->GetShaderParameters();
-
-	_pLayout->reserve(parameters.NumberInputs);
-
-	for (unsigned int input = 0; input < parameters.NumberInputs; ++input)
-	{
-		const ShaderIOParameters::Parameter& p = parameters.Inputs[input];
-		D3D12_INPUT_ELEMENT_DESC desc;
-		ZeroMemory(&desc, sizeof(D3D12_INPUT_ELEMENT_DESC));
-		desc.SemanticIndex = p.SemanticIndex;
-		desc.SemanticName = p.SemanticName;
-		desc.InputSlot = 0;
-		desc.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-		desc.InstanceDataStepRate = 0;
-		desc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-
-		if (p.Mask == 1)
-		{
-			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
-				desc.Format = DXGI_FORMAT_R32_UINT;
-			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
-				desc.Format = DXGI_FORMAT_R32_SINT;
-			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
-				desc.Format = DXGI_FORMAT_R32_FLOAT;
-		}
-		else if (p.Mask <= 3)
-		{
-			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
-				desc.Format = DXGI_FORMAT_R32G32_UINT;
-			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
-				desc.Format = DXGI_FORMAT_R32G32_SINT;
-			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
-				desc.Format = DXGI_FORMAT_R32G32_FLOAT;
-		}
-		else if (p.Mask <= 7)
-		{
-			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
-				desc.Format = DXGI_FORMAT_R32G32B32_UINT;
-			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
-				desc.Format = DXGI_FORMAT_R32G32B32_SINT;
-			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
-				desc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		}
-		else if (p.Mask <= 15)
-		{
-			if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
-				desc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
-			else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
-				desc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
-			else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
-				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		}
-		_pLayout->push_back(desc);
-	}
-}
-
 bool DeviceD3D12::FlushState()
 {
 	CommandList* pGfxCmdList = GetImmediateContext();
@@ -433,26 +446,8 @@ bool DeviceD3D12::FlushState()
 
 	RenderMarker profile(pGfxCmdList, "FlushState");
 
-	ID3D12RootSignature* pRootSignature = nullptr;
-	if (!CreateRootSignature(Resources.GetVShader(), &pRootSignature))
-	{
-		assert(false && "Root Sig Creation Failure");
-	}
-
-	pGfxCmdList->SetGraphicsRootSignature(pRootSignature);
-
-	std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
-	GenerateInputLayout(Resources.GetVShader(), &inputLayout);
-
-	PipelineStateDesc psDesc;
-	ZeroMemory(&psDesc, sizeof(PipelineStateDesc));
-	psDesc.VertexShader = { Resources.GetVShader()->GetBytecode(), Resources.GetVShader()->GetBytecodeSize() };
-	psDesc.PixelShader = { Resources.GetPShader()->GetBytecode(), Resources.GetPShader()->GetBytecodeSize() };
-	psDesc.InputLayout = { &inputLayout[0], (UINT)inputLayout.size() };
-	psDesc.RootSignature = pRootSignature;
-
 	ID3D12PipelineState* pPSO = nullptr;
-	if (!CreatePipelineState(psDesc, &pPSO))
+	if (!GetPipelineState(&pPSO))
 		return false;
 
 	pGfxCmdList->SetPipelineState(pPSO);
