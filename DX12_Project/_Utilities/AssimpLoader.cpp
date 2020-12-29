@@ -79,15 +79,22 @@ bool AssimpLoader::LoadModel(DeviceD3D12* _pDevice, CommandList* _pCommandList, 
 	}
 
 	std::string strFilename(_pFilename);
-	g_Directory = strFilename.substr(0, strFilename.find_last_of('\\'));
+	if (m_LoadedModels.find(strFilename) == m_LoadedModels.end())
+	{
+		g_Directory = strFilename.substr(0, strFilename.find_last_of('\\'));
 
-	AssimpPreprocessResult result = Preprocess(pScene);
+		AssimpPreprocessResult result = Preprocess(pScene);
 
-	(*_pModelOut) = new RenderModel();
-	(*_pModelOut)->pMeshList = new Mesh[result.MeshCount];
+		(*_pModelOut) = new RenderModel();
+		(*_pModelOut)->pMeshList = new Mesh[result.MeshCount];
 
-	ProcessNode(_pDevice, _pCommandList, pScene->mRootNode, pScene, _pModelOut);
-
+		ProcessNode(_pDevice, _pCommandList, pScene->mRootNode, pScene, _pModelOut);
+		m_LoadedModels[strFilename] = (*_pModelOut);
+	}
+	else
+	{
+		(*_pModelOut) = m_LoadedModels[strFilename];
+	}
 	return true;
 }
 
@@ -228,7 +235,7 @@ Texture2DResource* AssimpLoader::ProcessMaterial(DeviceD3D12* _pDevice, CommandL
 		bool bSkip = m_LoadedTextures.find(str.C_Str()) != m_LoadedTextures.end();
 		if (!bSkip)
 		{
-			Texture2DResource* pTexture;
+			Texture2DResource* pTexture = nullptr;
 			std::string textype = DetermineTextureType(_pScene, _pMaterial);
 			if (textype == "embedded compressed texture")
 			{
@@ -241,16 +248,20 @@ Texture2DResource* AssimpLoader::ProcessMaterial(DeviceD3D12* _pDevice, CommandL
 				const char* ext = ExtractExtension(str.C_Str());
 				if (strncmp(ext, "dds", 3) == 0)
 				{
-					if (_pDevice->CreateTexture2D(wstrFilename.c_str(), _pCommandList, &pTexture, wstrFilename.c_str()))
-						return pTexture;
+					pTexture = _pDevice->CreateTexture2D(wstrFilename.c_str(), _pCommandList, wstrFilename.c_str());
 				}
 				else
 				{
-					if (_pDevice->CreateWICTexture2D(wstrFilename.c_str(), _pCommandList, &pTexture, wstrFilename.c_str()))
-						return pTexture;
+					pTexture = _pDevice->CreateWICTexture2D(wstrFilename.c_str(), _pCommandList, wstrFilename.c_str());
 				}
 				delete[] ext;
 			}
+			m_LoadedTextures[str.C_Str()] = pTexture;
+			return pTexture;
+		}
+		else
+		{
+			return m_LoadedTextures[str.C_Str()];
 		}
 	}
 	return nullptr;

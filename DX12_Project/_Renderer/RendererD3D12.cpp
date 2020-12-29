@@ -84,8 +84,8 @@ struct ModelDefinition
 	float		Position[3] = { 0 };
 };
 
-#define SPONZA
-//#define CUBES
+//#define SPONZA
+#define CUBES
 
 ModelDefinition g_ModelList[] =
 {
@@ -127,7 +127,7 @@ bool RendererD3D12::LoadContent(void)
 #endif
 
 #if defined(CUBES)
-	m_Camera.SetPosition(1.5f, 2.5f, 0.0f);
+	m_Camera.SetPosition(0.0f, 1.5f, -6.0f);
 #endif
 
 	m_Camera.SetUp(0.0f, 1.0f, 0.0f);

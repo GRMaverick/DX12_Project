@@ -228,18 +228,14 @@ bool DeviceD3D12::CreateSwapChain(SwapChain** _ppSwapChain, CoreWindow* _pWindow
 	return true;
 }
 
-bool DeviceD3D12::CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, Texture2DResource** _pTexture, const wchar_t* _pDebugName)
+Texture2DResource* DeviceD3D12::CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName)
 {
-	(*_pTexture) = new Texture2DResource(_pWstrFilename, true, &m_DescHeapSrvCbv, m_pDevice.Get(), _pCommandList, _pDebugName);
-
-	return true;
+	return new Texture2DResource(_pWstrFilename, true, &m_DescHeapSrvCbv, m_pDevice.Get(), _pCommandList, _pDebugName);
 }
 
-bool DeviceD3D12::CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, Texture2DResource** _pTexture, const wchar_t* _pDebugName)
+Texture2DResource* DeviceD3D12::CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName)
 {
-	(*_pTexture) = new Texture2DResource(_pWstrFilename, false, &m_DescHeapSrvCbv, m_pDevice.Get(), _pCommandList, _pDebugName);
-
-	return true;
+	return new Texture2DResource(_pWstrFilename, false, &m_DescHeapSrvCbv, m_pDevice.Get(), _pCommandList, _pDebugName);
 }
 
 bool DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, VertexBufferResource** _ppResource, const wchar_t* _pDebugName)
