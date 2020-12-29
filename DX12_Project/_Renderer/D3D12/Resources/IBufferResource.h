@@ -2,6 +2,8 @@
 #define __BufferResource_h__
 
 #include <d3d12.h>
+#include "d3dx12.h"
+
 #include <wrl.h>
 
 class CommandList;
@@ -22,6 +24,17 @@ public:
 protected:
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_CPUBuffer;
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_GPUBuffer;
+};
+
+class IGpuBufferResource
+{
+public:
+	virtual ~IGpuBufferResource(void) { }
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuHandle(void) { return m_hCpuHandle; }
+
+protected:
+	CD3DX12_CPU_DESCRIPTOR_HANDLE m_hCpuHandle;
 };
 
 #endif // __BufferResource_h__

@@ -39,9 +39,9 @@ Texture2DResource::Texture2DResource(const wchar_t* _pWstrFilename, const bool _
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-	m_CpuHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(_pTargetSRVHeap->GetCPUStartHandle());
-	m_CpuHandle.Offset(m_HeapIndex, _pTargetSRVHeap->GetIncrementSize());
-	_pDevice->CreateShaderResourceView(m_GPUBuffer.Get(), &srvDesc, m_CpuHandle);
+	m_hCpuHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(_pTargetSRVHeap->GetCPUStartHandle());
+	m_hCpuHandle.Offset(m_HeapIndex, _pTargetSRVHeap->GetIncrementSize());
+	_pDevice->CreateShaderResourceView(m_GPUBuffer.Get(), &srvDesc, m_hCpuHandle);
 
 	wchar_t pCPUDebugName[256];
 	wchar_t pGPUDebugName[256];

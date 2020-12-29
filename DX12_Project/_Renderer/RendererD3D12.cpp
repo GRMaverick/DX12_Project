@@ -306,11 +306,11 @@ void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 		{
 			Mesh& rMesh = pModel->GetModel()->pMeshList[i];
 
-			pDevice->SetTexture(0, rMesh.pTexture);
+			pDevice->SetTexture(0, (Texture2DResource*)rMesh.pTexture);
 			if (DeviceD3D12::Instance()->FlushState())
 			{
-				auto vbView = rMesh.pVertexBuffer->GetView();
-				auto ibView = rMesh.pIndexBuffer->GetView();
+				auto vbView = ((VertexBufferResource*)rMesh.pVertexBuffer)->GetView();
+				auto ibView = ((IndexBufferResource*)rMesh.pIndexBuffer)->GetView();
 				_pGfxCmdList->SetIAVertexBuffers(0, 1, &vbView);
 				_pGfxCmdList->SetIAIndexBuffer(&ibView);
 				_pGfxCmdList->DrawIndexedInstanced(rMesh.Indices, 1, 0, 0, 0);

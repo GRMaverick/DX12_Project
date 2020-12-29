@@ -5,7 +5,7 @@
 
 #include "IShader.h"
 
-class ConstantBufferResource : public IBufferResource
+class ConstantBufferResource : public IBufferResource, public IGpuBufferResource
 {
 public:
 	ConstantBufferResource(ID3D12Device* _pDevice, DescriptorHeap* _pDescHeapCBV, const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pName);
@@ -15,13 +15,9 @@ public:
 
 	unsigned int GetHeapIndex(void) { return m_HeapIndex; }
 
-	CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuHandle(void) { return m_CpuHandle; }
-
 private:
 	unsigned int m_HeapIndex;
 	char* m_pCPUMapped = nullptr;
 	ConstantBufferParameters::ConstantBuffer m_ConstantParameters;
-
-	CD3DX12_CPU_DESCRIPTOR_HANDLE m_CpuHandle;
 };
 #endif // __ConstantBufferResource_h__

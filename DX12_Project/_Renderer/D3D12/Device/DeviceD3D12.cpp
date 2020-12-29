@@ -228,28 +228,24 @@ bool DeviceD3D12::CreateSwapChain(SwapChain** _ppSwapChain, CoreWindow* _pWindow
 	return true;
 }
 
-Texture2DResource* DeviceD3D12::CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName)
+IBufferResource* DeviceD3D12::CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName)
 {
 	return new Texture2DResource(_pWstrFilename, true, &m_DescHeapSrvCbv, m_pDevice.Get(), _pCommandList, _pDebugName);
 }
 
-Texture2DResource* DeviceD3D12::CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName)
+IBufferResource* DeviceD3D12::CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName)
 {
 	return new Texture2DResource(_pWstrFilename, false, &m_DescHeapSrvCbv, m_pDevice.Get(), _pCommandList, _pDebugName);
 }
 
-bool DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, VertexBufferResource** _ppResource, const wchar_t* _pDebugName)
+IBufferResource* DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName)
 {
-	(*_ppResource) = new VertexBufferResource(m_pDevice.Get(), _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, _pDebugName);
-
-	return true;
+	return new VertexBufferResource(m_pDevice.Get(), _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, _pDebugName);
 }
 
-bool DeviceD3D12::CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, IndexBufferResource** _ppResource, const wchar_t* _pDebugName)
+IBufferResource* DeviceD3D12::CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName)
 {
-	(*_ppResource) = new IndexBufferResource(m_pDevice.Get(), _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, _pDebugName);
-
-	return true;
+	return new IndexBufferResource(m_pDevice.Get(), _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, _pDebugName);
 }
 
 ConstantBufferResource* DeviceD3D12::CreateConstantBufferResource(const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName)
@@ -561,14 +557,14 @@ bool DeviceD3D12::SetDepthBuffer(void)
 	return true;
 }
 
-bool DeviceD3D12::SetTexture(unsigned int _iRegister, Texture2DResource* _pTexture)
+bool DeviceD3D12::SetTexture(unsigned int _iRegister, IGpuBufferResource* _pTexture)
 {
 	m_DeviceState.DirtyFlags |= kDirtyTexture;
 	m_DeviceState.Texture[_iRegister] = _pTexture;
 	return true;
 }
 
-bool DeviceD3D12::SetConstantBuffer(unsigned int _iRegister, ConstantBufferResource* _pCBuffer)
+bool DeviceD3D12::SetConstantBuffer(unsigned int _iRegister, IGpuBufferResource* _pCBuffer)
 {
 	assert(_iRegister < ARRAYSIZE(m_DeviceState.ConstantBuffer));
 

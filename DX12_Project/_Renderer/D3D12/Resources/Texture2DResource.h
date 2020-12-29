@@ -11,7 +11,7 @@
 class CommandList;
 class DescriptorHeap;
 
-class Texture2DResource : public IBufferResource
+class Texture2DResource : public IBufferResource, public IGpuBufferResource
 {
 public:
 	Texture2DResource(
@@ -27,10 +27,8 @@ public:
 
 	UINT32 GetHeapIndex(void) { return m_HeapIndex; }
 
-	CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuHandle(void) { return m_CpuHandle; }
 private:
 	UINT m_HeapIndex = 0;
-	CD3DX12_CPU_DESCRIPTOR_HANDLE m_CpuHandle;
 
 	bool CreateFromDDS(const wchar_t* _pWstrFilename, ID3D12Device* _pDevice, CommandList* _pCmdList);
 	bool CreateFromWIC(const wchar_t* _pWstrFilename, ID3D12Device* _pDevice, CommandList* _pCmdList);

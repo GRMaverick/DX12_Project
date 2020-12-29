@@ -19,7 +19,7 @@
 #pragma comment(lib, "IrrXMLd.lib")
 
 std::map<std::string, RenderModel*> AssimpLoader::m_LoadedModels = std::map<std::string, RenderModel*>();
-std::map<std::string, Texture2DResource*> AssimpLoader::m_LoadedTextures = std::map<std::string, Texture2DResource*>();
+std::map<std::string, IBufferResource*> AssimpLoader::m_LoadedTextures = std::map<std::string, IBufferResource*>();
 
 struct Vertex
 {
@@ -168,14 +168,8 @@ Mesh AssimpLoader::ProcessMesh(DeviceD3D12* _pDevice, CommandList* _pCommandList
 	// Upload GPU resources
 	//
 	mesh.Indices = iIndices;
-	if (!_pDevice->CreateVertexBufferResource(_pCommandList, _pMesh->mNumVertices, sizeof(Vertex), D3D12_RESOURCE_FLAG_NONE, (void*)pVertices, &mesh.pVertexBuffer))
-	{
-		assert(false && "AssimpLoader: Could not load Vertex Buffer Resource");
-	}
-	if (!_pDevice->CreateIndexBufferResource(_pCommandList, iIndices, sizeof(DWORD), D3D12_RESOURCE_FLAG_NONE, pIndices, &mesh.pIndexBuffer))
-	{
-		assert(false && "AssimpLoad: Could not load Index Buffer Resource");
-	}
+	mesh.pVertexBuffer = _pDevice->CreateVertexBufferResource(_pCommandList, _pMesh->mNumVertices, sizeof(Vertex), D3D12_RESOURCE_FLAG_NONE, (void*)pVertices);
+	mesh.pIndexBuffer = _pDevice->CreateIndexBufferResource(_pCommandList, iIndices, sizeof(DWORD), D3D12_RESOURCE_FLAG_NONE, pIndices);
 
 	delete[] pVertices;
 	delete[] pIndices;
@@ -223,7 +217,7 @@ Texture2DResource* GetTextureFromModel(DeviceD3D12* _pDevice, const aiScene* sce
 
 extern const char* ExtractExtension(const char* _pFilename);
 
-Texture2DResource* AssimpLoader::ProcessMaterial(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiMaterial* _pMaterial, const aiTextureType _type, const char* _typeName, const aiScene* _pScene)
+IBufferResource* AssimpLoader::ProcessMaterial(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiMaterial* _pMaterial, const aiTextureType _type, const char* _typeName, const aiScene* _pScene)
 {
 	//assert((_pMaterial->GetTextureCount(_type) == 1) && "More than one textures of this type");
 
@@ -235,7 +229,7 @@ Texture2DResource* AssimpLoader::ProcessMaterial(DeviceD3D12* _pDevice, CommandL
 		bool bSkip = m_LoadedTextures.find(str.C_Str()) != m_LoadedTextures.end();
 		if (!bSkip)
 		{
-			Texture2DResource* pTexture = nullptr;
+			IBufferResource* pTexture = nullptr;
 			std::string textype = DetermineTextureType(_pScene, _pMaterial);
 			if (textype == "embedded compressed texture")
 			{

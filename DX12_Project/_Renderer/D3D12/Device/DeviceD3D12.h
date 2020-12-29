@@ -15,6 +15,7 @@
 
 class IShader;
 class IBufferResource;
+class IGpuBufferResource;
 
 class CommandQueue;
 class CommandList;
@@ -49,10 +50,10 @@ public:
 	bool CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE _type, DescriptorHeap* _ppDescriptorHeap, UINT _numBuffers = 1, D3D12_DESCRIPTOR_HEAP_FLAGS _flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, const wchar_t* _pDebugName = L"");
 	bool CreateSwapChain(SwapChain** _ppSwapChain, CoreWindow* _pWindow, UINT _numBackBuffers, const wchar_t* _pDebugName = L"");
 
-	Texture2DResource* CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName = L"");
-	Texture2DResource* CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName = L"");
-	bool CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, IndexBufferResource** _ppResource, const wchar_t* _pDebugName = L"");
-	bool CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, VertexBufferResource** _ppResource, const wchar_t* _pDebugName = L"");
+	IBufferResource* CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName = L"");
+	IBufferResource* CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName = L"");
+	IBufferResource* CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName = L"");
+	IBufferResource* CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName = L"");
 	ConstantBufferResource* CreateConstantBufferResource(const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"");
 	
 	bool CreateRootSignature(IShader* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName = L"");
@@ -63,8 +64,8 @@ public:
 	bool SetShader(const char* _pName);
 	bool SetRenderTarget(void);
 	bool SetDepthBuffer(void);
-	bool SetTexture(unsigned int _iRegister, Texture2DResource* _pTexture);
-	bool SetConstantBuffer(unsigned int _iRegister, ConstantBufferResource* _pCBuffer);
+	bool SetTexture(unsigned int _iRegister, IGpuBufferResource* _pTexture);
+	bool SetConstantBuffer(unsigned int _iRegister, IGpuBufferResource* _pCBuffer);
 	bool SetSamplerState(unsigned int _iRegister, D3D12_SAMPLER_DESC _state);
 
 	DescriptorHeap* GetSrvCbvHeap(void) { return &m_DescHeapSrvCbv; }
@@ -86,8 +87,8 @@ private:
 		IShader*				VertexShader = nullptr;
 		IShader*				PixelShader = nullptr;
 		SamplerStateEntry		Sampler[1] = { 0 };
-		Texture2DResource*		Texture[1] = { 0 };
-		ConstantBufferResource* ConstantBuffer[2] = { 0 };
+		IGpuBufferResource*		Texture[1] = { 0 };
+		IGpuBufferResource*		ConstantBuffer[2] = { 0 };
 
 		bool IsDirty(const unsigned int _dirtyFlags)
 		{
