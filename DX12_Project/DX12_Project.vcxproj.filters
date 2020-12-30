@@ -281,6 +281,9 @@
     <ClInclude Include="_Renderer\D3D12\Resources\GpuResourceTable.h">
       <Filter>Header Files\Renderer\D3D12\Resource</Filter>
     </ClInclude>
+    <ClInclude Include="_Renderer\CBStructures.h">
+      <Filter>Header Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

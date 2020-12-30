@@ -11,6 +11,6 @@ public:
 	virtual ~ShaderCompilerDX(void) { }
 
 protected:
-	void ReflectInternal(IShader* _pShader, ID3D12ShaderReflection* _pReflection);
+	void ReflectInternal(IShaderStage* _pShader, ID3D12ShaderReflection* _pReflection);
 };
 #endif // __ShaderCompilerDX_h__

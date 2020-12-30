@@ -24,8 +24,8 @@ bool RenderEntity::LoadModelFromFile(const char* _pFilename)
 
 void RenderEntity::Update()
 {
-	//float sRotationSpeed = 25.0f * 0.016f;
-	//m_RotationTheta += sRotationSpeed;
+	float sRotationSpeed = 5.0f * 0.016f;
+	m_RotationTheta += sRotationSpeed;
 
 	// Update the model matrix. 
 	float angle = 25.0f;

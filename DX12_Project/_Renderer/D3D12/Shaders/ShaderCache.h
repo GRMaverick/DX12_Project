@@ -10,8 +10,8 @@ class IShaderCompiler;
 
 struct ShaderSet
 {
-	IShader* VertexShader = nullptr;
-	IShader* PixelShader = nullptr;
+	IShaderStage* VertexShader = nullptr;
+	IShaderStage* PixelShader = nullptr;
 };
 
 class ShaderCache
@@ -24,16 +24,16 @@ public:
 	void InitCompiler(void);
 	bool Load(const char* _pCachePath);
 
-	ShaderSet GetShader(const char* _pName);
+	Effect* GetEffect(const char* _pName);
 
 private:
 	ShaderCache(void);
 	ShaderCache(const char* _pShadersPath);
 
 	IShaderCompiler*		m_pShaderCompiler;
-	std::vector<IShader*>	m_vLoadedShaders;
+	std::vector<Effect>		m_vLoadedEffect;
 
-	void DumpShader(IShader* _pShader);
+	void DumpShader(IShaderStage* _pShader);
 };
 
 #endif // __ShaderCache_h__

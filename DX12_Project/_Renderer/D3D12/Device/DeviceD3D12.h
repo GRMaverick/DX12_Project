@@ -14,7 +14,7 @@
 #include "D3D12\Resources\DescriptorHeap.h"
 #include "D3D12\Resources\ConstantBufferParameters.h"
 
-class IShader;
+class IShaderStage;
 class IBufferResource;
 class IGpuBufferResource;
 
@@ -57,7 +57,7 @@ public:
 	IBufferResource* CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName = L"");
 	ConstantBufferResource* CreateConstantBufferResource(const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"");
 	
-	bool GetRootSignature(IShader* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName = L"");
+	bool GetRootSignature(IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName = L"");
 	bool GetPipelineState(ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName = L"");
 	bool CreateSamplerState(D3D12_SAMPLER_DESC* _pSamplerDesc, D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const wchar_t* _pDebugName = L"");
 

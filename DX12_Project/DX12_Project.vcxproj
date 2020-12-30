@@ -195,6 +195,7 @@ xcopy /y /s /q $(ProjectDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configurati
     <ClInclude Include="_Interfaces\IRenderer.h" />
     <ClInclude Include="_Interfaces\IShader.h" />
     <ClInclude Include="_Interfaces\IShaderCompiler.h" />
+    <ClInclude Include="_Renderer\CBStructures.h" />
     <ClInclude Include="_Renderer\D3D12\Device\CommandList.h" />
     <ClInclude Include="_Renderer\D3D12\Device\CommandQueue.h" />
     <ClInclude Include="_Renderer\D3D12\Device\DeviceD3D12.h" />

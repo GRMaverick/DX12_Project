@@ -1,6 +1,7 @@
 #ifndef __IShader_h__
 #define __IShader_h__
 
+#include <stdlib.h>
 #include "D3D12\Resources\ConstantTable.h"
 
 struct ShaderIOParameters
@@ -22,7 +23,7 @@ struct ShaderIOParameters
 	Parameter*			Outputs = nullptr;
 };
 
-class IShader
+class IShaderStage
 {
 public:
 	enum class ShaderType
@@ -31,16 +32,18 @@ public:
 		PixelShader,
 	};
 
-	~IShader(void) { }
+	~IShaderStage(void) { }
 
-	void SetName(const char* _pName) { strncpy_s(m_pShaderName, strlen(_pName) + 1, _pName, strlen(_pName)); }
-	void SetShaderParameters(const ShaderIOParameters& _params) { m_ShaderParameters = _params; }
-	void SetConstantParameters(const ConstantBufferParameters& _params) { m_ConstantParameters = _params; ConstantTable::Instance()->CreateConstantBuffersEntries(_params);  }
+	void SetName(const char* _pName) { strncpy_s(m_pShaderName, _countof(m_pShaderName), _pName, _countof(m_pShaderName)); }
 
 	ShaderType GetType(void) { return m_Type; }
 	const char* GetShaderName(void) { return m_pShaderName; }
 	const void* GetBytecode(void) { return m_pShaderBytecode; }
 	const size_t GetBytecodeSize(void) { return m_ShaderBytecodeSize; }
+
+	void SetShaderParameters(const ShaderIOParameters& _params) { m_ShaderParameters = _params; }
+	void SetConstantParameters(const ConstantBufferParameters& _params) { m_ConstantParameters = _params; ConstantTable::Instance()->CreateConstantBuffersEntries(_params); }
+
 	const ShaderIOParameters GetShaderParameters(void) { return m_ShaderParameters; }
 	const ConstantBufferParameters GetConstantParameters(void) { return m_ConstantParameters; }
 
@@ -54,4 +57,23 @@ protected:
 	ConstantBufferParameters m_ConstantParameters;
 };
 
+class Effect
+{
+public:
+	void SetName(const char* _pName) { snprintf(m_pName, _countof(m_pName), "%s", _pName); }
+	void SetVertexShader(IShaderStage* _pShader) { m_pVertexShader = _pShader; }
+	void SetPixelShader(IShaderStage* _pShader) { m_pPixelShader = _pShader; }
+
+
+	IShaderStage* GetVertexShader(void) { return m_pVertexShader; }
+	IShaderStage* GetPixelShader(void) { return m_pPixelShader; }
+
+	const char* GetName(void) { return m_pName; }
+
+private:
+	char m_pName[32];
+
+	IShaderStage* m_pVertexShader;
+	IShaderStage* m_pPixelShader;
+};
 #endif // __IShader_h__

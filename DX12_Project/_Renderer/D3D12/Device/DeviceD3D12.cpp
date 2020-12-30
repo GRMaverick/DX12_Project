@@ -49,9 +49,9 @@ unsigned long HashString(char* _pObject, size_t _szlength)
 }
 
 
-void GenerateInputLayout(IShader* _pShader, std::vector<D3D12_INPUT_ELEMENT_DESC>* _pLayout)
+void GenerateInputLayout(IShaderStage* _pShader, std::vector<D3D12_INPUT_ELEMENT_DESC>* _pLayout)
 {
-	if (_pShader->GetType() != IShader::ShaderType::VertexShader)
+	if (_pShader->GetType() != IShaderStage::ShaderType::VertexShader)
 	{
 		LogError_Renderer("Shader generating Input Layout IS NOT a Vertex Shader");
 		return;
@@ -318,15 +318,16 @@ ConstantBufferResource* DeviceD3D12::CreateConstantBufferResource(const Constant
 	return new ConstantBufferResource(m_pDevice.Get(), &m_DescHeapSrvCbv, _params, _pDebugName);
 }
 
-bool DeviceD3D12::GetRootSignature(IShader* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName)
+bool DeviceD3D12::GetRootSignature(IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName)
 {
-	if (_pShader->GetType() != IShader::ShaderType::VertexShader)
-	{
-		assert(false && "Shader is not a VertexShader");
-		return false;
-	}
+	//if (_pShader->GetType() != IShaderStage::ShaderType::VertexShader)
+	//{
+	//	assert(false && "Shader is not a VertexShader");
+	//	return false;
+	//}
 
-	unsigned long ulHash = HashString((char*)_pShader->GetShaderName(), strlen(_pShader->GetShaderName()));
+	GpuResourceTable& resources = m_DeviceState.Resources;
+	unsigned long ulHash = HashString((char*)resources.GetVShader()->GetShaderName(), strlen(resources.GetVShader()->GetShaderName()));
 	if (m_mapRootSignatures.find(ulHash) != m_mapRootSignatures.end())
 	{
 		(*_ppRootSignature) = m_mapRootSignatures[ulHash];
@@ -334,8 +335,36 @@ bool DeviceD3D12::GetRootSignature(IShader* _pShader, ID3D12RootSignature** _ppR
 	else
 	{
 		RenderMarker profile(GetImmediateContext(), "ID3D12Device::CreateRootSignature");
+
+		SamplerStateEntry* pSamplers = nullptr;
+		IGpuBufferResource** ppBuffers = nullptr, ** ppTextures = nullptr;
+		unsigned long ulSamplers = resources.GetSamplers(&pSamplers);
+		unsigned long ulTextures = resources.GetTextures(&ppTextures);
+		unsigned long ulCBuffers = resources.GetConstantBuffers(&ppBuffers);
+
+		CD3DX12_DESCRIPTOR_RANGE1 Table1[2];
+		Table1[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, ulCBuffers, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
+		Table1[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, ulTextures, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
+
+		CD3DX12_DESCRIPTOR_RANGE1 Table2;
+		Table2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, ulSamplers, 0);
+
+		CD3DX12_ROOT_PARAMETER1 RootParameters[2];
+		RootParameters[0].InitAsDescriptorTable(ARRAYSIZE(Table1), Table1, D3D12_SHADER_VISIBILITY_ALL);
+		RootParameters[1].InitAsDescriptorTable(1, &Table2, D3D12_SHADER_VISIBILITY_ALL);
+
+		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC RootSig;
+		RootSig.Init_1_1(ARRAYSIZE(RootParameters), RootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS
+		);
+
+		ID3DBlob* pSerializedRootSig;
+		VALIDATE_D3D(D3D12SerializeVersionedRootSignature(&RootSig, &pSerializedRootSig, nullptr));
+
 		ID3D12RootSignature* pRootSig = nullptr;
-		VALIDATE_D3D(m_pDevice->CreateRootSignature(0, _pShader->GetBytecode(), _pShader->GetBytecodeSize(), IID_PPV_ARGS(&pRootSig)));
+		VALIDATE_D3D(m_pDevice->CreateRootSignature(0, pSerializedRootSig->GetBufferPointer(), pSerializedRootSig->GetBufferSize(), IID_PPV_ARGS(&pRootSig)));
 		pRootSig->SetName(_pDebugName);
 
 		m_mapRootSignatures[ulHash] = pRootSig;
@@ -464,13 +493,15 @@ bool DeviceD3D12::FlushState()
 	unsigned long ulResources = Resources.GetConstantBuffers(&ppCBs);
 	for (unsigned int i = 0; i < ulResources; ++i)
 	{
+		CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource(m_ActiveResourceHeap.GetCPUStartHandle(), m_ActiveResourceHeap.GetFreeIndexAndIncrement(), m_ActiveResourceHeap.GetIncrementSize());
+
 		if (!ppCBs[i])
 		{
-			assert(false && "Invalid CB");
+			LogWarning_Renderer("Null Constant Buffer");
+			continue;
 		}
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuActual = ppCBs[i]->GetCpuHandle();
-		CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource(m_ActiveResourceHeap.GetCPUStartHandle(), m_ActiveResourceHeap.GetFreeIndexAndIncrement(), m_ActiveResourceHeap.GetIncrementSize());
 
 		UINT size1 = 1;
 		UINT size2 = 1;
@@ -489,14 +520,15 @@ bool DeviceD3D12::FlushState()
 	ulResources = Resources.GetTextures(&ppTextures);
 	for (unsigned int i = 0; i < ulResources; ++i)
 	{
+		CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource(m_ActiveResourceHeap.GetCPUStartHandle(), m_ActiveResourceHeap.GetFreeIndexAndIncrement(), m_ActiveResourceHeap.GetIncrementSize());
+
 		if (!ppTextures[i])
 		{
 			LogWarning_Renderer("Invalid Texture");
-			return false;
+			continue;
 		}
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuActual = ppTextures[i]->GetCpuHandle();
-		CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource(m_ActiveResourceHeap.GetCPUStartHandle(), m_ActiveResourceHeap.GetFreeIndexAndIncrement(), m_ActiveResourceHeap.GetIncrementSize());
 
 		UINT size1 = 1;
 		UINT size2 = 1;
@@ -541,9 +573,9 @@ bool DeviceD3D12::FlushState()
 
 bool DeviceD3D12::SetMaterial(const char* _pName)
 {
-	ShaderSet set = ShaderCache::Instance()->GetShader(_pName);
+	Effect* set = ShaderCache::Instance()->GetEffect(_pName);
 	
-	m_DeviceState.Resources.Initialise(set.VertexShader, set.PixelShader);
+	m_DeviceState.Resources.Initialise(set->GetVertexShader(), set->GetPixelShader());
 
 	return true;
 }

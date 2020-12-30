@@ -1,7 +1,7 @@
 #ifndef __RenderEntity_h__
 #define __RenderEntity_h__
 
-#include <DirectXMath.h>
+#include "CBStructures.h"
 
 struct RenderModel;
 class ConstantBufferResource;
@@ -21,6 +21,7 @@ public:
 	void SetScale(float _xyz)						{ m_Scale = _xyz; }
 	void SetMaterial(const char* _pMaterialName)	{ m_pMaterialName = _pMaterialName; }
 	void SetConstantBuffer(ConstantBufferResource* _pBuffer) { m_pConstantBuffer = _pBuffer; }
+	void SetMaterialData(const Material& _material) { m_Material = _material; }
 
 	RenderModel*			GetModel(void) const	{ return m_pModel; }
 	DirectX::XMFLOAT3		GetPosition(void) const { return m_Position; }
@@ -29,6 +30,7 @@ public:
 	DirectX::XMMATRIX		GetWorld(void) const	{ return m_World; }
 	const char*				GetMaterialName(void) const { return m_pMaterialName; }
 
+	Material				GetMaterialData(void) const { return m_Material; }
 	ConstantBufferResource* GetConstantBuffer(void) const { return m_pConstantBuffer; }
 private:
 	DirectX::XMFLOAT3		m_Position;
@@ -38,6 +40,7 @@ private:
 	PRAGMA_TODO("Remove rotation code from Render Entity")
 	float					m_RotationTheta; // Remove
 
+	Material				m_Material;
 	RenderModel*			m_pModel;
 	DirectX::XMMATRIX		m_World;
 

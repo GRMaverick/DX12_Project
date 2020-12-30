@@ -33,26 +33,12 @@ bool ConstantTable::CreateConstantBuffersEntries(const ConstantBufferParameters&
         if (m_mapConstantBuffers.find(ulHashName) != m_mapConstantBuffers.end())
         {
             LogWarning_Renderer("Constant Buffer: %s already exists!", _params.Buffers[cb].Name);
+            continue;
         }
 
         m_mapConstantBuffers[ulHashName] = _params.Buffers[cb]; // DeviceD3D12::Instance()->CreateConstantBufferResource();
     }
     return true;
-}
-
-bool ConstantTable::UpdateValue(const char* _pBufferName, const char* _pValueName, void* _pValue, unsigned int _szValue)
-{
-    //unsigned long ulHashName = HashString((char*)_pBufferName, strlen(_pBufferName));
-
-    //if (m_mapConstantBuffers.find(ulHashName) != m_mapConstantBuffers.end())
-    //{
-    //    ConstantBufferResource* pBuffer = m_mapConstantBuffers[ulHashName];
-    //    return pBuffer->UpdateValue(_pValueName, _pValue, _szValue);
-    //}
-
-    //assert("Constant Buffer Not Found");
-
-    return false;
 }
 
 ConstantBufferResource* ConstantTable::CreateConstantBuffer(const char* _pBufferName)
@@ -61,10 +47,9 @@ ConstantBufferResource* ConstantTable::CreateConstantBuffer(const char* _pBuffer
     if (m_mapConstantBuffers.find(ulHashName) != m_mapConstantBuffers.end())
     {
         return DeviceD3D12::Instance()->CreateConstantBufferResource(m_mapConstantBuffers[ulHashName]);
-        //return m_mapConstantBuffers[ulHashName];
     }
 
-    assert(false && "Constant Buffer Not Found");
+    //assert(false && "Constant Buffer Not Found");
 
     return nullptr;
 }

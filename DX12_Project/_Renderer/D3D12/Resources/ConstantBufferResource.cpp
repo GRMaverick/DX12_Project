@@ -56,17 +56,20 @@ ConstantBufferResource::~ConstantBufferResource(void)
 
 bool ConstantBufferResource::UpdateValue(const char* _pValueName, void* _pValue, unsigned int _szValue)
 {
-    for (unsigned int i = 0; i < m_ConstantParameters.NumberVariables; ++i)
+    if (m_ConstantParameters.Size == _szValue)
     {
-        ConstantBufferParameters::Variable& variable = m_ConstantParameters.Variables[i];
-        if (strncmp(_pValueName, variable.Name, ARRAYSIZE(variable.Name)))
-        {
-            if (variable.Size == _szValue)
-            {
-                memcpy(&m_pCPUMapped[variable.Offset], _pValue, _szValue);
-                return true;
-            }
-        }
+        memcpy(m_pCPUMapped, _pValue, _szValue);
+        return true;
     }
+
+    PRAGMA_TODO("Variable Specific Updates");
+    //for (unsigned int i = 0; i < m_ConstantParameters.NumberVariables; ++i)
+    //{
+    //    ConstantBufferParameters::Variable& variable = m_ConstantParameters.Variables[i];
+    //    if (strncmp(_pValueName, variable.Name, ARRAYSIZE(variable.Name)))
+    //    {
+    //        memcpy(&m_pCPUMapped[variable.Offset], _pValue, _szValue);
+    //    }
+    //}
     return false;
 }

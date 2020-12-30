@@ -56,7 +56,7 @@ const wchar_t* ShaderCompilerFXC::GetTargetProfile(const char* _pFilename)
 	return L"";
 }
 
-IShader* ShaderCompilerFXC::Compile(const char* _pFilename, const char* _pFunctionName, char* _pError)
+IShaderStage* ShaderCompilerFXC::Compile(const char* _pFilename, const char* _pFunctionName, char* _pError)
 {
 	ID3DBlob* pError = nullptr;
 	ID3DBlob* pByteCode = nullptr;
@@ -83,8 +83,8 @@ IShader* ShaderCompilerFXC::Compile(const char* _pFilename, const char* _pFuncti
 		return nullptr;
 	}
 
-	IShader* pShader = new ShaderD3D12(pByteCode->GetBufferPointer(), pByteCode->GetBufferSize(),
-		pStrTargetProfile[0] == 'v' ? IShader::ShaderType::VertexShader : IShader::ShaderType::PixelShader
+	IShaderStage* pShader = new ShaderD3D12(pByteCode->GetBufferPointer(), pByteCode->GetBufferSize(),
+		pStrTargetProfile[0] == 'v' ? IShaderStage::ShaderType::VertexShader : IShaderStage::ShaderType::PixelShader
 	);
 
 	pByteCode->Release();
@@ -92,7 +92,7 @@ IShader* ShaderCompilerFXC::Compile(const char* _pFilename, const char* _pFuncti
 	return pShader;
 }
 
-void ShaderCompilerFXC::Reflect(IShader* _pShader)
+void ShaderCompilerFXC::Reflect(IShaderStage* _pShader)
 {
 	ID3D12ShaderReflection* pShaderReflection = nullptr;
 	VALIDATE_D3D(D3DReflect(_pShader->GetBytecode(), _pShader->GetBytecodeSize(), IID_ID3D12ShaderReflection, (void**)&pShaderReflection));

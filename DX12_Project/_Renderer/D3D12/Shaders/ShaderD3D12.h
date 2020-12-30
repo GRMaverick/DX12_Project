@@ -3,7 +3,7 @@
 
 #include "IShader.h"
 
-class ShaderD3D12 final : public IShader
+class ShaderD3D12 final : public IShaderStage
 {
 public:
 	ShaderD3D12(void* pBytecode, const size_t& _szBytecode, ShaderType _type)

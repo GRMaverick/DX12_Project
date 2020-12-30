@@ -93,17 +93,37 @@ bool ShaderCache::Load(const char* _pShadersPath)
 					data.cFileName
 				);
 
+				unsigned int namelength = strlen(data.cFileName) -2;
+				char* pFilename = new char[namelength];
+				snprintf(pFilename, namelength, "%s", data.cFileName);
+
 				char* aError = nullptr;
-				
-				IShader* pShader = m_pShaderCompiler->Compile(pFullFilepath, "main", aError);
-				assert(pShader && "Shader is invalid!");
-				pShader->SetName(data.cFileName);
+				IShaderStage* pVertexShader = m_pShaderCompiler->Compile(pFullFilepath, "VertexShader", aError);
+				assert(pVertexShader && "Shader is invalid!");
 
-				m_pShaderCompiler->Reflect(pShader);
-				m_vLoadedShaders.push_back(pShader);
+				char pVShaderName[32] = { 0 };
+				snprintf(pVShaderName, ARRAYSIZE(pVShaderName), "%s.vs", pFilename);
+				pVertexShader->SetName(pVShaderName);
+				m_pShaderCompiler->Reflect(pVertexShader);
+				DumpShader(pVertexShader);
 
-				DumpShader(pShader);
+				IShaderStage* pPixelShader = m_pShaderCompiler->Compile(pFullFilepath, "PixelShader", aError);
+				assert(pPixelShader && "Shader is invalid!");
 
+				char pPShaderName[32] = { 0 };
+				snprintf(pPShaderName, ARRAYSIZE(pPShaderName), "%s.ps", pFilename);
+				pPixelShader->SetName(pPShaderName);
+				m_pShaderCompiler->Reflect(pPixelShader);
+				DumpShader(pPixelShader);
+
+				Effect effect;
+				effect.SetName(pFilename);
+				effect.SetVertexShader(pVertexShader);
+				effect.SetPixelShader(pPixelShader);
+
+				m_vLoadedEffect.push_back(effect);
+
+				delete[] pFilename;
 				delete[] pFullFilepath;
 			}
 		} while (FindNextFileA(hFind, &data));
@@ -116,7 +136,7 @@ bool ShaderCache::Load(const char* _pShadersPath)
 	return true;
 }
 
-void ShaderCache::DumpShader(IShader* _pShader)
+void ShaderCache::DumpShader(IShaderStage* _pShader)
 {
 #if defined(_DEBUG) && defined(DUMP_SHADERS)
 	const ShaderIOParameters& parameters = _pShader->GetParameters();
@@ -145,27 +165,15 @@ void ShaderCache::DumpShader(IShader* _pShader)
 #endif
 }
 
-ShaderSet ShaderCache::GetShader(const char* _pName)
+Effect* ShaderCache::GetEffect(const char* _pName)
 {
-	ShaderSet set;
-	for (size_t i = 0; i < m_vLoadedShaders.size(); ++i)
+	for (size_t i = 0; i < m_vLoadedEffect.size(); ++i)
 	{
-		char pName[32] = { 0 };
-		snprintf(pName, strlen(m_vLoadedShaders[i]->GetShaderName()) - 2, "%s", m_vLoadedShaders[i]->GetShaderName()); // Name minus extension
-		if (strncmp(pName, _pName, ARRAYSIZE(pName)) == 0)
+		if (strncmp(m_vLoadedEffect[i].GetName(), _pName, strlen(_pName)) == 0)
 		{
-			if (m_vLoadedShaders[i]->GetType() == IShader::ShaderType::VertexShader)
-			{
-				set.VertexShader = m_vLoadedShaders[i];
-				continue;
-			}
-
-			if (m_vLoadedShaders[i]->GetType() == IShader::ShaderType::PixelShader)
-			{
-				set.PixelShader = m_vLoadedShaders[i];
-				continue;
-			}
+			return &m_vLoadedEffect[i];
 		}
 	}
-	return set;
+	assert("Effect does not exist");
+	return nullptr;
 }

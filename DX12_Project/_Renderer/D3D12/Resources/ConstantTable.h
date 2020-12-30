@@ -17,11 +17,9 @@ public:
 
 	ConstantBufferResource* CreateConstantBuffer(const char* _pBufferName);
 	bool CreateConstantBuffersEntries(const ConstantBufferParameters& _params);
-	bool UpdateValue(const char* _pBufferName, const char* _pValueName, void* _pValue, unsigned int _szValue);
 
 	DescriptorHeap* GetDescriptorHeap(void) { return m_pDescHeapCBV; }
 
-	//ConstantBufferResource* GetConstantBuffer(const char* _pBufferName);
 private:
 	ConstantTable(void);
 

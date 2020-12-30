@@ -3,6 +3,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>/Width:1600 /Height:900 /dxc</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>/Width:1600 /Height:900 /dxc /d3ddebug</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

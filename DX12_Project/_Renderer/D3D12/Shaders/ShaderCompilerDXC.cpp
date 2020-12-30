@@ -7,6 +7,7 @@
 #include <d3dcompiler.h>
 
 #include <stdlib.h>
+#include <cstring>
 
 #pragma comment(lib, "dxcompiler.lib")
 
@@ -42,24 +43,20 @@ const char* ExtractExtension(const char* _pFilename)
 
 const wchar_t* ShaderCompilerDXC::GetTargetProfile(const char* _pFilename)
 {
-	const char* pExtractedFileExtension = ExtractExtension(_pFilename);
-	if (strncmp(pExtractedFileExtension, "vs", strlen(pExtractedFileExtension)) == 0)
+	if (strstr(_pFilename, "Vertex"))
 	{
 		// Vertex Shader
-		delete pExtractedFileExtension;
 		return L"vs_6_0";
 	}
-	else if (strncmp(pExtractedFileExtension, "ps", strlen(pExtractedFileExtension)) == 0)
+	else if (strstr(_pFilename, "Pixel"))
 	{
 		// Pixel Shader
-		delete pExtractedFileExtension;
 		return L"ps_6_0";
 	}
-	delete pExtractedFileExtension;
 	return L"";
 }
 
-IShader* ShaderCompilerDXC::Compile(const char* _pFilename, const char* _pFunctionName, char* _pError)
+IShaderStage* ShaderCompilerDXC::Compile(const char* _pFilename, const char* _pFunctionName, char* _pError)
 {
 	IDxcLibrary* pLibrary = nullptr;
 	VALIDATE_D3D(DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&pLibrary)));
@@ -77,7 +74,7 @@ IShader* ShaderCompilerDXC::Compile(const char* _pFilename, const char* _pFuncti
 	IDxcCompiler* pCompiler = nullptr;
 	VALIDATE_D3D(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&pCompiler)));
 
-	const wchar_t* targetProfile = GetTargetProfile(_pFilename);
+	const wchar_t* targetProfile = GetTargetProfile(_pFunctionName);
 
 	LPCWSTR args[] = 
 	{
@@ -107,7 +104,7 @@ IShader* ShaderCompilerDXC::Compile(const char* _pFilename, const char* _pFuncti
 
 	HRESULT status = S_OK;
 	VALIDATE_D3D(pOpsResult->GetStatus(&status));
-	VALIDATE_D3D(status);
+	//VALIDATE_D3D(status);
 
 	if (FAILED(status))
 	{
@@ -128,8 +125,8 @@ IShader* ShaderCompilerDXC::Compile(const char* _pFilename, const char* _pFuncti
 		return nullptr;
 	}
 
-	IShader* pShader = new ShaderD3D12(pCompiledCode->GetBufferPointer(), pCompiledCode->GetBufferSize(),
-		targetProfile[0] == L'v' ? IShader::ShaderType::VertexShader : IShader::ShaderType::PixelShader
+	IShaderStage* pShader = new ShaderD3D12(pCompiledCode->GetBufferPointer(), pCompiledCode->GetBufferSize(),
+		targetProfile[0] == L'v' ? IShaderStage::ShaderType::VertexShader : IShaderStage::ShaderType::PixelShader
 	);
 
 	pCompiledCode->Release();
@@ -141,7 +138,7 @@ IShader* ShaderCompilerDXC::Compile(const char* _pFilename, const char* _pFuncti
 	return pShader;
 }
 
-void ShaderCompilerDXC::Reflect(IShader* _pShader)
+void ShaderCompilerDXC::Reflect(IShaderStage* _pShader)
 {
 	IDxcLibrary* pLibrary = nullptr;
 	VALIDATE_D3D(DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&pLibrary)));

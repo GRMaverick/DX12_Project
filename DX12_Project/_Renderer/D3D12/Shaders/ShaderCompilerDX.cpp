@@ -6,7 +6,7 @@
 
 #include "D3D12\Resources\ConstantBufferParameters.h"
 
-void ShaderCompilerDX::ReflectInternal(IShader* _pShader, ID3D12ShaderReflection* _pReflection)
+void ShaderCompilerDX::ReflectInternal(IShaderStage* _pShader, ID3D12ShaderReflection* _pReflection)
 {
 	if (_pReflection)
 	{
@@ -82,18 +82,30 @@ void ShaderCompilerDX::ReflectInternal(IShader* _pShader, ID3D12ShaderReflection
 							{
 								D3D12_SHADER_VARIABLE_DESC varDesc;
 								VALIDATE_D3D(pCBVariable->GetDesc(&varDesc));
-
 #if defined(DUMP_CONSTANTS)
 								LogInfo_Renderer("\tVar Name: %s", varDesc.Name);
 								LogInfo_Renderer("\t\tSize: %u", varDesc.Size);
 								LogInfo_Renderer("\t\tOffset: %u", varDesc.StartOffset);
 #endif
 
+								//ID3D12ShaderReflectionType* pType = pCBVariable->GetType();
+								//D3D12_SHADER_TYPE_DESC typeDesc;
+								//VALIDATE_D3D(pType->GetDesc(&typeDesc));
+								//
+								//unsigned int uiMembers = typeDesc.Members;
+								//for (unsigned int member = 0; member < uiMembers; ++member)
+								//{
+								//	ID3D12ShaderReflectionType* pMemberType = pType->GetMemberTypeByIndex(member);
+								//	D3D12_SHADER_TYPE_DESC memberTypeDesc;
+								//	VALIDATE_D3D(pMemberType->GetDesc(&memberTypeDesc));
+
+								//	ConstantBufferParameters::Variable& rVariable = rCBuffer.Variables[var];
+								//}
+
 								ConstantBufferParameters::Variable& rVariable = rCBuffer.Variables[var];
 								strncpy_s(rVariable.Name, varDesc.Name, ARRAYSIZE(rVariable.Name));
 								rVariable.Size = varDesc.Size;
 								rVariable.Offset = varDesc.StartOffset;
-
 							}
 						}
 					}
@@ -163,6 +175,5 @@ void ShaderCompilerDX::ReflectInternal(IShader* _pShader, ID3D12ShaderReflection
 
 		_pShader->SetShaderParameters(shaderIO);
 		_pShader->SetConstantParameters(cbInfo);
-
 	}
 }

@@ -79,13 +79,14 @@ bool RendererD3D12::Initialise(CoreWindow* _pWindow)
 
 struct ModelDefinition
 {
-	const char* Name = nullptr;
+	const char* MeshFilename = nullptr;
+	const char* ObjectName = nullptr;
 	const char* MaterialName = nullptr;
 	float		Position[3] = { 0 };
 };
 
-#define SPONZA
-//#define CUBES
+//#define SPONZA
+#define CUBES
 
 ModelDefinition g_ModelList[] =
 {
@@ -94,9 +95,9 @@ ModelDefinition g_ModelList[] =
 	{ "Sponza\\Sponza.fbx", "Albedo" }
 #endif
 #if defined(CUBES)
-	{ "Cube\\Cube.obj", "Albedo", {0.0f, 0.0f, 0.0f} },
-	{ "Cube\\Cube.obj", "Albedo", {2.0f, 0.0f, 0.0f} },
-	{ "Cube\\Cube.obj", "Albedo", {-2.0f, 0.0f, 0.0f} },
+	{ "Cube\\Cube.obj", "Cube1", "Albedo", {2.0f, 0.0f, 0.0f} },
+	{ "Cube\\Cube.obj", "Cube2", "AlbedoPhong", {0.0f, 0.0f, 0.0f} },
+	{ "Cube\\Cube.obj", "Cube3", "Albedo", {-2.0f, 0.0f, 0.0f} },
 #endif
 };
 
@@ -104,14 +105,20 @@ bool RendererD3D12::LoadContent(void)
 {	
 	m_bNewModelsLoaded = true;
 
+	Material material;
+	material.Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+	material.Diffuse = XMFLOAT4(0.588f, 0.588f, 0.588f, 1.0f);
+	//material.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	material.Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 0.2f);
+
 	LogInfo_Renderer("Loading Models:");
 	m_pRenderEntity = new RenderEntity*[_countof(g_ModelList)];
 	for (UINT i = 0; i < _countof(g_ModelList); ++i)
 	{
-		LogInfo_Renderer("\t%s", g_ModelList[i].Name);
+		LogInfo_Renderer("\t%s", g_ModelList[i].MeshFilename);
 
 		char pModelPath[128];
-		snprintf(pModelPath, ARRAYSIZE(pModelPath), "%s\\%s", CONTENT_LOCATION, g_ModelList[i].Name);
+		snprintf(pModelPath, ARRAYSIZE(pModelPath), "%s\\%s", CONTENT_LOCATION, g_ModelList[i].MeshFilename);
 
 		m_pRenderEntity[i] = new RenderEntity();
 		m_pRenderEntity[i]->LoadModelFromFile(pModelPath);
@@ -119,6 +126,7 @@ bool RendererD3D12::LoadContent(void)
 		m_pRenderEntity[i]->SetRotation(0.0f, 0.0f, 0.0f);
 		m_pRenderEntity[i]->SetPosition(g_ModelList[i].Position[0], g_ModelList[i].Position[1], g_ModelList[i].Position[2]);
 		m_pRenderEntity[i]->SetMaterial(g_ModelList[i].MaterialName);
+		m_pRenderEntity[i]->SetMaterialData(material);
 		m_pRenderEntity[i]->SetConstantBuffer(ConstantTable::Instance()->CreateConstantBuffer("ObjectCB"));
 		m_ModelCount++;
 	}
@@ -135,6 +143,12 @@ bool RendererD3D12::LoadContent(void)
 	m_Camera.SetTarget(0.0f, 0.0f, 0.0f);
 	m_Camera.SetFieldOfView(45.0f);
 	m_Camera.SetAspectRatio(1920.0f / 1080.0f);
+
+	m_Light.Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	m_Light.Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Light.Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	m_Light.SpecularPower = 16.0f;
+	m_Light.Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY)->ExecuteCommandLists();
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY)->Flush();
@@ -265,6 +279,79 @@ void RendererD3D12::ImGuiPass(CommandList* _pGfxCmdList)
 		ImGui::End();
 	}
 
+	if (ImGui::Begin("Lights"))
+	{
+		float v[3];
+		v[0] = m_Light.Position.x; v[1] = m_Light.Position.y; v[2] = m_Light.Position.z;
+		if (ImGui::SliderFloat3("Position:", v, 0.0f, 1.0f))
+		{
+			m_Light.Position.x = v[0]; m_Light.Position.y = v[1]; m_Light.Position.z = v[2];
+		}
+
+		v[0] = m_Light.Diffuse.x; v[1] = m_Light.Diffuse.y; v[2] = m_Light.Diffuse.z;
+		if (ImGui::SliderFloat3("Diffuse:", v, 0.0f, 1.0f))
+		{
+			m_Light.Diffuse.x = v[0]; m_Light.Diffuse.y = v[1]; m_Light.Diffuse.z = v[2];
+		}
+
+		v[0] = m_Light.Ambient.x; v[1] = m_Light.Ambient.y; v[2] = m_Light.Ambient.z;
+		if (ImGui::SliderFloat3("Ambient:", v, 0.0f, 1.0f))
+		{
+			m_Light.Ambient.x = v[0]; m_Light.Ambient.y = v[1]; m_Light.Ambient.z = v[2];
+		}
+
+		v[0] = m_Light.Specular.x; v[1] = m_Light.Specular.y; v[2] = m_Light.Specular.z;
+		if (ImGui::SliderFloat3("Specular:", v, 0.0f, 1.0f))
+		{
+			m_Light.Specular.x = v[0]; m_Light.Specular.y = v[1]; m_Light.Specular.z = v[2];
+		}
+
+		float nS = m_Light.SpecularPower;
+		if (ImGui::SliderFloat("Specular Power:", &nS, 0.0f, 10.0f))
+		{
+			m_Light.SpecularPower = nS;
+		}
+
+		ImGui::End();
+	}
+
+	if (ImGui::Begin("Objects:"))
+	{
+		float v[3];
+		//v[0] = m_Light.Position.x; v[1] = m_Light.Position.y; v[2] = m_Light.Position.z;
+		//if (ImGui::SliderFloat3("Position:", v, 0.0f, 1.0f))
+		//{
+		//	m_Light.Position.x = v[0]; m_Light.Position.y = v[1]; m_Light.Position.z = v[2];
+		//}
+
+		for (unsigned int i = 0; i < m_ModelCount; ++i)
+		{
+			if (ImGui::CollapsingHeader(g_ModelList[i].ObjectName))
+			{
+				Material material = m_pRenderEntity[i]->GetMaterialData();
+				v[0] = material.Diffuse.x; v[1] = material.Diffuse.y; v[2] = material.Diffuse.z;
+				if (ImGui::SliderFloat3("Diffuse:", v, 0.0f, 1.0f))
+				{
+					material.Diffuse.x = v[0]; material.Diffuse.y = v[1]; material.Diffuse.z = v[2];
+				}
+
+				v[0] = material.Ambient.x; v[1] = material.Ambient.y; v[2] = material.Ambient.z;
+				if (ImGui::SliderFloat3("Ambient:", v, 0.0f, 1.0f))
+				{
+					material.Ambient.x = v[0]; material.Ambient.y = v[1]; material.Ambient.z = v[2];
+				}
+
+				v[0] = material.Specular.x; v[1] = material.Specular.y; v[2] = material.Specular.z;
+				if (ImGui::SliderFloat3("Specular:", v, 0.0f, 1.0f))
+				{
+					material.Specular.x = v[0]; material.Specular.y = v[1]; material.Specular.z = v[2];
+				}
+				m_pRenderEntity[i]->SetMaterialData(material);
+			}
+		}
+		ImGui::End();
+	}
+
 	ImGUIEngine::End();
 	ImGUIEngine::Draw(_pGfxCmdList);
 #endif
@@ -283,8 +370,19 @@ void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 		m_pMainPassCB = pConstantTable->CreateConstantBuffer("PassCB");
 	}
 
-	DirectX::XMMATRIX viewProjection = m_Camera.GetView() * m_Camera.GetProjection();
-	m_pMainPassCB->UpdateValue("ViewProjection", &viewProjection, sizeof(DirectX::XMMATRIX));
+	if (!m_pLightsCB)
+	{
+		m_pLightsCB = pConstantTable->CreateConstantBuffer("LightCB");
+	}
+
+	Pass cbPass;
+	cbPass.EyePosition = m_Camera.GetPosition();
+	cbPass.ViewProjection = m_Camera.GetView() * m_Camera.GetProjection();
+
+	m_pMainPassCB->UpdateValue("ViewProjection", &cbPass, sizeof(Pass));
+
+	if(m_pLightsCB)
+		m_pLightsCB->UpdateValue("ViewProjection", &m_Light, sizeof(Light));
 
 	// Per Object Draws
 	for (UINT i = 0; i < m_ModelCount; ++i)
@@ -296,10 +394,15 @@ void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 		pDevice->SetMaterial(pModel->GetMaterialName());
 		pDevice->SetSamplerState("Albedo", m_DefaultSampler);
 
-		pModelCB->UpdateValue("World", &world, sizeof(DirectX::XMMATRIX));
+		Object obj;
+		obj.World = pModel->GetWorld();
+		obj.Material = pModel->GetMaterialData();
+
+		pModelCB->UpdateValue("World", &obj, sizeof(Object));
 
 		pDevice->SetConstantBuffer("ObjectCB", pModelCB);
 		pDevice->SetConstantBuffer("PassCB", m_pMainPassCB);
+		pDevice->SetConstantBuffer("LightCB", m_pLightsCB);
 
 		for (UINT i = 0; i < pModel->GetModel()->MeshCount; ++i)
 		{

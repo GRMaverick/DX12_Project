@@ -22,7 +22,7 @@
 
 #include "Camera.h"
 
-#include <DirectXMath.h>
+#include "CBStructures.h"
 
 class RenderEntity;
 
@@ -47,11 +47,13 @@ private:
 
 	SwapChain*										m_pSwapChain;
 
+	Light											m_Light;
 	Camera											m_Camera;
 	RenderEntity**									m_pRenderEntity;
 
 	DescriptorHeap									m_pImGuiSRVHeap;
 
+	ConstantBufferResource*							m_pLightsCB;
 	ConstantBufferResource*							m_pMainPassCB;
 
 	D3D12_SAMPLER_DESC								m_DefaultSampler;
