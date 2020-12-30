@@ -19,8 +19,8 @@ struct VSOutput
 //
 struct Pass
 {
-	float3		EyePosition;
 	float4x4	ViewProjection;
+	float3		EyePosition;
 };
 ConstantBuffer<Pass> PassCB : register(b0);
 

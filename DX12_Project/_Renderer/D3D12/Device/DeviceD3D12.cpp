@@ -524,7 +524,17 @@ bool DeviceD3D12::FlushState()
 
 		if (!ppTextures[i])
 		{
-			LogWarning_Renderer("Invalid Texture");
+			//LogWarning_Renderer("Invalid Texture");
+
+			static D3D12_SHADER_RESOURCE_VIEW_DESC staticNullDesc;
+			staticNullDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			staticNullDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+			staticNullDesc.Texture2D.MipLevels = 0;
+			staticNullDesc.Texture2D.MostDetailedMip = 0;
+			staticNullDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+			staticNullDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+			m_pDevice->CreateShaderResourceView(nullptr, &staticNullDesc, hCpuNewResource);
+
 			continue;
 		}
 

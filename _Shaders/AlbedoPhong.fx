@@ -21,8 +21,8 @@ struct VSOutput
 //
 struct Pass
 {
-	float3		EyePosition;
 	float4x4	ViewProjection;
+	float3		EyePosition;
 };
 ConstantBuffer<Pass> PassCB : register(b0);
 
@@ -73,51 +73,28 @@ SamplerState AlbedoSampler : register(s0);
 //
 float4 PixelShader(VSOutput _input) : SV_TARGET
 {
-	float4 color = float4(0.0f, 0.0f, 0.0f, 0.0f);
-
-	float3 diffuse = { 0.0f, 0.0f, 0.0f };
-	float3 ambient = { 0.0f, 0.0f, 0.0f };
-	float3 specular = { 0.0f, 0.0f, 0.0f };
-
-	float3 normal = normalize(_input.Normal);
-
-	float3 toEye = PassCB.EyePosition - _input.PosW.xyz;
-	float distToEye = length(toEye);
-	toEye = normalize(toEye);
-
+	float4 color = float4(0.5f, 0.0f, 0.0f, 0.0f);
 	float4 texColor = Albedo.Sample(AlbedoSampler, _input.Texture);
-	//float4 normalMap = txDiffuse[1].Sample(samLinear, _input.Texture);
 
-	//input.Tangent = normalize(input.Tangent - dot(_input.Tangent, _input.NormW) * _input.NormW);
+	// Ambient Component
+	float4 ambient = LightCB.AmbientColour * ObjectCB.AmbientColour;
 
-	//float3 bitangent = cross(input.NormW, input.Tangent);
-
-	//if (dot(cross(input.NormW, input.Tangent), bitangent) < 0.0f)
-	//{
-	//	input.Tangent = input.Tangent * -1.0f;
-	//}
-
-	//float3x3 tangentSpace = float3x3(_input.Tangent, bitangent, input.NormW);
-	//input.NormW = normalize(mul(normalMap, tangentSpace));
-
+	// Diffuse Component
 	float3 lightPos = LightCB.Position;
-	float3 reflection = reflect(lightPos, normal);
-	float diffuseAmount = max(dot(lightPos, normal), 0.0f);
-	float specularAmount = pow(max(dot(reflection, toEye), 0.0f), LightCB.SpecularPower);
+	float3 normal = normalize(_input.Normal);
+	float diffuseAmount = saturate(dot(lightPos, normal));
+	float4 diffuse = LightCB.DiffuseColour * ObjectCB.DiffuseColour;
 
-	diffuse = diffuseAmount * (ObjectCB.DiffuseColour * LightCB.DiffuseColour).rgb;
-	ambient = (ObjectCB.AmbientColour * LightCB.AmbientColour).rgb;
+	// Specular Component
+	float3 viewNormalized = normalize(PassCB.EyePosition - _input.PosW);
+	float reflection = normalize(2 * diffuseAmount * normal - normalize(lightPos));
+	float specularAmount = pow(saturate(dot(reflection, viewNormalized)), LightCB.SpecularPower);
 
-	if (all(diffuse) <= 0.0f)
+	float4 specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
+	if (LightCB.SpecularPower > 0.0f)
 	{
-		specular = (0.0f, 0.0f, 0.0f);
-	}
-	else
-	{
-		specular = specularAmount * (ObjectCB.SpecularColour * LightCB.SpecularColour).rgb;
+		specular.rgb = specularAmount * (ObjectCB.SpecularColour * LightCB.SpecularColour).rgb;
 	}
 
-	color.rgb = clamp(texColor.rgb * (diffuse + ambient) + specular, 0, 1).rgb;
-
-	return color;
+	return clamp(texColor * (specular + (diffuse * diffuseAmount) + ambient),0,1);
 }

@@ -204,7 +204,7 @@ void SwapChain::PrepareForRendering(CommandList* _pCmdList)
 	CD3DX12_RESOURCE_BARRIER tgtBarrier = CD3DX12_RESOURCE_BARRIER::Transition(m_pBackBuffers[m_CurrentBackBuffer].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET, 0);
 	_pCmdList->ResourceBarrier(1, &tgtBarrier);
 
-	FLOAT clearColour[] = { 0.4f, 0.6f, 0.9f, 1.0f };
+	FLOAT clearColour[] = { 0.1f, 0.1f, 0.1f, 0.1f };
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtv(m_pDescHeapRTV->GetCPUStartHandle(), m_CurrentBackBuffer, m_pDescHeapRTV->GetIncrementSize());
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsv(m_pDescHeapDSV->GetCPUStartHandle(), 0, m_pDescHeapDSV->GetIncrementSize());
 
