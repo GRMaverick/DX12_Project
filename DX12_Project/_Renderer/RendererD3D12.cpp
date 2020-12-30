@@ -86,20 +86,20 @@ struct ModelDefinition
 	float		Scale = 1.0f;
 };
 
-//#define SPONZA
-#define CUBES
+#define SPONZA
+//#define CUBES
 
 ModelDefinition g_ModelList[] =
 {
 	//"AnalogMeter.Needle.Dark\\AnalogMeter.fbx",
 #if defined(SPONZA)
-	{ "Sponza\\Sponza.fbx", "Albedo" }
+	{ "Sponza\\Sponza.fbx", "Scene", "AlbedoPhong",{0.0f, 0.0f, 0.0f}, 1.0f }
 #endif
 #if defined(CUBES)
-	{ "Cube\\Cube.obj", "Cube1", "Albedo", {2.0f, 0.0f, 0.0f}, 1.0f },
+	{ "Cube\\Cube.obj", "Cube1", "AlbedoPhong", {2.0f, 0.0f, 0.0f}, 1.0f },
 	//{ "Sphere\\Sphere.obj", "Cube2", "AlbedoPhong", {0.0f, 0.0f, 0.0f}, 0.5f },
 	{ "Cube\\Cube.obj", "Cube2", "AlbedoPhong", {0.0f, 0.0f, 0.0f}, 1.0f },
-	{ "Cube\\Cube.obj", "Cube3", "Albedo", {-2.0f, 0.0f, 0.0f}, 1.0f },
+	{ "Cube\\Cube.obj", "Cube3", "AlbedoPhong", {-2.0f, 0.0f, 0.0f}, 1.0f },
 #endif
 };
 
@@ -109,7 +109,7 @@ bool RendererD3D12::LoadContent(void)
 
 	Material material;
 	material.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	material.Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	material.Ambient = XMFLOAT4(0.25f, 0.25f, 0.25f, 1.0f);
 	material.Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	LogInfo_Renderer("Loading Models:");
@@ -133,23 +133,25 @@ bool RendererD3D12::LoadContent(void)
 	}
 
 #if defined(SPONZA)
-	m_Camera.SetPosition(90.0f, 90.0f, 0.0f);
+	m_Camera.SetPosition(180.0f, 180.0f, 0.0f);
+	m_Camera.SetTarget(0.0f, 180.0f, 0.0f);
+	m_Light.Position = XMFLOAT3(78.0f, 43.0f, 0.0f);
 #endif
 
 #if defined(CUBES)
 	m_Camera.SetPosition(-8.0f, 1.5f, -6.0f);
+	m_Camera.SetTarget(0.0f, 0.0f, 0.0f);
+	m_Light.Position = XMFLOAT3(-0.265, 0.265, -1.053);
 #endif
 
 	m_Camera.SetUp(0.0f, 1.0f, 0.0f);
-	m_Camera.SetTarget(0.0f, 0.0f, 0.0f);
 	m_Camera.SetFieldOfView(45.0f);
 	m_Camera.SetAspectRatio(1920.0f / 1080.0f);
 
-	m_Light.Diffuse = XMFLOAT4(0.646f, 0.5f, 0.5f, 1.0f);
-	m_Light.Ambient = XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f);
+	m_Light.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Light.Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light.Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	m_Light.SpecularPower = 0.0f;
-	m_Light.Position = XMFLOAT3(-0.265, 0.265, -1.053);
 
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY)->ExecuteCommandLists();
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY)->Flush();
@@ -284,7 +286,7 @@ void RendererD3D12::ImGuiPass(CommandList* _pGfxCmdList)
 	{
 		float v[3];
 		v[0] = m_Light.Position.x; v[1] = m_Light.Position.y; v[2] = m_Light.Position.z;
-		if (ImGui::SliderFloat3("Position:", v, -10.0f, 10.0f))
+		if (ImGui::SliderFloat3("Position:", v, -180.0f, 180.0f))
 		{
 			m_Light.Position.x = v[0]; m_Light.Position.y = v[1]; m_Light.Position.z = v[2];
 		}
