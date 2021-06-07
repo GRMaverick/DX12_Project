@@ -6,7 +6,7 @@ VertexBufferResource::VertexBufferResource(ID3D12Device* _pDevice, CommandList* 
 	{
 		ZeroMemory(&m_View, sizeof(D3D12_VERTEX_BUFFER_VIEW));
 		m_View.BufferLocation = m_GPUBuffer->GetGPUVirtualAddress();
-		m_View.SizeInBytes = _sizeInBytes * _strideInBytes;
+		m_View.SizeInBytes = _sizeInBytes;
 		m_View.StrideInBytes = _strideInBytes;
 	}
 }

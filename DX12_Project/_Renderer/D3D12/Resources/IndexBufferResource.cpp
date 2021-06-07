@@ -6,7 +6,7 @@ IndexBufferResource::IndexBufferResource(ID3D12Device* _pDevice, CommandList* _p
 	{
 		ZeroMemory(&m_View, sizeof(D3D12_INDEX_BUFFER_VIEW));
 		m_View.BufferLocation = m_GPUBuffer->GetGPUVirtualAddress();
-		m_View.SizeInBytes = _sizeInBytes * _strideInBytes;
+		m_View.SizeInBytes = _sizeInBytes;
 		m_View.Format = DXGI_FORMAT_R32_UINT;
 	}
 }

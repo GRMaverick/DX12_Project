@@ -30,8 +30,8 @@ using namespace DirectX;
 using namespace SysMemory;
 
 #if defined(_DEBUG)
-#	define SHADER_CACHE_LOCATION "H:\\Development\\DX12_Project\\_Shaders\\*"
-#	define CONTENT_LOCATION "H:\\Development\\DX12_Project\\_Content\\"
+#	define SHADER_CACHE_LOCATION "G:\\Development\\DX12_Project\\_Shaders\\*"
+#	define CONTENT_LOCATION "G:\\Development\\DX12_Project\\_Content\\"
 #else
 #	define SHADER_CACHE_LOCATION "Shaders\\*"
 #	define CONTENT_LOCATION "Content\\"
@@ -86,8 +86,8 @@ struct ModelDefinition
 	float		Scale = 1.0f;
 };
 
-#define SPONZA
-//#define CUBES
+//#define SPONZA
+#define CUBES
 
 ModelDefinition g_ModelList[] =
 {
@@ -96,16 +96,19 @@ ModelDefinition g_ModelList[] =
 	{ "Sponza\\Sponza.fbx", "Scene", "AlbedoPhong",{0.0f, 0.0f, 0.0f}, 1.0f }
 #endif
 #if defined(CUBES)
-	{ "Cube\\Cube.obj", "Cube1", "AlbedoPhong", {2.0f, 0.0f, 0.0f}, 1.0f },
+	//{ "Cube\\Cube.obj", "Cube1", "AlbedoPhong", {2.0f, 0.0f, 0.0f}, 1.0f },
 	//{ "Sphere\\Sphere.obj", "Cube2", "AlbedoPhong", {0.0f, 0.0f, 0.0f}, 0.5f },
-	{ "Cube\\Cube.obj", "Cube2", "AlbedoPhong", {0.0f, 0.0f, 0.0f}, 1.0f },
-	{ "Cube\\Cube.obj", "Cube3", "AlbedoPhong", {-2.0f, 0.0f, 0.0f}, 1.0f },
+	//{ "Cube\\Cube.obj", "Cube2", "AlbedoPhong", {0.0f, 0.0f, 0.0f}, 1.0f },
+	{ "StorageContainer\\Cube.obj", "Storage", "AlbedoPhongNormal", {-2.0f, 0.0f, 0.0f}, 1.0f },
 #endif
 };
 
 bool RendererD3D12::LoadContent(void)
 {	
 	m_bNewModelsLoaded = true;
+
+	m_pMainPassCB = ConstantTable::Instance()->CreateConstantBuffer("PassCB");
+	m_pLightsCB = ConstantTable::Instance()->CreateConstantBuffer("LightCB");
 
 	Material material;
 	material.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -139,9 +142,9 @@ bool RendererD3D12::LoadContent(void)
 #endif
 
 #if defined(CUBES)
-	m_Camera.SetPosition(-8.0f, 1.5f, -6.0f);
-	m_Camera.SetTarget(0.0f, 0.0f, 0.0f);
-	m_Light.Position = XMFLOAT3(-0.265, 0.265, -1.053);
+	m_Camera.SetPosition(-0.0f, 2.0f, 2.0f);
+	m_Camera.SetTarget(-2.0f, 0.0f, 0.0f);
+	m_Light.Position = XMFLOAT3(-0.265f, 0.265f, -1.053f);
 #endif
 
 	m_Camera.SetUp(0.0f, 1.0f, 0.0f);
@@ -172,16 +175,34 @@ bool RendererD3D12::LoadContent(void)
 
 void RendererD3D12::Update(double _deltaTime)
 {
-	m_Camera.Update();
+	UpdatePassConstants();
 
 	for (UINT i = 0; i < m_ModelCount; ++i)
 	{
 		m_pRenderEntity[i]->Update();
+
+		Object obj;
+		obj.World = m_pRenderEntity[i]->GetWorld();
+		obj.Material = m_pRenderEntity[i]->GetMaterialData();
+
+		if(m_pRenderEntity[i]->GetConstantBuffer())
+			m_pRenderEntity[i]->GetConstantBuffer()->UpdateValue("World", &obj, sizeof(Object));
 	}
 }
 
 void RendererD3D12::UpdatePassConstants()
 {
+	m_Camera.Update();
+
+	Pass cbPass;
+	cbPass.EyePosition = m_Camera.GetPosition();
+	cbPass.ViewProjection = m_Camera.GetView() * m_Camera.GetProjection();
+
+	if (m_pMainPassCB)
+		m_pMainPassCB->UpdateValue("ViewProjection", &cbPass, sizeof(Pass));
+
+	if (m_pLightsCB)
+		m_pLightsCB->UpdateValue("ViewProjection", &m_Light, sizeof(Light));
 }
 
 bool RendererD3D12::Render(void)
@@ -369,27 +390,6 @@ void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 	DeviceD3D12* pDevice = DeviceD3D12::Instance();
 	ConstantTable* pConstantTable = ConstantTable::Instance();
 
-	// Per Pass Setup
-	if (!m_pMainPassCB)
-	{
-		m_pMainPassCB = pConstantTable->CreateConstantBuffer("PassCB");
-	}
-
-	if (!m_pLightsCB)
-	{
-		m_pLightsCB = pConstantTable->CreateConstantBuffer("LightCB");
-	}
-
-	Pass cbPass;
-	cbPass.EyePosition = m_Camera.GetPosition();
-	cbPass.ViewProjection = m_Camera.GetView() * m_Camera.GetProjection();
-
-	if(m_pMainPassCB)
-		m_pMainPassCB->UpdateValue("ViewProjection", &cbPass, sizeof(Pass));
-
-	if(m_pLightsCB)
-		m_pLightsCB->UpdateValue("ViewProjection", &m_Light, sizeof(Light));
-
 	// Per Object Draws
 	for (UINT i = 0; i < m_ModelCount; ++i)
 	{
@@ -400,12 +400,6 @@ void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 		pDevice->SetMaterial(pModel->GetMaterialName());
 		pDevice->SetSamplerState("Albedo", m_DefaultSampler);
 
-		Object obj;
-		obj.World = pModel->GetWorld();
-		obj.Material = pModel->GetMaterialData();
-
-		pModelCB->UpdateValue("World", &obj, sizeof(Object));
-
 		pDevice->SetConstantBuffer("ObjectCB", pModelCB);
 		pDevice->SetConstantBuffer("PassCB", m_pMainPassCB);
 		pDevice->SetConstantBuffer("LightCB", m_pLightsCB);
@@ -414,7 +408,9 @@ void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 		{
 			Mesh& rMesh = pModel->GetModel()->pMeshList[i];
 
-			pDevice->SetTexture("Albedo", (Texture2DResource*)rMesh.pTexture);
+			pDevice->SetTexture("Albedo", (Texture2DResource*)rMesh.pTexture[ALBEDO]);
+			//pDevice->SetTexture("Normal", (Texture2DResource*)rMesh.pTexture[NORMAL]);
+
 			if (DeviceD3D12::Instance()->FlushState())
 			{
 				auto vbView = ((VertexBufferResource*)rMesh.pVertexBuffer)->GetView();

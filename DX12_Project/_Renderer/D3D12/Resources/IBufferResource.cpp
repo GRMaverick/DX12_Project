@@ -29,7 +29,7 @@ bool IBufferResource::UploadResource(ID3D12Device* _pDevice, CommandList* _pComm
 {
 	HRESULT hr = S_OK;
 
-	UINT bufferSize = _sizeInBytes * _strideInBytes;
+	UINT bufferSize = _sizeInBytes;
 
 	D3D12_RESOURCE_DESC dRdBuffer = CD3DX12_RESOURCE_DESC::Buffer(bufferSize, _flags);
 	D3D12_HEAP_PROPERTIES dHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);

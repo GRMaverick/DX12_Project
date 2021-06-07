@@ -56,13 +56,13 @@ void GpuResourceTable::Initialise(IShaderStage* _pVS, IShaderStage* _pPS)
 	}
 	for (unsigned int i = 0; i < cbParamsPS.NumberSamplers; ++i)
 	{
-		if (texBinds.find(cbParamsPS.Samplers[i].BindPoint) == texBinds.end())
-			texBinds[cbParamsPS.Samplers[i].BindPoint] = cbParamsPS.Samplers[i].Name;
+		if (sampBinds.find(cbParamsPS.Samplers[i].BindPoint) == sampBinds.end())
+			sampBinds[cbParamsPS.Samplers[i].BindPoint] = cbParamsPS.Samplers[i].Name;
 	}
 	for (unsigned int i = 0; i < cbParamsPS.NumberTextures; ++i)
 	{
-		if (sampBinds.find(cbParamsPS.Textures[i].BindPoint) == sampBinds.end())
-			sampBinds[cbParamsPS.Textures[i].BindPoint] = cbParamsPS.Textures[i].Name;
+		if (texBinds.find(cbParamsPS.Textures[i].BindPoint) == texBinds.end())
+			texBinds[cbParamsPS.Textures[i].BindPoint] = cbParamsPS.Textures[i].Name;
 	}
 
 	m_NumberSamplers = sampBinds.size();
