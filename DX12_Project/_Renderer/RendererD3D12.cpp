@@ -342,12 +342,6 @@ void RendererD3D12::ImGuiPass(CommandList* _pGfxCmdList)
 	if (ImGui::Begin("Objects:"))
 	{
 		float v[3];
-		//v[0] = m_Light.Position.x; v[1] = m_Light.Position.y; v[2] = m_Light.Position.z;
-		//if (ImGui::SliderFloat3("Position:", v, 0.0f, 1.0f))
-		//{
-		//	m_Light.Position.x = v[0]; m_Light.Position.y = v[1]; m_Light.Position.z = v[2];
-		//}
-
 		for (unsigned int i = 0; i < m_ModelCount; ++i)
 		{
 			if (ImGui::CollapsingHeader(g_ModelList[i].ObjectName))
@@ -399,6 +393,7 @@ void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 
 		pDevice->SetMaterial(pModel->GetMaterialName());
 		pDevice->SetSamplerState("Albedo", m_DefaultSampler);
+		pDevice->SetSamplerState("Normal", m_DefaultSampler);
 
 		pDevice->SetConstantBuffer("ObjectCB", pModelCB);
 		pDevice->SetConstantBuffer("PassCB", m_pMainPassCB);
@@ -409,7 +404,7 @@ void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 			Mesh& rMesh = pModel->GetModel()->pMeshList[i];
 
 			pDevice->SetTexture("Albedo", (Texture2DResource*)rMesh.pTexture[ALBEDO]);
-			//pDevice->SetTexture("Normal", (Texture2DResource*)rMesh.pTexture[NORMAL]);
+			pDevice->SetTexture("Normal", (Texture2DResource*)rMesh.pTexture[NORMAL]);
 
 			if (DeviceD3D12::Instance()->FlushState())
 			{

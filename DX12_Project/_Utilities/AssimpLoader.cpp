@@ -73,7 +73,7 @@ bool AssimpLoader::LoadModel(DeviceD3D12* _pDevice, CommandList* _pCommandList, 
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile(_pFilename, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
+	const aiScene* pScene = importer.ReadFile(_pFilename, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_CalcTangentSpace);
 	if(!pScene)
 	{
 		return false;
@@ -116,24 +116,81 @@ void AssimpLoader::ProcessNode(DeviceD3D12* _pDevice, CommandList* _pCommandList
 
 Mesh AssimpLoader::ProcessMesh(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiMesh* _pMesh, const aiScene* _pScene)
 {
-	//
-	// Vertices
-	//
-	Vertex* pVertices = new Vertex[_pMesh->mNumVertices];
-	for (UINT i = 0; i < _pMesh->mNumVertices; ++i)
+	unsigned int stride = sizeof(float) * 3;
+
+	unsigned int uiFullBufferLength = 0;
+	float* pPositions = new float[_pMesh->mNumVertices * 3];
+	for (unsigned int rhs = 0, lhs =0; rhs < _pMesh->mNumVertices; ++rhs, lhs+=3)
 	{
-		pVertices[i].vX = (float)_pMesh->mVertices[i].x;
-		pVertices[i].vY = (float)_pMesh->mVertices[i].y;
-		pVertices[i].vZ = (float)_pMesh->mVertices[i].z;
+		pPositions[lhs] = _pMesh->mVertices[rhs].x;
+		pPositions[lhs+1] = _pMesh->mVertices[rhs].y;
+		pPositions[lhs+2] = _pMesh->mVertices[rhs].z;
+		uiFullBufferLength += 3;
+	}
 
-		pVertices[i].nX = (float)_pMesh->mNormals[i].x;
-		pVertices[i].nY = (float)_pMesh->mNormals[i].y;
-		pVertices[i].nZ = (float)_pMesh->mNormals[i].z;
-
-		if (_pMesh->mTextureCoords[ALBEDO])
+	float* pNormals = nullptr;
+	if (_pMesh->HasNormals())
+	{
+		stride += (sizeof(float) * 3);
+		pNormals = new float[_pMesh->mNumVertices * 3];
+		for (unsigned int rhs = 0, lhs = 0; rhs < _pMesh->mNumVertices; ++rhs, lhs += 3)
 		{
-			pVertices[i].u = (float)_pMesh->mTextureCoords[ALBEDO][i].x;
-			pVertices[i].v = (float)_pMesh->mTextureCoords[ALBEDO][i].y;
+			pNormals[lhs] = _pMesh->mNormals[rhs].x;
+			pNormals[lhs + 1] = _pMesh->mNormals[rhs].y;
+			pNormals[lhs + 2] = _pMesh->mNormals[rhs].z;
+			uiFullBufferLength += 3;
+		}
+	}
+
+	float* pTangents = nullptr;
+	float* pBitangents = nullptr;
+
+	float* pTextureCoords = nullptr;
+	if (_pMesh->HasTextureCoords(ALBEDO))
+	{
+		stride += (sizeof(float) * 2);
+		pTextureCoords = new float[_pMesh->mNumVertices * 2];
+		for (unsigned int rhs = 0, lhs = 0; rhs < _pMesh->mNumVertices; ++rhs, lhs += 2)
+		{
+			pTextureCoords[lhs] = (float)_pMesh->mTextureCoords[ALBEDO][rhs].x;
+			pTextureCoords[lhs+1] = (float)_pMesh->mTextureCoords[ALBEDO][rhs].y;
+			uiFullBufferLength += 2;
+		}
+	}
+
+
+	//
+	// Textures / Materials
+	//
+	Mesh mesh; 
+	if (_pMesh->mMaterialIndex >= 0)
+	{
+		const aiMaterial* pMaterial = _pScene->mMaterials[_pMesh->mMaterialIndex];
+		mesh.pTexture[ALBEDO] = ProcessMaterial(_pDevice, _pCommandList, pMaterial, aiTextureType_DIFFUSE, _pScene);
+		mesh.pTexture[NORMAL] = ProcessMaterial(_pDevice, _pCommandList, pMaterial, aiTextureType_NORMALS, _pScene);
+
+		if (mesh.pTexture[NORMAL])
+		{
+			if (_pMesh->HasTangentsAndBitangents())
+			{
+				stride += sizeof(float) * 3 * 2; // Tangents and Bitangents
+
+				pTangents = new float[_pMesh->mNumVertices * 3];
+				pBitangents = new float[_pMesh->mNumVertices * 3];
+
+				for (unsigned int lhs = 0, rhs = 0; rhs < _pMesh->mNumVertices; ++rhs, lhs += 3)
+				{
+					pTangents[lhs] = _pMesh->mTangents[rhs].x;
+					pTangents[lhs + 1] = _pMesh->mTangents[rhs].y;
+					pTangents[lhs + 2] = _pMesh->mTangents[rhs].z;
+					uiFullBufferLength += 3;
+
+					pBitangents[lhs] = _pMesh->mBitangents[rhs].x;
+					pBitangents[lhs + 1] = _pMesh->mBitangents[rhs].y;
+					pBitangents[lhs + 2] = _pMesh->mBitangents[rhs].z;
+					uiFullBufferLength += 3;
+				}
+			}
 		}
 	}
 
@@ -153,30 +210,76 @@ Mesh AssimpLoader::ProcessMesh(DeviceD3D12* _pDevice, CommandList* _pCommandList
 	for (UINT i = 0, index = 0; i < _pMesh->mNumFaces; ++i)
 	{
 		const aiFace face = _pMesh->mFaces[i];
-		for (UINT j = 0; j < face.mNumIndices; ++j,++index)
+		for (UINT j = 0; j < face.mNumIndices; ++j, ++index)
 		{
 			pIndices[index] = (DWORD)face.mIndices[j];
 		}
 	}
 
+	assert((uiFullBufferLength * sizeof(float) / stride) == _pMesh->mNumVertices);
+
 	//
-	// Textures / Materials
+	// Build Full Buffer
 	//
-	Mesh mesh;
-	if (_pMesh->mMaterialIndex >= 0)
+	unsigned int bufferPos = 0;
+	float* pFullBuffer = new float[uiFullBufferLength];
+	for (unsigned int i = 0, triplePos = 0, doublePos = 0; i < uiFullBufferLength; i += bufferPos, triplePos += 3, doublePos += 2)
 	{
-		const aiMaterial* pMaterial = _pScene->mMaterials[_pMesh->mMaterialIndex];
-		mesh.pTexture = ProcessMaterial(_pDevice, _pCommandList, pMaterial, aiTextureType_DIFFUSE, "texture_diffuse", _pScene);
+		bufferPos = 0;
+		if (pPositions)
+		{
+			pFullBuffer[i + bufferPos] = pPositions[triplePos];
+			pFullBuffer[i + (bufferPos + 1)] = pPositions[triplePos + 1];
+			pFullBuffer[i + (bufferPos + 2)] = pPositions[triplePos + 2];
+			bufferPos += 3;
+		}
+
+		if (pNormals)
+		{
+			pFullBuffer[i + bufferPos] = pNormals[triplePos];
+			pFullBuffer[i + (bufferPos + 1)] = pNormals[triplePos + 1];
+			pFullBuffer[i + (bufferPos + 2)] = pNormals[triplePos + 2];
+			bufferPos += 3;
+		}
+
+		if (pTextureCoords)
+		{
+			pFullBuffer[i + bufferPos] = pTextureCoords[doublePos];
+			pFullBuffer[i + (bufferPos + 1)] = pTextureCoords[doublePos + 1];
+			bufferPos += 2;
+		}
+
+		if (pTangents) 
+		{
+			pFullBuffer[i + bufferPos] = pTangents[triplePos];
+			pFullBuffer[i + (bufferPos + 1)] = pTangents[triplePos + 1];
+			pFullBuffer[i + (bufferPos + 2)] = pTangents[triplePos + 2];
+			bufferPos += 3;
+		}
+
+		if (pBitangents)
+		{
+			pFullBuffer[i + bufferPos] = pBitangents[triplePos];
+			pFullBuffer[i + (bufferPos + 1)] = pBitangents[triplePos + 1];
+			pFullBuffer[i + (bufferPos + 2)] = pBitangents[triplePos + 2];
+			bufferPos += 3;
+		}
 	}
 
 	//
 	// Upload GPU resources
 	//
 	mesh.Indices = iIndices;
-	mesh.pVertexBuffer = _pDevice->CreateVertexBufferResource(_pCommandList, _pMesh->mNumVertices, sizeof(Vertex), D3D12_RESOURCE_FLAG_NONE, (void*)pVertices);
-	mesh.pIndexBuffer = _pDevice->CreateIndexBufferResource(_pCommandList, iIndices, sizeof(DWORD), D3D12_RESOURCE_FLAG_NONE, pIndices);
+	mesh.pVertexBuffer = _pDevice->CreateVertexBufferResource(_pCommandList, uiFullBufferLength * sizeof(float), stride, D3D12_RESOURCE_FLAG_NONE, (void*)pFullBuffer);
+	mesh.pIndexBuffer = _pDevice->CreateIndexBufferResource(_pCommandList, iIndices * sizeof(DWORD), sizeof(DWORD), D3D12_RESOURCE_FLAG_NONE, pIndices);
 
-	delete[] pVertices;
+	if (pTangents) delete[] pTangents;
+	if (pBitangents) delete[] pBitangents;
+	if (pPositions) delete[] pPositions;
+	if (pNormals) delete[] pNormals;
+	if (pTextureCoords) delete[] pTextureCoords;
+	
+	delete[] pFullBuffer;
 	delete[] pIndices;
 
 	return mesh;
@@ -222,7 +325,7 @@ Texture2DResource* GetTextureFromModel(DeviceD3D12* _pDevice, const aiScene* sce
 
 extern const char* ExtractExtension(const char* _pFilename);
 
-IBufferResource* AssimpLoader::ProcessMaterial(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiMaterial* _pMaterial, const aiTextureType _type, const char* _typeName, const aiScene* _pScene)
+IBufferResource* AssimpLoader::ProcessMaterial(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiMaterial* _pMaterial, const aiTextureType _type, const aiScene* _pScene)
 {
 	//assert((_pMaterial->GetTextureCount(_type) == 1) && "More than one textures of this type");
 

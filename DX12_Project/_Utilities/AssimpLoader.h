@@ -16,10 +16,16 @@ struct aiMesh;
 struct aiScene;
 struct aiMaterial;
 
+#define ALBEDO 0
+#define NORMAL 1
+#define METALLIC 2
+#define AOCCLUSION 3
+#define DISPLACEMENT 4
+
 struct Mesh
 {
 	UINT				Indices = 0;
-	IBufferResource*	pTexture = nullptr;
+	IBufferResource*	pTexture[2];
 	IBufferResource*	pIndexBuffer = nullptr;
 	IBufferResource*	pVertexBuffer = nullptr;
 };
@@ -50,7 +56,7 @@ public:
 	static bool						LoadModel(DeviceD3D12* _pDevice, CommandList* _pCommandList, const char* _pFilename, RenderModel** _pModelOut);
 	static void						ProcessNode(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiNode* _pNode, const aiScene* _pScene, RenderModel** _pModelOut);
 	static Mesh						ProcessMesh(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiMesh* _pMesh, const aiScene* _pScene);
-	static IBufferResource*			ProcessMaterial(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiMaterial* _pMaterial, const aiTextureType _type, const char* _typeName, const aiScene* _pScene);
+	static IBufferResource*			ProcessMaterial(DeviceD3D12* _pDevice, CommandList* _pCommandList, const aiMaterial* _pMaterial, const aiTextureType _type, const aiScene* _pScene);
 private:
 	static std::map<std::string, RenderModel*>		m_LoadedModels;
 	static std::map<std::string, IBufferResource*>	m_LoadedTextures;

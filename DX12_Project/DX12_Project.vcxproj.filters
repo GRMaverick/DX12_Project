@@ -28,9 +28,6 @@
     <Filter Include="Header Files\Renderer">
       <UniqueIdentifier>{8e84f4df-7c02-420b-b418-30fc898804f8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Shaders">
-      <UniqueIdentifier>{64ea940f-962c-48aa-9e8e-d8da97fdd369}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Utilities">
       <UniqueIdentifier>{e45158fa-9995-495e-b453-5a635b18e938}</UniqueIdentifier>
     </Filter>
@@ -298,18 +295,6 @@
     </None>
     <None Include="_Dependencies\lib\ImGUI.pdb">
       <Filter>Resource Files\Dependencies\lib</Filter>
-    </None>
-    <None Include="_Shaders\Albedo.ps">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="_Shaders\Albedo.vs">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="_Shaders\Basic.ps">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="_Shaders\Basic.vs">
-      <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

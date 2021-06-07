@@ -232,12 +232,6 @@ xcopy /y /s /q $(ProjectDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configurati
     <None Include="_Dependencies\dll\dxcompiler.dll" />
     <None Include="_Dependencies\dll\dxil.dll" />
     <None Include="_Dependencies\lib\ImGUI.pdb" />
-    <None Include="_Shaders\Albedo.ps" />
-    <None Include="_Shaders\Albedo.vs" />
-    <None Include="_Shaders\Basic.ps">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </None>
-    <None Include="_Shaders\Basic.vs" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="_Dependencies\lib\assimp-vc142-mtd.lib" />
