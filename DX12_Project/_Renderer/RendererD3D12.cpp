@@ -96,10 +96,9 @@ ModelDefinition g_ModelList[] =
 	{ "Sponza\\Sponza.fbx", "Scene", "AlbedoPhong",{0.0f, 0.0f, 0.0f}, 1.0f }
 #endif
 #if defined(CUBES)
-	//{ "Cube\\Cube.obj", "Cube1", "AlbedoPhong", {2.0f, 0.0f, 0.0f}, 1.0f },
-	//{ "Sphere\\Sphere.obj", "Cube2", "AlbedoPhong", {0.0f, 0.0f, 0.0f}, 0.5f },
-	//{ "Cube\\Cube.obj", "Cube2", "AlbedoPhong", {0.0f, 0.0f, 0.0f}, 1.0f },
-	{ "StorageContainer\\Cube.obj", "Storage", "AlbedoPhongNormal", {-2.0f, 0.0f, 0.0f}, 1.0f },
+	{ "Cube\\Cube.obj", "Cube_Albedo", "Albedo", {0.0f, 0.0f, -1.25f}, 1.0f },
+	{ "StorageContainer\\Cube.obj", "Storage_Phong", "AlbedoPhong", {0.75f, 0.0f, 0.0f}, 1.0f },
+	{ "StorageContainer\\Cube.obj", "Storage_Normal", "AlbedoPhongNormal", {-0.75f, 0.0f, 0.0f}, 1.0f },
 #endif
 };
 
@@ -142,8 +141,8 @@ bool RendererD3D12::LoadContent(void)
 #endif
 
 #if defined(CUBES)
-	m_Camera.SetPosition(-0.0f, 2.0f, 2.0f);
-	m_Camera.SetTarget(-2.0f, 0.0f, 0.0f);
+	m_Camera.SetPosition(0.0f, 2.0f, 2.0f);
+	m_Camera.SetTarget(0.0f, 0.0f, 0.0f);
 	m_Light.Position = XMFLOAT3(-0.265f, 0.265f, -1.053f);
 #endif
 
