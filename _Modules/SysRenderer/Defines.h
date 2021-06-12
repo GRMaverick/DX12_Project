@@ -9,6 +9,15 @@
 
 #include "SysUtilities/_Logging/Logger.h"
 
+#define NOMINMAX
+
+//#define LOW_LEVEL_GPU_PROFILING
+
+#define BACK_BUFFERS 2
+
+#define PRAGMA_TODO(todo)	__pragma(message("[TODO]: "todo));
+#define CONSTANT_BUFFER_SIZE(byteSize) (byteSize + 255) & ~255;
+
 #if defined(LogInfo)
 #undef LogInfo
 #endif
@@ -28,14 +37,6 @@
 #undef LogFatal
 #endif
 #define LogFatal(pFormat, ...)		Logger::Log(SEVERITY_FATAL, CATEGORY_RENDERER, pFormat, __VA_ARGS__)
-
-#define NOMINMAX
-
-#define PRAGMA_TODO(todo)	__pragma(message("[TODO]: "todo));
-
-#define BACK_BUFFERS 2
-
-#define CONSTANT_BUFFER_SIZE(byteSize) (byteSize + 255) & ~255;
 
 #define VALIDATE_D3D(test) { \
 	HRESULT hr = test; \
@@ -68,3 +69,12 @@ enum DxilFourCC {
 	DFCC_RuntimeData = DXIL_FOURCC('R', 'D', 'A', 'T'),
 	DFCC_ShaderHash = DXIL_FOURCC('H', 'A', 'S', 'H'),
 };
+
+
+#include "SysUtilities\_Profiling\ProfileMarker.h"
+
+#if defined(LOW_LEVEL_GPU_PROFILING)
+#define LOW_LEVEL_PROFILE_MARKER(pCmdList, pFormat, ...) RenderMarker mkr(pCmdList, pFormat, __VA_ARGS__);
+#else
+#define LOW_LEVEL_PROFILE_MARKER(pCmdList, pFormat, ...)
+#endif

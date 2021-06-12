@@ -63,10 +63,18 @@ public:
 	template<typename... Args>
 	void StartMarker(const char* _pFormatString, Args... _args)
 	{
+		// CPU
+		PIXBeginEvent(PIX_COLOR_DEFAULT, _pFormatString, _args...);
+
+		// GPU
 		PIXBeginEvent(m_pList.Get(), PIX_COLOR_INDEX(0), _pFormatString, _args...);
 	}
 	void EndMarker(void)
 	{
+		// CPU
+		PIXEndEvent();
+
+		// GPU
 		PIXEndEvent(m_pList.Get());
 	}
 

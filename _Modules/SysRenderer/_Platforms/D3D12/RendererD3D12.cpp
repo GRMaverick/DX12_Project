@@ -90,13 +90,13 @@ struct ModelDefinition
 	float		Scale = 1.0f;
 };
 
-//#define SPONZA
-#define CUBES
+#define SPONZA
+//#define CUBES
 
 ModelDefinition g_ModelList[] =
 {
 #if defined(SPONZA)
-	{ "Sponza\\Sponza.fbx", "Scene", "AlbedoPhong",{0.0f, 0.0f, 0.0f}, 1.0f }
+	{ "Sponza\\Sponza.fbx", "Scene", "AlbedoPhongNormal",{0.0f, 0.0f, 0.0f}, 1.0f }
 #endif
 #if defined(CUBES)
 	{ "Cube\\Cube.obj", "Cube_Albedo", "Albedo", {0.0f, 0.0f, -1.25f}, 1.0f },
@@ -137,18 +137,19 @@ bool RendererD3D12::LoadContent(void)
 		m_ModelCount++;
 	}
 
+	m_Camera = new Camera();
+	m_Light = new Light();
+
 #if defined(SPONZA)
-	m_Camera.SetPosition(180.0f, 180.0f, 0.0f);
-	m_Camera.SetTarget(0.0f, 180.0f, 0.0f);
-	m_Light.Position = XMFLOAT3(78.0f, 43.0f, 0.0f);
+	m_Camera->SetPosition(180.0f, 180.0f, 0.0f);
+	m_Camera->SetTarget(0.0f, 180.0f, 0.0f);
+	m_Light->Position = XMFLOAT3(78.0f, 43.0f, 0.0f);
 #endif
 
 #if defined(CUBES)
-	m_Camera = new Camera();
 	m_Camera->SetPosition(0.0f, 5.0f, 5.0f);
 	m_Camera->SetTarget(0.0f, 0.0f, 0.0f);
 
-	m_Light = new Light();
 	m_Light->Position = XMFLOAT3(-0.265f, 0.265f, -1.053f);
 #endif
 
@@ -219,6 +220,8 @@ bool RendererD3D12::Render(void)
 
 	// Rendering
 	{
+		RenderMarker profile(pGfxCmdList, "Render");
+
 		m_pSwapChain->PrepareForRendering(pGfxCmdList);
 		m_pSwapChain->SetOMRenderTargets(pGfxCmdList);
 		pGfxCmdList->SetIAPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

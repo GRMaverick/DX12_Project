@@ -397,7 +397,7 @@ bool DeviceD3D12::GetPipelineState(ID3D12PipelineState** _ppPipelineState, const
 	unsigned long ulHash = 0;
 	// Parameterised
 	{
-		RenderMarker profile(GetImmediateContext(), "GetPipelineState::Hash Ident");
+		LOW_LEVEL_PROFILE_MARKER(GetImmediateContext(), "GetPipelineState::Hash Ident");
 
 		stateDesc.InputLayout = { &inputLayout[0], (UINT)inputLayout.size() };
 		stateDesc.pRootSignature = pRootSignature;
@@ -416,7 +416,7 @@ bool DeviceD3D12::GetPipelineState(ID3D12PipelineState** _ppPipelineState, const
 	}
 	else
 	{
-		RenderMarker profile(GetImmediateContext(), "ID3D12Device::CreatePipelineState");
+		LOW_LEVEL_PROFILE_MARKER(GetImmediateContext(), "ID3D12Device::CreatePipelineState");
 
 		ID3D12PipelineState* pPSO = nullptr;
 		VALIDATE_D3D(m_pDevice->CreateGraphicsPipelineState(&stateDesc, IID_PPV_ARGS(&pPSO)));
@@ -462,7 +462,7 @@ bool DeviceD3D12::FlushState()
 	CommandList* pGfxCmdList = GetImmediateContext();
 	GpuResourceTable& Resources = *m_DeviceState.Resources;
 
-	RenderMarker profile(pGfxCmdList, "FlushState");
+	LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "FlushState");
 
 	ID3D12PipelineState* pPSO = nullptr;
 	if (!GetPipelineState(&pPSO))
@@ -495,7 +495,7 @@ bool DeviceD3D12::FlushState()
 		UINT size1 = 1;
 		UINT size2 = 1;
 
-		RenderMarker profile(pGfxCmdList, "CBV Desc Copies");
+		LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "CBV Desc Copies");
 		m_pDevice->CopyDescriptors(
 			1, &hCpuNewResource, &size1,
 			1, &hCpuActual, &size2,
@@ -532,7 +532,7 @@ bool DeviceD3D12::FlushState()
 		UINT size1 = 1;
 		UINT size2 = 1;
 
-		RenderMarker profile(pGfxCmdList, "SRV Desc Copies");
+		LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "SRV Desc Copies");
 		m_pDevice->CopyDescriptors(
 			1, &hCpuNewResource, &size1,
 			1, &hCpuActual, &size2,
@@ -555,7 +555,7 @@ bool DeviceD3D12::FlushState()
 		UINT size1 = 1;
 		UINT size2 = 1;
 
-		RenderMarker profile(pGfxCmdList, "Sampler Desc Copies");
+		LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "Sampler Desc Copies");
 		m_pDevice->CopyDescriptors(
 			1, &tempHandleLoc, &size1,
 			1, &sampDescHandle, &size2,
