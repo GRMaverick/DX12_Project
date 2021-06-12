@@ -22,6 +22,7 @@
     <ClInclude Include="Defines.h" />
     <ClInclude Include="_ImGUI\ImGUIEngine.h" />
     <ClInclude Include="_Interfaces\IRenderer.h" />
+    <ClInclude Include="_Interfaces\ISamplerState.h" />
     <ClInclude Include="_Interfaces\IShader.h" />
     <ClInclude Include="_Interfaces\IShaderCompiler.h" />
     <ClInclude Include="_Loading\AssimpLoader.h" />
@@ -46,6 +47,7 @@
     <ClInclude Include="_Platforms\D3D12\Shaders\ShaderCompilerDXC.h" />
     <ClInclude Include="_Platforms\D3D12\Shaders\ShaderCompilerFXC.h" />
     <ClInclude Include="_Platforms\D3D12\Shaders\ShaderD3D12.h" />
+    <ClInclude Include="_Platforms\D3D12\States\SamplerStateD3D12.h" />
     <ClInclude Include="_Scene\Camera.h" />
     <ClInclude Include="_Scene\RenderEntity.h" />
   </ItemGroup>
@@ -70,6 +72,7 @@
     <ClCompile Include="_Platforms\D3D12\Shaders\ShaderCompilerDX.cpp" />
     <ClCompile Include="_Platforms\D3D12\Shaders\ShaderCompilerDXC.cpp" />
     <ClCompile Include="_Platforms\D3D12\Shaders\ShaderCompilerFXC.cpp" />
+    <ClCompile Include="_Platforms\D3D12\States\SamplerStateD3D12.cpp" />
     <ClCompile Include="_Scene\Camera.cpp" />
     <ClCompile Include="_Scene\RenderEntity.cpp" />
   </ItemGroup>

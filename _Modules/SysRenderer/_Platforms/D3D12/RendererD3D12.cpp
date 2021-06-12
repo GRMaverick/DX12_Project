@@ -47,17 +47,17 @@ using namespace SysMemory;
 #	define CONTENT_LOCATION "Content\\"
 #endif
 
-RendererD3D12::RendererD3D12(void)
+Renderer::Renderer(void)
 {
 	m_pSwapChain = nullptr;
 }
 
-RendererD3D12::~RendererD3D12(void)
+Renderer::~Renderer(void)
 {
 	if (m_pSwapChain) delete m_pSwapChain; m_pSwapChain = nullptr;
 }
 
-bool RendererD3D12::Initialise(GameWindow* _pWindow)
+bool Renderer::Initialise(GameWindow* _pWindow)
 {
 	if (!DeviceD3D12::Instance()->Initialise(CLParser::Instance()->HasArgument("d3ddebug")))
 		return false;
@@ -105,7 +105,7 @@ ModelDefinition g_ModelList[] =
 #endif
 };
 
-bool RendererD3D12::LoadContent(void)
+bool Renderer::LoadContent(void)
 {	
 	m_bNewModelsLoaded = true;
 
@@ -165,21 +165,10 @@ bool RendererD3D12::LoadContent(void)
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY)->ExecuteCommandLists();
 	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY)->Flush();
 
-	// Default Sampler
-	m_DefaultSampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-	m_DefaultSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	m_DefaultSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	m_DefaultSampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	m_DefaultSampler.MinLOD = 0;
-	m_DefaultSampler.MaxLOD = D3D12_FLOAT32_MAX;
-	m_DefaultSampler.MipLODBias = 0.0f;
-	m_DefaultSampler.MaxAnisotropy = 1;
-	m_DefaultSampler.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-
 	return true;
 }
 
-void RendererD3D12::Update(double _deltaTime)
+void Renderer::Update(double _deltaTime)
 {
 	UpdatePassConstants();
 
@@ -196,7 +185,7 @@ void RendererD3D12::Update(double _deltaTime)
 	}
 }
 
-void RendererD3D12::UpdatePassConstants()
+void Renderer::UpdatePassConstants()
 {
 	m_Camera->Update();
 
@@ -211,7 +200,7 @@ void RendererD3D12::UpdatePassConstants()
 		m_pLightsCB->UpdateValue("ViewProjection", m_Light, sizeof(Light));
 }
 
-bool RendererD3D12::Render(void)
+bool Renderer::Render(void)
 {
 	DeviceD3D12::Instance()->BeginFrame();
 
@@ -248,7 +237,7 @@ bool RendererD3D12::Render(void)
 	return true;
 }
 
-void RendererD3D12::ImGuiPass(CommandList* _pGfxCmdList)
+void Renderer::ImGuiPass(CommandList* _pGfxCmdList)
 {
 #if defined(_DEBUG)
 	RenderMarker profile(_pGfxCmdList, "%s", "ImGUI");
@@ -386,7 +375,7 @@ void RendererD3D12::ImGuiPass(CommandList* _pGfxCmdList)
 #endif
 }
 
-void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
+void Renderer::MainRenderPass(CommandList* _pGfxCmdList)
 {
 	RenderMarker profile(_pGfxCmdList, "MainRenderPass");
 
@@ -401,8 +390,8 @@ void RendererD3D12::MainRenderPass(CommandList* _pGfxCmdList)
 		ConstantBufferResource* pModelCB = pModel->GetConstantBuffer();
 
 		pDevice->SetMaterial(pModel->GetMaterialName());
-		pDevice->SetSamplerState("Albedo", m_DefaultSampler);
-		pDevice->SetSamplerState("Normal", m_DefaultSampler);
+		pDevice->SetSamplerState("Albedo", pDevice->GetDefaultSamplerState());
+		pDevice->SetSamplerState("Normal", pDevice->GetDefaultSamplerState());
 
 		pDevice->SetConstantBuffer("ObjectCB", pModelCB);
 		pDevice->SetConstantBuffer("PassCB", m_pMainPassCB);

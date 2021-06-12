@@ -13,6 +13,9 @@
 #include "D3D12\Resources\IndexBufferResource.h"
 #include "D3D12\Resources\ConstantBufferResource.h"
 #include "D3D12\Resources\UploadBuffer.h"
+#include "D3D12\Resources\GpuResourceTable.h"
+
+#include "D3D12\States\SamplerStateD3D12.h"
 
 #include "D3D12\Shaders\ShaderCache.h"
 
@@ -218,12 +221,15 @@ bool DeviceD3D12::Initialise(bool _bDebugging)
 	}
 	
 	const unsigned int kMaxSrvCbvs = 1000;
-	if (!DeviceD3D12::Instance()->CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, &m_DescHeapSrvCbv, kMaxSrvCbvs, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, L"MainSrvCbvHeap"))
+	if (!CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, &m_DescHeapSrvCbv, kMaxSrvCbvs, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, L"MainSrvCbvHeap"))
 		return false;
 
 	const unsigned int kMaxSamplerDescs = 1;
-	if (!DeviceD3D12::Instance()->CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, &m_DescHeapSampler, kMaxSamplerDescs, D3D12_DESCRIPTOR_HEAP_FLAG_NONE))
+	if (!CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, &m_DescHeapSampler, kMaxSamplerDescs, D3D12_DESCRIPTOR_HEAP_FLAG_NONE))
 		return false;
+
+	// Default Sampler
+	m_pDefaultSampler = CreateSamplerState(SamplerStateFilter::Linear, SamplerStateWrapMode::Wrap, SamplerStateComparisonFunction::Always);
 
 	return true;
 }
@@ -281,6 +287,16 @@ bool DeviceD3D12::CreateSwapChain(SwapChain** _ppSwapChain, GameWindow* _pWindow
 
 	return true;
 }
+ISamplerState* DeviceD3D12::CreateSamplerState(SamplerStateFilter _eFilter, SamplerStateWrapMode _eWrap, SamplerStateComparisonFunction _eCompFunc)
+{
+	SamplerStateD3D12* pSamplerState = new SamplerStateD3D12();
+	if (!pSamplerState->Initialise(m_pDevice.Get(), m_DescHeapSampler, _eFilter, _eWrap, _eCompFunc))
+	{
+		delete pSamplerState;
+		return nullptr;
+	}
+	return pSamplerState;
+}
 
 IBufferResource* DeviceD3D12::CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName)
 {
@@ -309,12 +325,6 @@ ConstantBufferResource* DeviceD3D12::CreateConstantBufferResource(const Constant
 
 bool DeviceD3D12::GetRootSignature(IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName)
 {
-	//if (_pShader->GetType() != IShaderStage::ShaderType::VertexShader)
-	//{
-	//	assert(false && "Shader is not a VertexShader");
-	//	return false;
-	//}
-
 	GpuResourceTable& resources = *m_DeviceState.Resources;
 	unsigned long ulHash = Hashing::SimpleHash((const char*)resources.GetVShader()->GetShaderName(), strlen(resources.GetVShader()->GetShaderName()));
 	if (m_mapRootSignatures.find(ulHash) != m_mapRootSignatures.end())
@@ -325,7 +335,7 @@ bool DeviceD3D12::GetRootSignature(IShaderStage* _pShader, ID3D12RootSignature**
 	{
 		RenderMarker profile(GetImmediateContext(), "ID3D12Device::CreateRootSignature");
 
-		SamplerStateEntry* pSamplers = nullptr;
+		ISamplerState** pSamplers = nullptr;
 		IGpuBufferResource** ppBuffers = nullptr, ** ppTextures = nullptr;
 		unsigned long ulSamplers = resources.GetSamplers(&pSamplers);
 		unsigned long ulTextures = resources.GetTextures(&ppTextures);
@@ -542,14 +552,15 @@ bool DeviceD3D12::FlushState()
 	//
 	// Copy Sampler
 	//
-	SamplerStateEntry* pSamplers = nullptr;
+	ISamplerState** pSamplers = nullptr;
 	ulResources = Resources.GetSamplers(&pSamplers);
 
 	unsigned int uiSamplerStartIndex = m_ActiveSamplerHeap->GetFreeIndex();
 	for (unsigned int i = 0; i < ulResources; ++i)
 	{
 		CD3DX12_CPU_DESCRIPTOR_HANDLE sampDescHandle(m_DescHeapSampler->GetCPUStartHandle());
-		sampDescHandle.Offset(pSamplers[i].HeapIndex, m_DescHeapSampler->GetIncrementSize());
+		sampDescHandle.Offset(((SamplerStateD3D12*)pSamplers[i])->GetHeapIndex(), m_DescHeapSampler->GetIncrementSize());
+
 		CD3DX12_CPU_DESCRIPTOR_HANDLE tempHandleLoc(m_ActiveSamplerHeap->GetCPUStartHandle(), m_ActiveSamplerHeap->GetFreeIndexAndIncrement(), m_ActiveSamplerHeap->GetIncrementSize());
 
 		UINT size1 = 1;
@@ -607,31 +618,7 @@ bool DeviceD3D12::SetConstantBuffer(const char* _pName, IGpuBufferResource* _pCB
 	return m_DeviceState.Resources->SetConstantBuffer(_pName, _pCBuffer);
 }
 
-bool DeviceD3D12::SetSamplerState(const char* _pName, D3D12_SAMPLER_DESC _state)
+bool DeviceD3D12::SetSamplerState(const char* _pName, ISamplerState* _pSamplerState)
 {
-	unsigned long ulHash = Hashing::SimpleHash((char*)&_state, sizeof(D3D12_SAMPLER_DESC));
-	if (m_mapSamplers.find(ulHash) != m_mapSamplers.end())
-	{
-		m_DeviceState.Resources->SetSamplerState(_pName, m_mapSamplers[ulHash]);
-	}
-	else
-	{
-		m_DeviceState.DirtyFlags |= kDirtySamplerState;
-
-		SamplerStateEntry newState;
-		newState.Hash = ulHash;
-		newState.HeapIndex = m_DescHeapSampler->GetFreeIndex();
-
-		m_mapSamplers[ulHash] = newState;
-
-		CD3DX12_CPU_DESCRIPTOR_HANDLE sampHandle(m_DescHeapSampler->GetCPUStartHandle());
-		sampHandle.Offset(newState.HeapIndex, m_DescHeapSampler->GetIncrementSize());
-
-		if (!CreateSamplerState(&_state, sampHandle))
-			return false;
-
-		m_DeviceState.Resources->SetSamplerState(_pName, m_mapSamplers[ulHash]);
-	}
-
-	return true;
+	return m_DeviceState.Resources->SetSamplerState(_pName, _pSamplerState);
 }

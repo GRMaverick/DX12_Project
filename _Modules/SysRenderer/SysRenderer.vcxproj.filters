@@ -67,6 +67,12 @@
     <Filter Include="Source Files\Loading">
       <UniqueIdentifier>{8052aea7-0a97-457f-a639-f6dd633ce5c0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Platforms\D3D12\States">
+      <UniqueIdentifier>{12b53c31-5f22-4869-a221-84de042b79de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Platforms\States">
+      <UniqueIdentifier>{aec3fdcb-1189-4a81-9a3c-6bad5aba7197}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Interfaces\IRenderer.h">
@@ -120,9 +126,6 @@
     <ClInclude Include="_Platforms\D3D12\Resources\GpuResourceTable.h">
       <Filter>Header Files\Platforms\D3D12\Resources</Filter>
     </ClInclude>
-    <ClInclude Include="_Platforms\D3D12\Resources\IBufferResource.h">
-      <Filter>Header Files\Platforms\D3D12\Resources</Filter>
-    </ClInclude>
     <ClInclude Include="_Platforms\D3D12\Resources\IndexBufferResource.h">
       <Filter>Header Files\Platforms\D3D12\Resources</Filter>
     </ClInclude>
@@ -155,6 +158,15 @@
     </ClInclude>
     <ClInclude Include="_Scene\Camera.h">
       <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Resources\IBufferResource.h">
+      <Filter>Header Files\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="_Interfaces\ISamplerState.h">
+      <Filter>Header Files\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\States\SamplerStateD3D12.h">
+      <Filter>Header Files\Platforms\D3D12\States</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -223,6 +235,9 @@
     </ClCompile>
     <ClCompile Include="_Scene\Camera.cpp">
       <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\States\SamplerStateD3D12.cpp">
+      <Filter>Source Files\Platforms\States</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

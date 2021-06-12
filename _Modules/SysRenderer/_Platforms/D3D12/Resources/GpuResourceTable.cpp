@@ -65,13 +65,13 @@ void GpuResourceTable::Initialise(IShaderStage* _pVS, IShaderStage* _pPS)
 			texBinds[cbParamsPS.Textures[i].BindPoint] = cbParamsPS.Textures[i].Name;
 	}
 
-	m_NumberSamplers = sampBinds.size();
-	m_NumberTextures = texBinds.size();
-	m_NumberConstantBuffers = cbBinds.size();
+	m_NumberSamplers = (unsigned int)sampBinds.size();
+	m_NumberTextures = (unsigned int)texBinds.size();
+	m_NumberConstantBuffers = (unsigned int)cbBinds.size();
 
-	m_pConstantBuffers = new IGpuBufferResource*[m_NumberConstantBuffers];
-	m_pSamplers = new SamplerStateEntry[m_NumberSamplers];
+	m_pSamplers = new ISamplerState*[m_NumberSamplers];
 	m_pTextures = new IGpuBufferResource*[m_NumberTextures];
+	m_pConstantBuffers = new IGpuBufferResource * [m_NumberConstantBuffers];
 
 	m_bIsInitialised = true;
 }
@@ -160,7 +160,7 @@ bool GpuResourceTable::SetConstantBuffer(const char* _pName, IGpuBufferResource*
 	return false;
 }
 
-bool GpuResourceTable::SetSamplerState(const char* _pName, SamplerStateEntry _state)
+bool GpuResourceTable::SetSamplerState(const char* _pName, ISamplerState* _state)
 {
 	ConstantBufferParameters cbParamsVS = m_pVertexShader->GetConstantParameters();
 	for (unsigned int i = 0; i < cbParamsVS.NumberSamplers; ++i)
@@ -186,9 +186,6 @@ bool GpuResourceTable::SetSamplerState(const char* _pName, SamplerStateEntry _st
 		}
 	}
 
-	// Can ignore this CB Binding, Shaders aren't expecting it
-	// assert(false && "Sampler State Binding Failed");
-
 	return false;
 }
 
@@ -204,7 +201,7 @@ unsigned long GpuResourceTable::GetConstantBuffers(IGpuBufferResource*** _pppRes
 	return m_NumberConstantBuffers;
 }
 
-unsigned long GpuResourceTable::GetSamplers(SamplerStateEntry** _ppResources)
+unsigned long GpuResourceTable::GetSamplers(ISamplerState*** _ppResources)
 {
 	(*_ppResources) = m_pSamplers;
 	return m_NumberSamplers;

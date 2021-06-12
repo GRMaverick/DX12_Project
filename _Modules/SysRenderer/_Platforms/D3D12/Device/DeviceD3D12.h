@@ -10,8 +10,9 @@
 
 #include "D3D12\d3dx12.h"
 
-#include "D3D12\Resources\GpuResourceTable.h"
 #include "D3D12\Resources\ConstantBufferParameters.h"
+
+#include "_Interfaces\ISamplerState.h"
 
 class IShaderStage;
 class IBufferResource;
@@ -22,10 +23,13 @@ class CommandQueue;
 class CommandList;
 class SwapChain;
 class GameWindow;
+class GpuResourceTable;
 class Texture2DResource;
 class VertexBufferResource;
 class IndexBufferResource;
 class ConstantBufferResource;
+
+struct SamplerStateEntry;
 
 struct PipelineStateDesc
 {
@@ -51,6 +55,7 @@ public:
 	bool CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE _type, DescriptorHeap** _ppDescriptorHeap, UINT _numBuffers = 1, D3D12_DESCRIPTOR_HEAP_FLAGS _flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, const wchar_t* _pDebugName = L"");
 	bool CreateSwapChain(SwapChain** _ppSwapChain, GameWindow* _pWindow, UINT _numBackBuffers, const wchar_t* _pDebugName = L"");
 
+	ISamplerState* CreateSamplerState(SamplerStateFilter _eFilter, SamplerStateWrapMode _eWrap, SamplerStateComparisonFunction _eCompFunc);
 	IBufferResource* CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName = L"");
 	IBufferResource* CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName = L"");
 	IBufferResource* CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName = L"");
@@ -67,7 +72,7 @@ public:
 	bool SetDepthBuffer(void);
 	bool SetTexture(const char* _pName, IGpuBufferResource* _pTexture);
 	bool SetConstantBuffer(const char* _pName, IGpuBufferResource* _pCBuffer);
-	bool SetSamplerState(const char* _pName, D3D12_SAMPLER_DESC _state);
+	bool SetSamplerState(const char* _pName, ISamplerState* _pSamplerState);
 
 	DescriptorHeap* GetSrvCbvHeap(void) { return m_DescHeapSrvCbv; }
 
@@ -75,6 +80,7 @@ public:
 	void EndFrame(void);
 
 	CommandList* GetImmediateContext(void) { return m_pImmediateContext; }
+	ISamplerState* GetDefaultSamplerState(void) { return m_pDefaultSampler; }
 
 private:
 
@@ -109,6 +115,9 @@ private:
 	DescriptorHeap*									m_ActiveResourceHeap;
 	DescriptorHeap*									m_ActiveSamplerHeap;
 
+	ISamplerState*									m_pDefaultSampler;
+	D3D12_SAMPLER_DESC								m_DefaultSampler;
+
 	CommandList*									m_pImmediateContext;
 
 	Microsoft::WRL::ComPtr<ID3D12Device6>			m_pDevice = nullptr;
@@ -118,7 +127,7 @@ private:
 
 	std::map<unsigned long, GpuResourceTable*>			m_mapGpuResourceTables;
 
-	std::map<unsigned int, SamplerStateEntry>			m_mapSamplers;
+	std::map<unsigned int, SamplerStateEntry*>			m_mapSamplers;
 	std::map<unsigned int, ID3D12RootSignature*>		m_mapRootSignatures;
 	std::map<unsigned int, ID3D12PipelineState*>		m_mapPSO;
 };

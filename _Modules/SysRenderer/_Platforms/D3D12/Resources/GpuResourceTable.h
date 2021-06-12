@@ -2,6 +2,7 @@
 #define __GpuResourceTable_h__
 
 class IShaderStage;
+class ISamplerState;
 class IGpuBufferResource;
 
 struct SamplerStateEntry
@@ -24,14 +25,14 @@ public:
 
 	bool SetTexture(const char* _pName, IGpuBufferResource* _pTexture);
 	bool SetConstantBuffer(const char* _pName, IGpuBufferResource* _pCBuffer);
-	bool SetSamplerState(const char* _pName, SamplerStateEntry _state);
+	bool SetSamplerState(const char* _pName, ISamplerState* _state);
 
 	IShaderStage* GetVShader(void) { return m_pVertexShader; }
 	IShaderStage* GetPShader(void) { return m_pPixelShader; }
 
 	unsigned long GetTextures(IGpuBufferResource*** _ppResources);
 	unsigned long GetConstantBuffers(IGpuBufferResource*** _ppResources);
-	unsigned long GetSamplers(SamplerStateEntry** _ppResources);
+	unsigned long GetSamplers(ISamplerState*** _ppResources);
 
 private:
 	bool m_bIsInitialised = false;
@@ -42,7 +43,7 @@ private:
 	unsigned int m_NumberTextures = 0;
 	unsigned int m_NumberConstantBuffers = 0;
 
-	SamplerStateEntry* m_pSamplers = nullptr;
+	ISamplerState**	m_pSamplers = nullptr;
 	IGpuBufferResource** m_pTextures = nullptr;
 	IGpuBufferResource** m_pConstantBuffers = nullptr;
 };

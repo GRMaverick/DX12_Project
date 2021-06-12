@@ -71,7 +71,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR pC
 	CLParser::Instance()->Initialise(pCmds);
 
 	g_pWindow = new GameWindow(hInstance, L"MainWindow", L"DX12 Project");
-	g_pRenderer = new RendererD3D12();
+	g_pRenderer = new Renderer();
 
 	if (!g_pRenderer->Initialise(g_pWindow))
 	{
