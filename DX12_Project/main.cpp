@@ -4,8 +4,12 @@
 #include <chrono>
 
 #include "Defines.h"
-#include "CoreWindow.h"
-#include "RendererD3D12.h"
+
+#include "SysCore\_Window\GameWindow.h"
+#include "SysUtilities\_Loaders\CLParser.h"
+
+#include "SysRenderer\_Platforms\D3D12\RendererD3D12.h"
+
 #include "InputManager.h"
 
 PRAGMA_TODO("Data Driven Pipelines")
@@ -20,7 +24,7 @@ PRAGMA_TODO("\tResize Handling")
 PRAGMA_TODO("MT Command Buffers")
 PRAGMA_TODO("\t - Submission / Execution needs proper synchronisation")
 
-static CoreWindow*	g_pWindow = nullptr;
+static GameWindow*	g_pWindow = nullptr;
 static IRenderer*	g_pRenderer = nullptr;
 
 bool GameLoop()
@@ -60,11 +64,13 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR pC
 	Logger::SetSeverity(SEVERITY_INFO);
 	Logger::SetCategory(
 		CATEGORY_APP |
-		CATEGORY_RENDERER
+		CATEGORY_RENDERER |
+		CATEGORY_UTILITIES
 	);
 
 	CLParser::Instance()->Initialise(pCmds);
-	g_pWindow = new CoreWindow(hInstance, L"MainWindow", L"DX12 Project");
+
+	g_pWindow = new GameWindow(hInstance, L"MainWindow", L"DX12 Project");
 	g_pRenderer = new RendererD3D12();
 
 	if (!g_pRenderer->Initialise(g_pWindow))
@@ -72,7 +78,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR pC
 		return false;
 	}
 
-	CoreWindow::SetMessageHandlerInstance(g_pWindow);
+	GameWindow::SetMessageHandlerInstance(g_pWindow);
 
 	bool bClosing = false;
 

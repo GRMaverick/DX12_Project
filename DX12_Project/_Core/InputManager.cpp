@@ -1,5 +1,7 @@
 #include "Defines.h"
 
+#include <Windows.h>
+
 #include "InputManager.h"
 
 InputManager::InputManager(void)

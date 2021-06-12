@@ -1,0 +1,231 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Interfaces">
+      <UniqueIdentifier>{ccf2f66a-61e0-48d1-83a0-67a11bd9057f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Platforms">
+      <UniqueIdentifier>{633ea964-d162-42e7-8b78-8637b13f560a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ImGUI">
+      <UniqueIdentifier>{2aeea817-0218-41b2-ac01-1fef12cde953}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Scene">
+      <UniqueIdentifier>{59d5c4ef-fbcf-4f2b-a6b6-7762ea2eb148}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Factories">
+      <UniqueIdentifier>{210d1155-76ef-4b67-ac9f-adb780469d26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Platforms\D3D12">
+      <UniqueIdentifier>{111d4064-e65f-4a9d-8b89-e6ac137b4334}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Platforms\D3D12\Device">
+      <UniqueIdentifier>{8db5a689-8f88-4733-83a6-5477ce62f44e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Platforms\D3D12\Resources">
+      <UniqueIdentifier>{db180f1f-9fe2-44fa-a1a0-679dbf0ff4f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Platforms\D3D12\Shaders">
+      <UniqueIdentifier>{83b5019f-2677-4534-a03e-4bbac635a0dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ImGUI">
+      <UniqueIdentifier>{11bfd60f-81f9-43ec-97f2-a0e341e2c747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Factories">
+      <UniqueIdentifier>{7b7a3ffd-7267-461f-97ac-b75c19d33f96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Scene">
+      <UniqueIdentifier>{d30ed195-4415-4457-9458-c7800fd4e9ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Platforms">
+      <UniqueIdentifier>{a5acddfe-02eb-4c96-820a-ad375ca3f500}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Platforms\Device">
+      <UniqueIdentifier>{42ba1ecd-1e5f-4f84-9fe4-c994663f7b9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Platforms\Resources">
+      <UniqueIdentifier>{eacd945b-9ef4-4e94-9810-f4efcf90fe9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Platforms\Shaders">
+      <UniqueIdentifier>{0e99010e-0bca-474f-bdd0-8831cb4319f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Loading">
+      <UniqueIdentifier>{0c973ace-7f69-4016-850e-a34d21a84fe1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Loading">
+      <UniqueIdentifier>{8052aea7-0a97-457f-a639-f6dd633ce5c0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="_Interfaces\IRenderer.h">
+      <Filter>Header Files\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="_Interfaces\IShader.h">
+      <Filter>Header Files\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="_Interfaces\IShaderCompiler.h">
+      <Filter>Header Files\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Device\CommandList.h">
+      <Filter>Header Files\Platforms\D3D12\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Device\CommandQueue.h">
+      <Filter>Header Files\Platforms\D3D12\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Device\DeviceD3D12.h">
+      <Filter>Header Files\Platforms\D3D12\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Device\SwapChain.h">
+      <Filter>Header Files\Platforms\D3D12\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Shaders\ShaderCache.h">
+      <Filter>Header Files\Platforms\D3D12\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Shaders\ShaderCompilerDX.h">
+      <Filter>Header Files\Platforms\D3D12\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Shaders\ShaderCompilerDXC.h">
+      <Filter>Header Files\Platforms\D3D12\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Shaders\ShaderCompilerFXC.h">
+      <Filter>Header Files\Platforms\D3D12\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Shaders\ShaderD3D12.h">
+      <Filter>Header Files\Platforms\D3D12\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Resources\ConstantBufferParameters.h">
+      <Filter>Header Files\Platforms\D3D12\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Resources\ConstantBufferResource.h">
+      <Filter>Header Files\Platforms\D3D12\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Resources\ConstantTable.h">
+      <Filter>Header Files\Platforms\D3D12\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Resources\DescriptorHeap.h">
+      <Filter>Header Files\Platforms\D3D12\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Resources\GpuResourceTable.h">
+      <Filter>Header Files\Platforms\D3D12\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Resources\IBufferResource.h">
+      <Filter>Header Files\Platforms\D3D12\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Resources\IndexBufferResource.h">
+      <Filter>Header Files\Platforms\D3D12\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Resources\Texture2DResource.h">
+      <Filter>Header Files\Platforms\D3D12\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Resources\UploadBuffer.h">
+      <Filter>Header Files\Platforms\D3D12\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\Resources\VertexBufferResource.h">
+      <Filter>Header Files\Platforms\D3D12\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="_ImGUI\ImGUIEngine.h">
+      <Filter>Header Files\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="_Scene\RenderEntity.h">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="_Platforms\D3D12\RendererD3D12.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="_Loading\AssimpLoader.h">
+      <Filter>Header Files\Loading</Filter>
+    </ClInclude>
+    <ClInclude Include="_Loading\TextureLoader.h">
+      <Filter>Header Files\Loading</Filter>
+    </ClInclude>
+    <ClInclude Include="_Scene\Camera.h">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="_ImGUI\ImGUIEngine.cpp">
+      <Filter>Source Files\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="_Scene\RenderEntity.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\Device\CommandList.cpp">
+      <Filter>Source Files\Platforms\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\Device\CommandQueue.cpp">
+      <Filter>Source Files\Platforms\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\Device\DeviceD3D12.cpp">
+      <Filter>Source Files\Platforms\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\Device\SwapChain.cpp">
+      <Filter>Source Files\Platforms\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\Shaders\ShaderCache.cpp">
+      <Filter>Source Files\Platforms\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\Shaders\ShaderCompilerDX.cpp">
+      <Filter>Source Files\Platforms\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\Shaders\ShaderCompilerDXC.cpp">
+      <Filter>Source Files\Platforms\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\Shaders\ShaderCompilerFXC.cpp">
+      <Filter>Source Files\Platforms\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\Resources\ConstantBufferResource.cpp">
+      <Filter>Source Files\Platforms\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\Resources\ConstantTable.cpp">
+      <Filter>Source Files\Platforms\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\Resources\DescriptorHeap.cpp">
+      <Filter>Source Files\Platforms\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\Resources\GpuResourceTable.cpp">
+      <Filter>Source Files\Platforms\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\Resources\IBufferResource.cpp">
+      <Filter>Source Files\Platforms\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\Resources\IndexBufferResource.cpp">
+      <Filter>Source Files\Platforms\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\Resources\Texture2DResource.cpp">
+      <Filter>Source Files\Platforms\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\Resources\VertexBufferResource.cpp">
+      <Filter>Source Files\Platforms\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="_Platforms\D3D12\RendererD3D12.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="_Loading\TextureLoader.cpp">
+      <Filter>Source Files\Loading</Filter>
+    </ClCompile>
+    <ClCompile Include="_Loading\AssimpLoader.cpp">
+      <Filter>Source Files\Loading</Filter>
+    </ClCompile>
+    <ClCompile Include="_Scene\Camera.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>
