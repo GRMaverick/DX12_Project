@@ -37,6 +37,9 @@ private:
 	DirectX::XMFLOAT3		m_Rotation;
 	float					m_Scale;
 
+	PRAGMA_TODO("Remove rotation code from Render Entity")
+	float					m_RotationTheta; // Remove
+
 	Material				m_Material;
 	RenderModel*			m_pModel;
 	DirectX::XMMATRIX		m_World;
