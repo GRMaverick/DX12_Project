@@ -25,15 +25,5 @@ bool RenderEntity::LoadModelFromFile(const char* _pFilename)
 
 void RenderEntity::Update()
 {
-	float sRotationSpeed = 10.0f * 0.016f;
-	//m_RotationTheta += sRotationSpeed;
 
-	// Update the model matrix. 
-	float angle = 25.0f;
-	XMVECTOR rotation = XMVectorSet(1, 0, 0, 0);
-	
-	XMMATRIX S = XMMatrixScaling(m_Scale, m_Scale, m_Scale);
-	XMMATRIX R = XMMatrixRotationAxis(rotation, XMConvertToRadians(m_RotationTheta));
-	XMMATRIX T = XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
-	m_World = S * R * T;
 }
