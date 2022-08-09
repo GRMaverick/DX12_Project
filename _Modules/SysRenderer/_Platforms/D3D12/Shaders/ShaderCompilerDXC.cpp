@@ -14,6 +14,8 @@
 
 //#define DUMP_BLOBS
 
+using namespace SysUtilities;
+
 ShaderCompilerDXC::ShaderCompilerDXC(void)
 {
 

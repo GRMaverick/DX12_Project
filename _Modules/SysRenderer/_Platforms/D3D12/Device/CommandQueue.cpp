@@ -10,6 +10,8 @@ using namespace Microsoft::WRL;
 
 extern const char* g_TypeToString[];
 
+using namespace SysUtilities;
+
 CommandQueue::CommandQueue(void)
 {
 	m_FenceValue = 0;

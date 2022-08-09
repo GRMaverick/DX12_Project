@@ -6,6 +6,8 @@
 
 using namespace Microsoft::WRL;
 
+using namespace SysUtilities;
+
 DescriptorHeap::DescriptorHeap(void)
 {
 	m_IncrementSize = 0;

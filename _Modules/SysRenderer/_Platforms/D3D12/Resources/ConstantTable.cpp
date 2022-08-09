@@ -7,6 +7,8 @@
 
 #include "SysUtilities\Hashing.h"
 
+using namespace SysUtilities;
+
 ConstantTable::ConstantTable(void)
 {
 }

@@ -11,6 +11,8 @@
 
 //#define DUMP_SHADERS
 
+using namespace SysUtilities;
+
 ShaderCache::ShaderCache(void)
 {
 }
@@ -93,7 +95,7 @@ bool ShaderCache::Load(const char* _pShadersPath)
 					data.cFileName
 				);
 
-				unsigned int namelength = strlen(data.cFileName) -2;
+				size_t namelength = strlen(data.cFileName) - 2;
 				char* pFilename = new char[namelength];
 				snprintf(pFilename, namelength, "%s", data.cFileName);
 

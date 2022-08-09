@@ -39,6 +39,7 @@ using namespace Microsoft::WRL;
 
 using namespace SysCore;
 using namespace SysMemory;
+using namespace SysUtilities;
 
 #if defined(_DEBUG)
 #	define SHADER_CACHE_LOCATION "Shaders\\*"

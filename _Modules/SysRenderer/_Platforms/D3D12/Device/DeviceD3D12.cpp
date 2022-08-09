@@ -38,6 +38,7 @@ using namespace Microsoft::WRL;
 
 using namespace SysCore;
 using namespace SysMemory;
+using namespace SysUtilities;
 
 void GenerateInputLayout(IShaderStage* _pShader, std::vector<D3D12_INPUT_ELEMENT_DESC>* _pLayout)
 {

@@ -1,21 +1,23 @@
 #pragma once
 
 #include "D3D12\Device\CommandList.h"
-
-class RenderMarker
+namespace SysUtilities
 {
-private:
-	CommandList* m_pCmdList = nullptr;
-public:
-	template<typename... Args>
-	RenderMarker(CommandList* pCmdList, const char* _pFormatString, Args... _args)
+	class RenderMarker
 	{
-		m_pCmdList = pCmdList;
-		m_pCmdList->StartMarker(_pFormatString, _args...);
-	}
-	
-	~RenderMarker()
-	{
-		m_pCmdList->EndMarker();
-	}
-};
+	private:
+		CommandList* m_pCmdList = nullptr;
+	public:
+		template<typename... Args>
+		RenderMarker(CommandList* pCmdList, const char* _pFormatString, Args... _args)
+		{
+			m_pCmdList = pCmdList;
+			m_pCmdList->StartMarker(_pFormatString, _args...);
+		}
+
+		~RenderMarker()
+		{
+			m_pCmdList->EndMarker();
+		}
+	};
+}

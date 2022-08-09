@@ -15,6 +15,7 @@ using namespace DirectX;
 using namespace Microsoft::WRL;
 
 using namespace SysMemory;
+using namespace SysUtilities;
 
 Texture2DResource::Texture2DResource(const wchar_t* _pWstrFilename, const bool _bIsDDS, DescriptorHeap* _pTargetSRVHeap,
 	ID3D12Device* _pDevice, CommandList* _pCmdList, const wchar_t* _pDebugName)

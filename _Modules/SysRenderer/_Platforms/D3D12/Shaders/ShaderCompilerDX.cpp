@@ -6,6 +6,8 @@
 
 #include "D3D12\Resources\ConstantBufferParameters.h"
 
+using namespace SysUtilities;
+
 void ShaderCompilerDX::ReflectInternal(IShaderStage* _pShader, ID3D12ShaderReflection* _pReflection)
 {
 	if (_pReflection)

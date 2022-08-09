@@ -9,6 +9,8 @@
 
 #pragma comment(lib, "d3dcompiler.lib")
 
+using namespace SysUtilities;
+
 ShaderCompilerFXC::ShaderCompilerFXC(void)
 {
 
