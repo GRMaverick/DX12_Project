@@ -1,6 +1,7 @@
 #ifndef __Logger_h__
 #define __Logger_h__
 
+static constexpr unsigned int SEVERITY_NONE		= 0;
 static constexpr unsigned int SEVERITY_INFO		= 1;
 static constexpr unsigned int SEVERITY_WARN		= SEVERITY_INFO << 1;
 static constexpr unsigned int SEVERITY_ERR		= SEVERITY_INFO << 2;
@@ -20,7 +21,7 @@ public:
 	static void Log(unsigned int _severity, unsigned int _category, const char* _pFormat, ...);
 
 private:
-	static unsigned int s_MinSeverity;
+	static unsigned int s_ActiveSeverities;
 	static unsigned int s_ActiveCategory;
 };
 

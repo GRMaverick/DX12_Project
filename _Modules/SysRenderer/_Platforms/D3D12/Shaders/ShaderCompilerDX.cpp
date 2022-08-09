@@ -158,14 +158,14 @@ void ShaderCompilerDX::ReflectInternal(IShaderStage* _pShader, ID3D12ShaderRefle
 #endif
 			}
 
-			cbInfo.NumberTextures = textures.size();
+			cbInfo.NumberTextures = (unsigned int)textures.size();
 			cbInfo.Textures = new ConstantBufferParameters::BoundResource[cbInfo.NumberTextures];
 			for (unsigned int cb = 0; cb < textures.size(); ++cb)
 			{
 				cbInfo.Textures[cb] = textures[cb];
 			}
 
-			cbInfo.NumberSamplers = samplers.size();
+			cbInfo.NumberSamplers = (unsigned int)samplers.size();
 			cbInfo.Samplers = new ConstantBufferParameters::BoundResource[cbInfo.NumberSamplers];
 			for (unsigned int sam = 0; sam < samplers.size(); ++sam)
 			{

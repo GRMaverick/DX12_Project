@@ -40,12 +40,12 @@ void ShaderCache::InitCompiler(void)
 
 	if (CLParser::Instance()->HasArgument("dxc"))
 	{
-		LogInfo("\tDXCompiler");
+		LogInfo("Compiling using: DXCompiler");
 		m_pShaderCompiler = new ShaderCompilerDXC();
 	}
 	else
 	{
-		LogInfo("\tD3DCompiler");
+		LogInfo("Compiling using: D3DCompiler");
 		m_pShaderCompiler = new ShaderCompilerFXC();
 	}
 }
@@ -82,7 +82,7 @@ bool ShaderCache::Load(const char* _pShadersPath)
 				strncmp(data.cFileName, "..", strlen(data.cFileName)) != 0 &&
 				(data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY)
 			{
-				LogInfo("\t%s", data.cFileName);
+				LogInfo("\t- %s", data.cFileName);
 
 				char* pFullFilepath = new char[strlen(pDirectoryNoWildcard) + strlen(data.cFileName) + 1];
 				snprintf(

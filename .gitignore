@@ -54,3 +54,12 @@ ImGUI/x64/**
 *.user
 DX12_Project/DX12_Project.vcxproj.user
 DX12_Project/DX12_Project.vcxproj.user
+/_Modules/SysRenderer/x64/Debug/_IsIncrementalBuild
+/_Modules/SysCore/x64/Debug/_IsIncrementalBuild
+/_Modules/SysMemory/x64/Debug/_IsIncrementalBuild
+/_Modules/SysUtilities/x64/Debug/_IsIncrementalBuild
+/_Toolkits/ImGUI/x64/Debug/_IsIncrementalBuild
+/DX12_Project/DX12_Project.args.json
+/.vs/DX12_Project/v17/fileList.bin
+/.vs/VSWorkspaceState.json
+/.vs/DX12_Project/FileContentIndex/36c64ee6-144d-4982-9d53-53b97eff9a42.vsidx

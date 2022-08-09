@@ -40,8 +40,8 @@ using namespace Microsoft::WRL;
 using namespace SysMemory;
 
 #if defined(_DEBUG)
-#	define SHADER_CACHE_LOCATION "G:\\Development\\DX12_Project\\_Shaders\\*"
-#	define CONTENT_LOCATION "G:\\Development\\DX12_Project\\_Content\\"
+#	define SHADER_CACHE_LOCATION "Shaders\\*"
+#	define CONTENT_LOCATION "Content\\"
 #else
 #	define SHADER_CACHE_LOCATION "Shaders\\*"
 #	define CONTENT_LOCATION "Content\\"

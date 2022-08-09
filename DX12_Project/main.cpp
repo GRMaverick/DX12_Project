@@ -62,13 +62,44 @@ bool GameLoop()
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR pCmds, INT nCmdShow)
 {
 	Logger::SetSeverity(SEVERITY_INFO);
-	Logger::SetCategory(
-		CATEGORY_APP |
-		CATEGORY_RENDERER |
-		CATEGORY_UTILITIES
-	);
+	Logger::SetCategory(CATEGORY_UTILITIES);
 
 	CLParser::Instance()->Initialise(pCmds);
+
+	unsigned int uiLogCategory = CATEGORY_NONE;
+	if (CLParser::Instance()->HasArgument("LogCat_App"))
+	{
+		uiLogCategory |= CATEGORY_APP;
+	}
+	if (CLParser::Instance()->HasArgument("LogCat_Renderer"))
+	{
+		uiLogCategory |= CATEGORY_RENDERER;
+	}
+	if (CLParser::Instance()->HasArgument("LogCat_Utilities"))
+	{
+		uiLogCategory |= CATEGORY_UTILITIES;
+	}
+
+	unsigned int uiLogSeverity = SEVERITY_NONE;
+	if (CLParser::Instance()->HasArgument("LogSev_Info"))
+	{
+		uiLogSeverity |= SEVERITY_INFO;
+	}
+	if (CLParser::Instance()->HasArgument("LogSev_Warn"))
+	{
+		uiLogSeverity |= SEVERITY_WARN;
+	}
+	if (CLParser::Instance()->HasArgument("LogSev_Err"))
+	{
+		uiLogSeverity |= SEVERITY_ERR;
+	}
+	if (CLParser::Instance()->HasArgument("LogSev_Fatal"))
+	{
+		uiLogSeverity |= SEVERITY_FATAL;
+	}
+
+	Logger::SetSeverity(uiLogSeverity);
+	Logger::SetCategory(uiLogCategory);
 
 	g_pWindow = new GameWindow(hInstance, L"MainWindow", L"DX12 Project");
 	g_pRenderer = new Renderer();
