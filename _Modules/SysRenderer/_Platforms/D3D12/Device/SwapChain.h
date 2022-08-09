@@ -13,47 +13,54 @@ namespace SysCore
 	class GameWindow;
 }
 
-class CommandList;
-class CommandQueue;
-class DescriptorHeap;
-
-class SwapChain
+namespace SysRenderer
 {
-public:
-	SwapChain(void);
-	~SwapChain(void);
+	namespace D3D12
+	{
+		class CommandList;
+		class CommandQueue;
+		class DescriptorHeap;
 
-	bool Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice,
-		Microsoft::WRL::ComPtr<IDXGIFactory5> _pFactory,
-		CommandQueue* _pCommandQueue,
-		UINT _backBuffers,
-		DescriptorHeap* _pDescHeapRTV,
-		DescriptorHeap* _pDescHeapDSV,
-		SysCore::GameWindow* _pWindow);
+		class SwapChain
+		{
+		public:
+			SwapChain(void);
+			~SwapChain(void);
 
-	bool Present(void);
-	void Swap(void);
+			bool Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice,
+				Microsoft::WRL::ComPtr<IDXGIFactory5> _pFactory,
+				CommandQueue* _pCommandQueue,
+				UINT _backBuffers,
+				DescriptorHeap* _pDescHeapRTV,
+				DescriptorHeap* _pDescHeapDSV,
+				SysCore::GameWindow* _pWindow);
 
-	void PrepareForRendering(CommandList* _pCmdList);
-	void PrepareForPresentation(CommandList* _pCmdList);
-	void SetOMRenderTargets(CommandList* _pCmdList);
+			bool Present(void);
+			void Swap(void);
 
-	void OnResize(UINT32 _width, UINT32 _height);
+			void PrepareForRendering(CommandList* _pCmdList);
+			void PrepareForPresentation(CommandList* _pCmdList);
+			void SetOMRenderTargets(CommandList* _pCmdList);
 
-private:
-	UINT											m_CurrentBackBuffer = 0;
-	BOOL											m_bAllowTearing = false;
+			void OnResize(UINT32 _width, UINT32 _height);
 
-	DescriptorHeap*									m_pDescHeapRTV;
-	DescriptorHeap*									m_pDescHeapDSV;
+		private:
+			UINT											m_CurrentBackBuffer = 0;
+			BOOL											m_bAllowTearing = false;
 
-	D3D12_VIEWPORT									m_Viewport;
-	D3D12_RECT										m_ScissorRect;
+			DescriptorHeap* m_pDescHeapRTV;
+			DescriptorHeap* m_pDescHeapDSV;
 
-	Microsoft::WRL::ComPtr<IDXGIAdapter4>			m_pDxgiAdapter = nullptr;
-	Microsoft::WRL::ComPtr<IDXGISwapChain4>			m_pSwapChain = nullptr;
+			D3D12_VIEWPORT									m_Viewport;
+			D3D12_RECT										m_ScissorRect;
 
-	Microsoft::WRL::ComPtr<ID3D12Resource>			m_pDepthBuffer;
-	Microsoft::WRL::ComPtr<ID3D12Resource>			m_pBackBuffers[BACK_BUFFERS];
-};
+			Microsoft::WRL::ComPtr<IDXGIAdapter4>			m_pDxgiAdapter = nullptr;
+			Microsoft::WRL::ComPtr<IDXGISwapChain4>			m_pSwapChain = nullptr;
+
+			Microsoft::WRL::ComPtr<ID3D12Resource>			m_pDepthBuffer;
+			Microsoft::WRL::ComPtr<ID3D12Resource>			m_pBackBuffers[BACK_BUFFERS];
+		};
+	}
+}
+
 #endif // __SwapChain_h__

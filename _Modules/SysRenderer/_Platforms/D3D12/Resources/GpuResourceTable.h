@@ -1,51 +1,60 @@
 #ifndef __GpuResourceTable_h__
 #define __GpuResourceTable_h__
 
-class IShaderStage;
-class ISamplerState;
-class IGpuBufferResource;
-
-struct SamplerStateEntry
+namespace SysRenderer
 {
-	unsigned int Hash = 0;
-	unsigned int HeapIndex = 0;
-};
+	namespace Interfaces
+	{
+		class IShaderStage;
+		class ISamplerState;
+		class IGpuBufferResource;
+	}
 
-class GpuResourceTable
-{
-public:
-	GpuResourceTable(void);
-	GpuResourceTable(IShaderStage* _pVS, IShaderStage* _pPS);
-	~GpuResourceTable(void);
+	namespace D3D12
+	{
+		struct SamplerStateEntry
+		{
+			unsigned int Hash = 0;
+			unsigned int HeapIndex = 0;
+		};
 
-	void Initialise(IShaderStage* _pVS, IShaderStage* _pPS);
-	void Destroy(void);
+		class GpuResourceTable
+		{
+		public:
+			GpuResourceTable(void);
+			GpuResourceTable(Interfaces::IShaderStage* _pVS, Interfaces::IShaderStage* _pPS);
+			~GpuResourceTable(void);
 
-	bool IsInitialised(void) { return m_bIsInitialised; }
+			void Initialise(Interfaces::IShaderStage* _pVS, Interfaces::IShaderStage* _pPS);
+			void Destroy(void);
 
-	bool SetTexture(const char* _pName, IGpuBufferResource* _pTexture);
-	bool SetConstantBuffer(const char* _pName, IGpuBufferResource* _pCBuffer);
-	bool SetSamplerState(const char* _pName, ISamplerState* _state);
+			bool IsInitialised(void) { return m_bIsInitialised; }
 
-	IShaderStage* GetVShader(void) { return m_pVertexShader; }
-	IShaderStage* GetPShader(void) { return m_pPixelShader; }
+			bool SetTexture(const char* _pName, Interfaces::IGpuBufferResource* _pTexture);
+			bool SetConstantBuffer(const char* _pName, Interfaces::IGpuBufferResource* _pCBuffer);
+			bool SetSamplerState(const char* _pName, Interfaces::ISamplerState* _state);
 
-	unsigned long GetTextures(IGpuBufferResource*** _ppResources);
-	unsigned long GetConstantBuffers(IGpuBufferResource*** _ppResources);
-	unsigned long GetSamplers(ISamplerState*** _ppResources);
+			Interfaces::IShaderStage* GetVShader(void) { return m_pVertexShader; }
+			Interfaces::IShaderStage* GetPShader(void) { return m_pPixelShader; }
 
-private:
-	bool m_bIsInitialised = false;
-	IShaderStage* m_pVertexShader = nullptr;
-	IShaderStage* m_pPixelShader = nullptr;
+			unsigned long GetTextures(Interfaces::IGpuBufferResource*** _ppResources);
+			unsigned long GetConstantBuffers(Interfaces::IGpuBufferResource*** _ppResources);
+			unsigned long GetSamplers(Interfaces::ISamplerState*** _ppResources);
 
-	unsigned int m_NumberSamplers = 0;
-	unsigned int m_NumberTextures = 0;
-	unsigned int m_NumberConstantBuffers = 0;
+		private:
+			bool m_bIsInitialised = false;
+			Interfaces::IShaderStage* m_pVertexShader = nullptr;
+			Interfaces::IShaderStage* m_pPixelShader = nullptr;
 
-	ISamplerState**	m_pSamplers = nullptr;
-	IGpuBufferResource** m_pTextures = nullptr;
-	IGpuBufferResource** m_pConstantBuffers = nullptr;
-};
+			unsigned int m_NumberSamplers = 0;
+			unsigned int m_NumberTextures = 0;
+			unsigned int m_NumberConstantBuffers = 0;
+
+			Interfaces::ISamplerState** m_pSamplers = nullptr;
+			Interfaces::IGpuBufferResource** m_pTextures = nullptr;
+			Interfaces::IGpuBufferResource** m_pConstantBuffers = nullptr;
+		};
+	}
+}
 
 #endif // __GpuResourceTable_h__

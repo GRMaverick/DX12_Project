@@ -6,34 +6,43 @@
 
 #include "IShader.h"
 
-class IShaderCompiler;
-
-struct ShaderSet
+namespace SysRenderer
 {
-	IShaderStage* VertexShader = nullptr;
-	IShaderStage* PixelShader = nullptr;
-};
+	namespace Interfaces
+	{
+		class IShaderCompiler;
+	}
 
-class ShaderCache
-{
-public:
-	~ShaderCache(void);
+	namespace D3D12
+	{
+		struct ShaderSet
+		{
+			Interfaces::IShaderStage* VertexShader = nullptr;
+			Interfaces::IShaderStage* PixelShader = nullptr;
+		};
 
-	static ShaderCache* Instance(void);
+		class ShaderCache
+		{
+		public:
+			~ShaderCache(void);
 
-	void InitCompiler(void);
-	bool Load(const char* _pCachePath);
+			static ShaderCache* Instance(void);
 
-	Effect* GetEffect(const char* _pName);
+			void InitCompiler(void);
+			bool Load(const char* _pCachePath);
 
-private:
-	ShaderCache(void);
-	ShaderCache(const char* _pShadersPath);
+			Effect* GetEffect(const char* _pName);
 
-	IShaderCompiler*		m_pShaderCompiler;
-	std::vector<Effect>		m_vLoadedEffect;
+		private:
+			ShaderCache(void);
+			ShaderCache(const char* _pShadersPath);
 
-	void DumpShader(IShaderStage* _pShader);
-};
+			Interfaces::IShaderCompiler* m_pShaderCompiler;
+			std::vector<Effect>		m_vLoadedEffect;
+
+			void DumpShader(Interfaces::IShaderStage* _pShader);
+		};
+	}
+}
 
 #endif // __ShaderCache_h__

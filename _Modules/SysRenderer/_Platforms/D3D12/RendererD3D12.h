@@ -7,45 +7,55 @@
 
 #include "SysRenderer/_Interfaces/IRenderer.h"
 
-class Camera;
-class SwapChain;
-class CommandList;
-class RenderEntity;
-class DescriptorHeap;
-class ConstantBufferResource;
-
 struct Light;
 
-class Renderer : public IRenderer
+namespace SysRenderer
 {
-public:
-	Renderer(void);
-	~Renderer(void);
+	namespace Scene
+	{
+		class Camera;
+		class RenderEntity;
+	}
 
-	virtual bool Initialise(SysCore::GameWindow* _pWindow) override final;
-	virtual void Update(double _deltaTime) override final;
-	virtual bool Render(void) override final;
+	namespace D3D12
+	{
+		class CommandList;
+		class SwapChain;
+		class DescriptorHeap;
+		class ConstantBufferResource;
+	}
 
-private:
-	UINT											m_ModelCount;
-	bool											m_bNewModelsLoaded;
+	class Renderer : public Interfaces::IRenderer
+	{
+	public:
+		Renderer(void);
+		~Renderer(void);
 
-	SwapChain*										m_pSwapChain;
+		virtual bool Initialise(SysCore::GameWindow* _pWindow) override final;
+		virtual void Update(double _deltaTime) override final;
+		virtual bool Render(void) override final;
 
-	Light*											m_Light;
-	Camera*											m_Camera;
-	RenderEntity**									m_pRenderEntity;
+	private:
+		UINT											m_ModelCount;
+		bool											m_bNewModelsLoaded;
 
-	DescriptorHeap*									m_pImGuiSRVHeap;
+		D3D12::SwapChain* m_pSwapChain;
 
-	ConstantBufferResource*							m_pLightsCB;
-	ConstantBufferResource*							m_pMainPassCB;
-	bool LoadContent();
+		Light* m_Light;
+		Scene::Camera* m_Camera;
+		Scene::RenderEntity** m_pRenderEntity;
 
-	void UpdatePassConstants();
+		D3D12::DescriptorHeap* m_pImGuiSRVHeap;
 
-	void MainRenderPass(CommandList* _pGfxCmdList);
-	void ImGuiPass(CommandList* _pGfxCmdList);
-};
+		D3D12::ConstantBufferResource* m_pLightsCB;
+		D3D12::ConstantBufferResource* m_pMainPassCB;
+		bool LoadContent();
+
+		void UpdatePassConstants();
+
+		void MainRenderPass(D3D12::CommandList* _pGfxCmdList);
+		void ImGuiPass(D3D12::CommandList* _pGfxCmdList);
+	};
+}
 
 #endif // __RendererD3D12_h__

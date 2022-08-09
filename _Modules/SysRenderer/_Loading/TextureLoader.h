@@ -26,7 +26,13 @@
 
 #include "D3D12\d3dx12.h"
 
-class CommandList;
+namespace SysRenderer
+{
+    namespace D3D12
+    {
+        class CommandList;
+    }
+}
 
 #pragma warning(push)
 #pragma warning(disable : 4005)
@@ -68,7 +74,7 @@ namespace DirectX
     );
 
     HRESULT CreateDDSTextureFromMemory12(_In_ ID3D12Device* device,
-        _In_ CommandList* cmdList,
+        _In_ SysRenderer::D3D12::CommandList* cmdList,
         _In_reads_bytes_(ddsDataSize) const uint8_t* ddsData,
         _In_ size_t ddsDataSize,
         _Out_ Microsoft::WRL::ComPtr<ID3D12Resource>& texture,
@@ -86,7 +92,7 @@ namespace DirectX
     );
 
     HRESULT CreateDDSTextureFromFile12(_In_ ID3D12Device* device,
-        _In_ CommandList* cmdList,
+        _In_ SysRenderer::D3D12::CommandList* cmdList,
         _In_z_ const wchar_t* szFileName,
         _Out_ Microsoft::WRL::ComPtr<ID3D12Resource>& texture,
         _Out_ Microsoft::WRL::ComPtr<ID3D12Resource>& textureUploadHeap,

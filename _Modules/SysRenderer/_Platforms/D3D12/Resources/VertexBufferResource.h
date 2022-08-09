@@ -3,16 +3,22 @@
 
 #include "IBufferResource.h"
 
-class VertexBufferResource : public IBufferResource
+namespace SysRenderer
 {
-public:
-	VertexBufferResource(ID3D12Device* _pDevice, CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, const void* _pData, const wchar_t* _pDebugName = nullptr);
-	~VertexBufferResource(void);
+	namespace D3D12
+	{
+		class VertexBufferResource : public Interfaces::IBufferResource
+		{
+		public:
+			VertexBufferResource(ID3D12Device* _pDevice, CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, const void* _pData, const wchar_t* _pDebugName = nullptr);
+			~VertexBufferResource(void);
 
-	D3D12_VERTEX_BUFFER_VIEW GetView();
+			D3D12_VERTEX_BUFFER_VIEW GetView();
 
-private:
-	D3D12_VERTEX_BUFFER_VIEW m_View;
-};
+		private:
+			D3D12_VERTEX_BUFFER_VIEW m_View;
+		};
+	}
+}
 
 #endif // __VertexBufferResource_h__

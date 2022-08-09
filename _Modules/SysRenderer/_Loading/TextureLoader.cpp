@@ -33,6 +33,7 @@ using namespace Microsoft::WRL;
 #endif
 
 using namespace DirectX;
+using namespace SysRenderer::D3D12;
 
 //--------------------------------------------------------------------------------------
 // Macros

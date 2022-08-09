@@ -6,35 +6,44 @@
 
 #include <wrl.h>
 
-class CommandList;
-
-class IBufferResource
+namespace SysRenderer
 {
-public:
-	virtual ~IBufferResource(void);
+	namespace D3D12
+	{
+		class CommandList;
+	}
 
-	bool UploadResource(ID3D12Device* _pDevice, CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, const void* _pData, const wchar_t* _pDebugName = nullptr);
+	namespace Interfaces
+	{
+		class IBufferResource
+		{
+		public:
+			virtual ~IBufferResource(void);
 
-	void SetCPUBuffer(Microsoft::WRL::ComPtr<ID3D12Resource> _pBuffer);
-	void SetGPUBuffer(Microsoft::WRL::ComPtr<ID3D12Resource> _pBuffer);
+			bool UploadResource(ID3D12Device* _pDevice, D3D12::CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, const void* _pData, const wchar_t* _pDebugName = nullptr);
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> GetCPUBuffer(void);
-	Microsoft::WRL::ComPtr<ID3D12Resource> GetGPUBuffer(void);
+			void SetCPUBuffer(Microsoft::WRL::ComPtr<ID3D12Resource> _pBuffer);
+			void SetGPUBuffer(Microsoft::WRL::ComPtr<ID3D12Resource> _pBuffer);
 
-protected:
-	Microsoft::WRL::ComPtr<ID3D12Resource> m_CPUBuffer;
-	Microsoft::WRL::ComPtr<ID3D12Resource> m_GPUBuffer;
-};
+			Microsoft::WRL::ComPtr<ID3D12Resource> GetCPUBuffer(void);
+			Microsoft::WRL::ComPtr<ID3D12Resource> GetGPUBuffer(void);
 
-class IGpuBufferResource
-{
-public:
-	virtual ~IGpuBufferResource(void) { }
+		protected:
+			Microsoft::WRL::ComPtr<ID3D12Resource> m_CPUBuffer;
+			Microsoft::WRL::ComPtr<ID3D12Resource> m_GPUBuffer;
+		};
 
-	CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuHandle(void) { return m_hCpuHandle; }
+		class IGpuBufferResource
+		{
+		public:
+			virtual ~IGpuBufferResource(void) { }
 
-protected:
-	CD3DX12_CPU_DESCRIPTOR_HANDLE m_hCpuHandle;
-};
+			CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuHandle(void) { return m_hCpuHandle; }
+
+		protected:
+			CD3DX12_CPU_DESCRIPTOR_HANDLE m_hCpuHandle;
+		};
+	}
+}
 
 #endif // __BufferResource_h__

@@ -16,175 +16,183 @@
 
 using namespace SysUtilities;
 
-ShaderCompilerDXC::ShaderCompilerDXC(void)
+namespace SysRenderer
 {
+	using namespace Interfaces;
 
-}
-
-ShaderCompilerDXC::~ShaderCompilerDXC(void)
-{
-
-}
-
-const char* ExtractExtension(const char* _pFilename)
-{
-	size_t extensionStart = 0;
-	size_t size = strlen(_pFilename);
-	for (size_t i = size - 1; i >= 0; --i)
+	namespace D3D12
 	{
-		if (_pFilename[i] == '.')
+		ShaderCompilerDXC::ShaderCompilerDXC(void)
 		{
-			extensionStart = i + 1;
-			break;
+
 		}
-	}
 
-	char* ext = new char[5];
-	snprintf(ext, 5, "%s", &_pFilename[extensionStart]);
-	return ext;
-}
+		ShaderCompilerDXC::~ShaderCompilerDXC(void)
+		{
 
-const wchar_t* ShaderCompilerDXC::GetTargetProfile(const char* _pFilename)
-{
-	if (strstr(_pFilename, "Vertex"))
-	{
-		// Vertex Shader
-		return L"vs_6_0";
-	}
-	else if (strstr(_pFilename, "Pixel"))
-	{
-		// Pixel Shader
-		return L"ps_6_0";
-	}
-	return L"";
-}
+		}
 
-IShaderStage* ShaderCompilerDXC::Compile(const char* _pFilename, const char* _pFunctionName, char* _pError)
-{
-	IDxcLibrary* pLibrary = nullptr;
-	VALIDATE_D3D(DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&pLibrary)));
+		const char* ExtractExtension(const char* _pFilename)
+		{
+			size_t extensionStart = 0;
+			size_t size = strlen(_pFilename);
+			for (size_t i = size - 1; i >= 0; --i)
+			{
+				if (_pFilename[i] == '.')
+				{
+					extensionStart = i + 1;
+					break;
+				}
+			}
 
-	size_t numRead = 0;
-	wchar_t* pFilenameWstr = new wchar_t[strlen(_pFilename)];
-	mbstowcs_s(&numRead, pFilenameWstr, strlen(_pFilename) + 1, _pFilename, strlen(_pFilename));
+			char* ext = new char[5];
+			snprintf(ext, 5, "%s", &_pFilename[extensionStart]);
+			return ext;
+		}
 
-	wchar_t* pFunctionNameWstr = new wchar_t[strlen(_pFunctionName)];
-	mbstowcs_s(&numRead, pFunctionNameWstr, strlen(_pFunctionName) + 1, _pFunctionName, strlen(_pFunctionName));
+		const wchar_t* ShaderCompilerDXC::GetTargetProfile(const char* _pFilename)
+		{
+			if (strstr(_pFilename, "Vertex"))
+			{
+				// Vertex Shader
+				return L"vs_6_0";
+			}
+			else if (strstr(_pFilename, "Pixel"))
+			{
+				// Pixel Shader
+				return L"ps_6_0";
+			}
+			return L"";
+		}
 
-	IDxcBlobEncoding* pBlob = nullptr;
-	VALIDATE_D3D(pLibrary->CreateBlobFromFile(pFilenameWstr, 0, &pBlob));
+		IShaderStage* ShaderCompilerDXC::Compile(const char* _pFilename, const char* _pFunctionName, char* _pError)
+		{
+			IDxcLibrary* pLibrary = nullptr;
+			VALIDATE_D3D(DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&pLibrary)));
 
-	IDxcCompiler* pCompiler = nullptr;
-	VALIDATE_D3D(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&pCompiler)));
+			size_t numRead = 0;
+			wchar_t* pFilenameWstr = new wchar_t[strlen(_pFilename)];
+			mbstowcs_s(&numRead, pFilenameWstr, strlen(_pFilename) + 1, _pFilename, strlen(_pFilename));
 
-	const wchar_t* targetProfile = GetTargetProfile(_pFunctionName);
+			wchar_t* pFunctionNameWstr = new wchar_t[strlen(_pFunctionName)];
+			mbstowcs_s(&numRead, pFunctionNameWstr, strlen(_pFunctionName) + 1, _pFunctionName, strlen(_pFunctionName));
 
-	LPCWSTR args[] = 
-	{
-		L"/Zi", 
-		L"/Od",
-	};
+			IDxcBlobEncoding* pBlob = nullptr;
+			VALIDATE_D3D(pLibrary->CreateBlobFromFile(pFilenameWstr, 0, &pBlob));
 
-	if (!pBlob)
-	{
-		LogError("%s failed to load", _pFilename);
-		return nullptr;
-	}
+			IDxcCompiler* pCompiler = nullptr;
+			VALIDATE_D3D(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&pCompiler)));
 
-	IDxcIncludeHandler* pIncludeHandler = nullptr;
-	pLibrary->CreateIncludeHandler(&pIncludeHandler);
+			const wchar_t* targetProfile = GetTargetProfile(_pFunctionName);
 
-	IDxcOperationResult* pOpsResult = nullptr;
-	VALIDATE_D3D(pCompiler->Compile(pBlob, pFilenameWstr, pFunctionNameWstr, targetProfile, args, _countof(args), nullptr, 0, pIncludeHandler, &pOpsResult));
+			LPCWSTR args[] =
+			{
+				L"/Zi",
+				L"/Od",
+			};
 
-	pIncludeHandler->Release();
+			if (!pBlob)
+			{
+				LogError("%s failed to load", _pFilename);
+				return nullptr;
+			}
 
-	if (!pOpsResult)
-	{
-		LogError("%s failed to compile", _pFilename);
-		return nullptr;
-	}
+			IDxcIncludeHandler* pIncludeHandler = nullptr;
+			pLibrary->CreateIncludeHandler(&pIncludeHandler);
 
-	HRESULT status = S_OK;
-	VALIDATE_D3D(pOpsResult->GetStatus(&status));
-	if (FAILED(status))
-	{
-		IDxcBlobEncoding* pError = nullptr;
-		pOpsResult->GetErrorBuffer(&pError);
+			IDxcOperationResult* pOpsResult = nullptr;
+			VALIDATE_D3D(pCompiler->Compile(pBlob, pFilenameWstr, pFunctionNameWstr, targetProfile, args, _countof(args), nullptr, 0, pIncludeHandler, &pOpsResult));
 
-		const char* pErrorString = (const char*)pError->GetBufferPointer();
-		LogError("Shader Compiler Error %s\n", pErrorString);
-		pError->Release();
-		return nullptr;
-	}
+			pIncludeHandler->Release();
 
-	IDxcBlob* pCompiledCode = nullptr;
-	VALIDATE_D3D(pOpsResult->GetResult(&pCompiledCode));
+			if (!pOpsResult)
+			{
+				LogError("%s failed to compile", _pFilename);
+				return nullptr;
+			}
 
-	if (!pCompiledCode)
-	{
-		return nullptr;
-	}
+			HRESULT status = S_OK;
+			VALIDATE_D3D(pOpsResult->GetStatus(&status));
+			if (FAILED(status))
+			{
+				IDxcBlobEncoding* pError = nullptr;
+				pOpsResult->GetErrorBuffer(&pError);
 
-	IShaderStage* pShader = new ShaderD3D12(pCompiledCode->GetBufferPointer(), pCompiledCode->GetBufferSize(),
-		targetProfile[0] == L'v' ? IShaderStage::ShaderType::VertexShader : IShaderStage::ShaderType::PixelShader
-	);
+				const char* pErrorString = (const char*)pError->GetBufferPointer();
+				LogError("Shader Compiler Error %s\n", pErrorString);
+				pError->Release();
+				return nullptr;
+			}
 
-	pCompiledCode->Release();
-	pOpsResult->Release();
-	pCompiler->Release();
-	pBlob->Release();
-	pLibrary->Release();
+			IDxcBlob* pCompiledCode = nullptr;
+			VALIDATE_D3D(pOpsResult->GetResult(&pCompiledCode));
 
-	return pShader;
-}
+			if (!pCompiledCode)
+			{
+				return nullptr;
+			}
 
-void ShaderCompilerDXC::Reflect(IShaderStage* _pShader)
-{
-	IDxcLibrary* pLibrary = nullptr;
-	VALIDATE_D3D(DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&pLibrary)));
+			IShaderStage* pShader = new ShaderD3D12(pCompiledCode->GetBufferPointer(), pCompiledCode->GetBufferSize(),
+				targetProfile[0] == L'v' ? IShaderStage::ShaderType::VertexShader : IShaderStage::ShaderType::PixelShader
+			);
 
-	IDxcBlobEncoding* pBlob = nullptr;
-	VALIDATE_D3D(pLibrary->CreateBlobWithEncodingOnHeapCopy(_pShader->GetBytecode(), (UINT32)_pShader->GetBytecodeSize(), CP_ACP, &pBlob));
-	
-	IDxcContainerReflection* pReflectionCntr = nullptr;
-	VALIDATE_D3D(DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(&pReflectionCntr)));
-	VALIDATE_D3D(pReflectionCntr->Load(pBlob));
+			pCompiledCode->Release();
+			pOpsResult->Release();
+			pCompiler->Release();
+			pBlob->Release();
+			pLibrary->Release();
+
+			return pShader;
+		}
+
+		void ShaderCompilerDXC::Reflect(IShaderStage* _pShader)
+		{
+			IDxcLibrary* pLibrary = nullptr;
+			VALIDATE_D3D(DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&pLibrary)));
+
+			IDxcBlobEncoding* pBlob = nullptr;
+			VALIDATE_D3D(pLibrary->CreateBlobWithEncodingOnHeapCopy(_pShader->GetBytecode(), (UINT32)_pShader->GetBytecodeSize(), CP_ACP, &pBlob));
+
+			IDxcContainerReflection* pReflectionCntr = nullptr;
+			VALIDATE_D3D(DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(&pReflectionCntr)));
+			VALIDATE_D3D(pReflectionCntr->Load(pBlob));
 
 #if defined(DUMP_BLOBS)
-	UINT32 parts = 0;
-	pReflectionCntr->GetPartCount(&parts);
-	for (unsigned int part = 0; part < parts; ++part)
-	{
-		UINT32 kind = 0;
-		VALIDATE_D3D(pReflectionCntr->GetPartKind(part, &kind));
+			UINT32 parts = 0;
+			pReflectionCntr->GetPartCount(&parts);
+			for (unsigned int part = 0; part < parts; ++part)
+			{
+				UINT32 kind = 0;
+				VALIDATE_D3D(pReflectionCntr->GetPartKind(part, &kind));
 
-		UINT32 shaderIdx;
-		VALIDATE_D3D(pReflectionCntr->FindFirstPartKind(kind, &shaderIdx));
+				UINT32 shaderIdx;
+				VALIDATE_D3D(pReflectionCntr->FindFirstPartKind(kind, &shaderIdx));
 
-		IDxcBlob* pContent;
-		VALIDATE_D3D(pReflectionCntr->GetPartContent(shaderIdx, &pContent));
+				IDxcBlob* pContent;
+				VALIDATE_D3D(pReflectionCntr->GetPartContent(shaderIdx, &pContent));
 
-		char CC4[5];
-		CC4[0] = (char)(kind >> 0);
-		CC4[1] = (char)(kind >> 8);
-		CC4[2] = (char)(kind >> 16);
-		CC4[3] = (char)(kind >> 24);
-		CC4[4] = '\0';
+				char CC4[5];
+				CC4[0] = (char)(kind >> 0);
+				CC4[1] = (char)(kind >> 8);
+				CC4[2] = (char)(kind >> 16);
+				CC4[3] = (char)(kind >> 24);
+				CC4[4] = '\0';
 
-		if (pContent)
-		{
-			LogInfo("%s: %u bytes", CC4, pContent->GetBufferSize());
-			pContent->Release();
+				if (pContent)
+				{
+					LogInfo("%s: %u bytes", CC4, pContent->GetBufferSize());
+					pContent->Release();
+				}
+			}
+#endif
+
+			UINT32 shaderIdx;
+			VALIDATE_D3D(pReflectionCntr->FindFirstPartKind(DFCC_DXIL, &shaderIdx));
+
+			ID3D12ShaderReflection* pReflection = nullptr;
+			VALIDATE_D3D(pReflectionCntr->GetPartReflection(shaderIdx, IID_PPV_ARGS(&pReflection)));
+
+			ReflectInternal(_pShader, pReflection);
 		}
 	}
-#endif
-	
-	UINT32 shaderIdx;
-	VALIDATE_D3D(pReflectionCntr->FindFirstPartKind(DFCC_DXIL, &shaderIdx));
-
-	ID3D12ShaderReflection* pReflection = nullptr;
-	VALIDATE_D3D(pReflectionCntr->GetPartReflection(shaderIdx, IID_PPV_ARGS(&pReflection)));
-
-	ReflectInternal(_pShader, pReflection);
 }

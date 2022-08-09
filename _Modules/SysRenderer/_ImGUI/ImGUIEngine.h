@@ -8,31 +8,40 @@
 PRAGMA_TODO("Remove Windows Platform From Here")
 #include <Windows.h>
 
-class CommandList;
-class DescriptorHeap;
-
-class ImGUIEngine
+namespace SysRenderer
 {
-public:
-	//
-	// Call from Device
-	//
-	static void Initialise(HWND _hWindow, DescriptorHeap* _pSRVHeap);
+	namespace D3D12
+	{
+		class CommandList;
+		class DescriptorHeap;
+	}
 
-	//
-	// Call from Renderer
-	static void Begin();
-	static void Update();
-	static void DrawSlider3f(const char* _pLabel, float* _pX, float* _pY, float* _pZ);
-	static void End();
+	namespace ImGUI
+	{
+		class ImGUIEngine
+		{
+		public:
+			//
+			// Call from Device
+			//
+			static void Initialise(HWND _hWindow, D3D12::DescriptorHeap* _pSRVHeap);
 
-	//
-	// Call from CommandList
-	//
-	static void Draw(CommandList* _pCommandList);
+			//
+			// Call from Renderer
+			static void Begin();
+			static void Update();
+			static void DrawSlider3f(const char* _pLabel, float* _pX, float* _pY, float* _pZ);
+			static void End();
 
-private:
-	static ImGuiIO* m_IO;
-};
+			//
+			// Call from CommandList
+			//
+			static void Draw(D3D12::CommandList* _pCommandList);
+
+		private:
+			static ImGuiIO* m_IO;
+		};
+	}
+}
 
 #endif __ImGUIEngine_h__

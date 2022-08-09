@@ -8,30 +8,37 @@
 
 #include "D3D12\d3dx12.h"
 
-class CommandList;
-class DescriptorHeap;
 
-class Texture2DResource : public IBufferResource, public IGpuBufferResource
+namespace SysRenderer
 {
-public:
-	Texture2DResource(
-		const wchar_t* _pWstrFilename, 
-		const bool _bIsDDS, 
-		DescriptorHeap* _pTargetSRVHeap, 
-		ID3D12Device* _pDevice, 
-		CommandList* _pCmdList,
-		const wchar_t* _pDebugName = nullptr
-	);
+	namespace D3D12
+	{
+		class CommandList;
+		class DescriptorHeap;
 
-	~Texture2DResource(void);
+		class Texture2DResource : public Interfaces::IBufferResource, public Interfaces::IGpuBufferResource
+		{
+		public:
+			Texture2DResource(
+				const wchar_t* _pWstrFilename,
+				const bool _bIsDDS,
+				DescriptorHeap* _pTargetSRVHeap,
+				ID3D12Device* _pDevice,
+				CommandList* _pCmdList,
+				const wchar_t* _pDebugName = nullptr
+			);
 
-	UINT32 GetHeapIndex(void) { return m_HeapIndex; }
+			~Texture2DResource(void);
 
-private:
-	UINT m_HeapIndex = 0;
+			UINT32 GetHeapIndex(void) { return m_HeapIndex; }
 
-	bool CreateFromDDS(const wchar_t* _pWstrFilename, ID3D12Device* _pDevice, CommandList* _pCmdList);
-	bool CreateFromWIC(const wchar_t* _pWstrFilename, ID3D12Device* _pDevice, CommandList* _pCmdList);
-};
+		private:
+			UINT m_HeapIndex = 0;
+
+			bool CreateFromDDS(const wchar_t* _pWstrFilename, ID3D12Device* _pDevice, CommandList* _pCmdList);
+			bool CreateFromWIC(const wchar_t* _pWstrFilename, ID3D12Device* _pDevice, CommandList* _pCmdList);
+		};
+	}
+}
 
 #endif __Texture2DResource_h__

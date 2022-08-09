@@ -6,12 +6,18 @@ namespace SysCore
 	class GameWindow;
 }
 
-class IRenderer
+namespace SysRenderer
 {
-public:
-	virtual bool Initialise(SysCore::GameWindow* _pWindow) = 0;
-	virtual void Update(double _deltaTime) = 0;
-	virtual bool Render() = 0;
-};
+	namespace Interfaces
+	{
+		class IRenderer
+		{
+		public:
+			virtual bool Initialise(SysCore::GameWindow* _pWindow) = 0;
+			virtual void Update(double _deltaTime) = 0;
+			virtual bool Render() = 0;
+		};
+	}
+}
 
 #endif // __Renderer_h__

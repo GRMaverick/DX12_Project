@@ -5,26 +5,33 @@
 
 #include "ConstantBufferParameters.h"
 
-class ConstantBufferResource;
-class DescriptorHeap;
-
-class ConstantTable
+namespace SysRenderer
 {
-public:
-	~ConstantTable(void);
+	namespace D3D12
+	{
+		class DescriptorHeap;
+		class ConstantBufferResource;
 
-	static ConstantTable* Instance(void);
+		class ConstantTable
+		{
+		public:
+			~ConstantTable(void);
 
-	ConstantBufferResource* CreateConstantBuffer(const char* _pBufferName);
-	bool CreateConstantBuffersEntries(const ConstantBufferParameters& _params);
+			static ConstantTable* Instance(void);
 
-	DescriptorHeap* GetDescriptorHeap(void) { return m_pDescHeapCBV; }
+			ConstantBufferResource* CreateConstantBuffer(const char* _pBufferName);
+			bool CreateConstantBuffersEntries(const ConstantBufferParameters& _params);
 
-private:
-	ConstantTable(void);
+			DescriptorHeap* GetDescriptorHeap(void) { return m_pDescHeapCBV; }
 
-	const unsigned int kMaxCBVs = 10;
-	DescriptorHeap* m_pDescHeapCBV = nullptr;
-	std::map<unsigned int, ConstantBufferParameters::ConstantBuffer> m_mapConstantBuffers;
-};
+		private:
+			ConstantTable(void);
+
+			const unsigned int kMaxCBVs = 10;
+			DescriptorHeap* m_pDescHeapCBV = nullptr;
+			std::map<unsigned int, ConstantBufferParameters::ConstantBuffer> m_mapConstantBuffers;
+		};
+	}
+}
+
 #endif // __ConstantTable_h__

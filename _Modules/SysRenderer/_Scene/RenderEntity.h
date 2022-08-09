@@ -3,49 +3,63 @@
 
 #include "CBStructures.h"
 
-struct RenderModel;
-class ConstantBufferResource;
 
-class RenderEntity
+namespace SysRenderer
 {
-public:
-	RenderEntity(void)	{}
-	~RenderEntity(void) {}
+	namespace D3D12
+	{
+		class ConstantBufferResource;
+	}
 
-	bool LoadModelFromFile(const char* _pFilename);
+	namespace Loading
+	{
+		struct RenderModel;
+	}
 
-	void Update(void);
+	namespace Scene
+	{
+		class RenderEntity
+		{
+		public:
+			RenderEntity(void) {}
+			~RenderEntity(void) {}
 
-	void SetPosition(float _x, float _y, float _z)	{ m_Position = DirectX::XMFLOAT3(_x, _y, _z); }
-	void SetRotation(float _x, float _y, float _z)	{ m_Rotation = DirectX::XMFLOAT3(_x, _y, _z); }
-	void SetScale(float _xyz)						{ m_Scale = _xyz; }
-	void SetMaterial(const char* _pMaterialName)	{ m_pMaterialName = _pMaterialName; }
-	void SetConstantBuffer(ConstantBufferResource* _pBuffer) { m_pConstantBuffer = _pBuffer; }
-	void SetMaterialData(const Material& _material) { m_Material = _material; }
+			bool LoadModelFromFile(const char* _pFilename);
 
-	RenderModel*			GetModel(void) const	{ return m_pModel; }
-	DirectX::XMFLOAT3		GetPosition(void) const { return m_Position; }
-	DirectX::XMFLOAT3		GetRotation(void) const { return m_Rotation; }
-	float					GetScale(void) const	{ return m_Scale; }
-	DirectX::XMMATRIX		GetWorld(void) const	{ return m_World; }
-	const char*				GetMaterialName(void) const { return m_pMaterialName; }
+			void Update(void);
 
-	Material				GetMaterialData(void) const { return m_Material; }
-	ConstantBufferResource* GetConstantBuffer(void) const { return m_pConstantBuffer; }
-private:
-	DirectX::XMFLOAT3		m_Position;
-	DirectX::XMFLOAT3		m_Rotation;
-	float					m_Scale;
+			void SetPosition(float _x, float _y, float _z) { m_Position = DirectX::XMFLOAT3(_x, _y, _z); }
+			void SetRotation(float _x, float _y, float _z) { m_Rotation = DirectX::XMFLOAT3(_x, _y, _z); }
+			void SetScale(float _xyz) { m_Scale = _xyz; }
+			void SetMaterial(const char* _pMaterialName) { m_pMaterialName = _pMaterialName; }
+			void SetConstantBuffer(D3D12::ConstantBufferResource* _pBuffer) { m_pConstantBuffer = _pBuffer; }
+			void SetMaterialData(const Material& _material) { m_Material = _material; }
 
-	PRAGMA_TODO("Remove rotation code from Render Entity")
-	float					m_RotationTheta; // Remove
+			Loading::RenderModel*	GetModel(void) const { return m_pModel; }
+			DirectX::XMFLOAT3		GetPosition(void) const { return m_Position; }
+			DirectX::XMFLOAT3		GetRotation(void) const { return m_Rotation; }
+			float					GetScale(void) const { return m_Scale; }
+			DirectX::XMMATRIX		GetWorld(void) const { return m_World; }
+			const char* GetMaterialName(void) const { return m_pMaterialName; }
 
-	Material				m_Material;
-	RenderModel*			m_pModel;
-	DirectX::XMMATRIX		m_World;
+			Material				GetMaterialData(void) const { return m_Material; }
+			D3D12::ConstantBufferResource* GetConstantBuffer(void) const { return m_pConstantBuffer; }
+		private:
+			DirectX::XMFLOAT3		m_Position;
+			DirectX::XMFLOAT3		m_Rotation;
+			float					m_Scale;
 
-	ConstantBufferResource* m_pConstantBuffer;
-	const char* m_pMaterialName = nullptr;
-};
+			PRAGMA_TODO("Remove rotation code from Render Entity")
+				float					m_RotationTheta; // Remove
+
+			Material				m_Material;
+			Loading::RenderModel*	m_pModel;
+			DirectX::XMMATRIX		m_World;
+
+			D3D12::ConstantBufferResource* m_pConstantBuffer;
+			const char* m_pMaterialName = nullptr;
+		};
+	}
+}
 
 #endif

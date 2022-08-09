@@ -3,19 +3,25 @@
 
 #include "ShaderCompilerDX.h"
 
-class ShaderCompilerFXC final : public ShaderCompilerDX
+namespace SysRenderer
 {
-public:
-	ShaderCompilerFXC(void);
-	~ShaderCompilerFXC(void);
+	namespace D3D12
+	{
+		class ShaderCompilerFXC final : public ShaderCompilerDX
+		{
+		public:
+			ShaderCompilerFXC(void);
+			~ShaderCompilerFXC(void);
 
-	virtual IShaderStage*	Compile(const char* _pFilename, const char* _pFunctionName, char* _pError) override final;
-	virtual void		Reflect(IShaderStage* _pShader) override final;
+			virtual Interfaces::IShaderStage* Compile(const char* _pFilename, const char* _pFunctionName, char* _pError) override final;
+			virtual void		Reflect(Interfaces::IShaderStage* _pShader) override final;
 
-protected:
-	virtual const wchar_t* GetTargetProfile(const char* _pFilename) override final;
+		protected:
+			virtual const wchar_t* GetTargetProfile(const char* _pFilename) override final;
 
-private:
-};
+		private:
+		};
+	}
+}
 
 #endif // __ShaderCompilerFXC_h__

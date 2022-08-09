@@ -10,30 +10,39 @@
 
 using namespace DirectX;
 
-bool RenderEntity::LoadModelFromFile(const char* _pFilename)
+namespace SysRenderer
 {
-	CommandList* pCmdListCpy = CommandList::Build(D3D12_COMMAND_LIST_TYPE_COPY, L"CopyContext");
-	pCmdListCpy->Reset();
+	using namespace D3D12;
+	using namespace Loading;
 
-	m_pModel = nullptr;
-	if (!AssimpLoader::LoadModel(DeviceD3D12::Instance(), pCmdListCpy, _pFilename, &m_pModel))
-		return false;
+	namespace Scene
+	{
+		bool RenderEntity::LoadModelFromFile(const char* _pFilename)
+		{
+			CommandList* pCmdListCpy = CommandList::Build(D3D12_COMMAND_LIST_TYPE_COPY, L"CopyContext");
+			pCmdListCpy->Reset();
 
-	CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY)->SubmitToQueue(pCmdListCpy);
-	return true;
-}
+			m_pModel = nullptr;
+			if (!AssimpLoader::LoadModel(DeviceD3D12::Instance(), pCmdListCpy, _pFilename, &m_pModel))
+				return false;
 
-void RenderEntity::Update()
-{
-	float sRotationSpeed = 10.0f * 0.016f;
-	//m_RotationTheta += sRotationSpeed;
+			CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_COPY)->SubmitToQueue(pCmdListCpy);
+			return true;
+		}
 
-	// Update the model matrix. 
-	float angle = 25.0f;
-	XMVECTOR rotation = XMVectorSet(1, 0, 0, 0);
-	
-	XMMATRIX S = XMMatrixScaling(m_Scale, m_Scale, m_Scale);
-	XMMATRIX R = XMMatrixRotationAxis(rotation, XMConvertToRadians(m_RotationTheta));
-	XMMATRIX T = XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
-	m_World = S * R * T;
+		void RenderEntity::Update()
+		{
+			float sRotationSpeed = 10.0f * 0.016f;
+			//m_RotationTheta += sRotationSpeed;
+
+			// Update the model matrix. 
+			float angle = 25.0f;
+			XMVECTOR rotation = XMVectorSet(1, 0, 0, 0);
+
+			XMMATRIX S = XMMatrixScaling(m_Scale, m_Scale, m_Scale);
+			XMMATRIX R = XMMatrixRotationAxis(rotation, XMConvertToRadians(m_RotationTheta));
+			XMMATRIX T = XMMatrixTranslation(m_Position.x, m_Position.y, m_Position.z);
+			m_World = S * R * T;
+		}
+	}
 }

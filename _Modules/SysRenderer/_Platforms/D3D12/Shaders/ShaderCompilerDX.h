@@ -5,12 +5,18 @@
 
 struct ID3D12ShaderReflection;
 
-class ShaderCompilerDX : public IShaderCompiler
+namespace SysRenderer
 {
-public:
-	virtual ~ShaderCompilerDX(void) { }
+	namespace D3D12
+	{
+		class ShaderCompilerDX : public Interfaces::IShaderCompiler
+		{
+		public:
+			virtual ~ShaderCompilerDX(void) { }
 
-protected:
-	void ReflectInternal(IShaderStage* _pShader, ID3D12ShaderReflection* _pReflection);
-};
+		protected:
+			void ReflectInternal(Interfaces::IShaderStage* _pShader, ID3D12ShaderReflection* _pReflection);
+		};
+	}
+}
 #endif // __ShaderCompilerDX_h__

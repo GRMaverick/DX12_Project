@@ -26,6 +26,7 @@ PRAGMA_TODO("\t - Submission / Execution needs proper synchronisation")
 
 using namespace SysCore;
 using namespace SysUtilities;
+using namespace SysRenderer::Interfaces;
 
 static GameWindow*	g_pWindow = nullptr;
 static IRenderer*	g_pRenderer = nullptr;
@@ -105,7 +106,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR pC
 	Logger::SetCategory(uiLogCategory);
 
 	g_pWindow = new GameWindow(hInstance, L"MainWindow", L"DX12 Project");
-	g_pRenderer = new Renderer();
+	g_pRenderer = new SysRenderer::Renderer();
 
 	if (!g_pRenderer->Initialise(g_pWindow))
 	{
