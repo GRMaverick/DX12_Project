@@ -22,7 +22,7 @@ public:
 	Renderer(void);
 	~Renderer(void);
 
-	virtual bool Initialise(GameWindow* _pWindow) override final;
+	virtual bool Initialise(SysCore::GameWindow* _pWindow) override final;
 	virtual void Update(double _deltaTime) override final;
 	virtual bool Render(void) override final;
 

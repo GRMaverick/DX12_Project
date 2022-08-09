@@ -14,6 +14,11 @@
 
 #include "_Interfaces\ISamplerState.h"
 
+namespace SysCore
+{
+	class GameWindow;
+}
+
 class IShaderStage;
 class IBufferResource;
 class IGpuBufferResource;
@@ -22,7 +27,6 @@ class DescriptorHeap;
 class CommandQueue;
 class CommandList;
 class SwapChain;
-class GameWindow;
 class GpuResourceTable;
 class Texture2DResource;
 class VertexBufferResource;
@@ -53,7 +57,7 @@ public:
 	bool CreateCommandQueue(D3D12_COMMAND_LIST_TYPE _type, CommandQueue** _ppCommandQueue, const wchar_t* _pDebugName = L"");
 	bool CreateCommandList(D3D12_COMMAND_LIST_TYPE _type, CommandList** _ppCommandList, const wchar_t* _pDebugName = L"");
 	bool CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE _type, DescriptorHeap** _ppDescriptorHeap, UINT _numBuffers = 1, D3D12_DESCRIPTOR_HEAP_FLAGS _flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, const wchar_t* _pDebugName = L"");
-	bool CreateSwapChain(SwapChain** _ppSwapChain, GameWindow* _pWindow, UINT _numBackBuffers, const wchar_t* _pDebugName = L"");
+	bool CreateSwapChain(SwapChain** _ppSwapChain, SysCore::GameWindow* _pWindow, UINT _numBackBuffers, const wchar_t* _pDebugName = L"");
 
 	ISamplerState* CreateSamplerState(SamplerStateFilter _eFilter, SamplerStateWrapMode _eWrap, SamplerStateComparisonFunction _eCompFunc);
 	IBufferResource* CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName = L"");

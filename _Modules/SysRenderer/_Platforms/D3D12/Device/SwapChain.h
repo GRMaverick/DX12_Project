@@ -8,7 +8,11 @@
 #include <dxgi1_6.h>
 #include <wrl.h>
 
-class GameWindow;
+namespace SysCore
+{
+	class GameWindow;
+}
+
 class CommandList;
 class CommandQueue;
 class DescriptorHeap;
@@ -25,7 +29,7 @@ public:
 		UINT _backBuffers,
 		DescriptorHeap* _pDescHeapRTV,
 		DescriptorHeap* _pDescHeapDSV,
-		GameWindow* _pWindow);
+		SysCore::GameWindow* _pWindow);
 
 	bool Present(void);
 	void Swap(void);

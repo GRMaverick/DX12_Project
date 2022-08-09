@@ -37,6 +37,7 @@
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
+using namespace SysCore;
 using namespace SysMemory;
 
 #if defined(_DEBUG)

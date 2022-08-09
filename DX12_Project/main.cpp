@@ -24,6 +24,8 @@ PRAGMA_TODO("\tResize Handling")
 PRAGMA_TODO("MT Command Buffers")
 PRAGMA_TODO("\t - Submission / Execution needs proper synchronisation")
 
+using namespace SysCore;
+
 static GameWindow*	g_pWindow = nullptr;
 static IRenderer*	g_pRenderer = nullptr;
 

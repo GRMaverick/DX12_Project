@@ -20,6 +20,8 @@
 #include "SysUtilities\_Profiling\PixScopedEvent.h"
 
 using namespace Microsoft::WRL;
+
+using namespace SysCore;
 using namespace SysMemory;
 
 SwapChain::SwapChain(void)

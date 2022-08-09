@@ -1,12 +1,15 @@
 #ifndef __Renderer_h__
 #define __Renderer_h__
 
-class GameWindow;
+namespace SysCore
+{
+	class GameWindow;
+}
 
 class IRenderer
 {
 public:
-	virtual bool Initialise(GameWindow* _pWindow) = 0;
+	virtual bool Initialise(SysCore::GameWindow* _pWindow) = 0;
 	virtual void Update(double _deltaTime) = 0;
 	virtual bool Render() = 0;
 };
