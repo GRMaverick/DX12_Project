@@ -19,45 +19,55 @@ struct VSOutput
 //
 // Constant Buffers / Resource Bindings
 //
-struct Pass
+cbuffer PassCB : register(b0)
 {
 	float4x4	ViewProjection;
 	float3		EyePosition;
 };
-ConstantBuffer<Pass> PassCB : register(b0);
 
-struct Object
+cbuffer ObjectCB : register(b1)
 {
 	float4x4 World;
-	float4	DiffuseColour;
-	float4	AmbientColour;
-	float4	SpecularColour;
+	float4	MaterialDiffuse;
+	float4	MaterialAmbient;
+	float4	MaterialSpecular;
 };
-ConstantBuffer<Object> ObjectCB : register(b1);
 
-struct Light
+cbuffer LightCB : register(b2)
 {
-	float4	DiffuseColour;
-	float4	AmbientColour;
-	float4	SpecularColour;
-	float3	Position;
-	float	SpecularPower;
+	float4	LightDiffuse;
+	float4	LightAmbient;
+	float4	LightSpecular;
+	float3	LightPosition;
+	float	LightSpecularPower;
 };
-ConstantBuffer<Light> LightCB : register(b2);
+
+cbuffer SpotlightCB : register(b3)
+{
+	float4	SpotlightDiffuse;
+	float4	SpotlightAmbient;
+	float4	SpotlightSpecular;
+	float3	SpotlightPosition;
+	float	SpotlightSpecularPower;
+
+	float	SpotlightTheta;
+	float	SpotlightPhi;
+	float	SpotlightFalloff;
+};
 
 //
 // Entry Point
 //
-VSOutput VertexShader(VSInput _input)
+VSOutput MainVS(VSInput _input)
 {
 	VSOutput output;
 
-	output.PosW = mul(ObjectCB.World, float4(_input.Position, 1.0f)).xyz;
-	output.PosH = mul(PassCB.ViewProjection, float4(output.PosW.xyz, 1.0f));
+	output.PosW = mul(World, float4(_input.Position, 1.0f)).xyz;
+	output.PosH = mul(ViewProjection, float4(output.PosW.xyz, 1.0f));
 
 	output.Texture = _input.Texture;
 
-	output.Normal = mul(ObjectCB.World, float4(_input.Normal, 1.0f)).xyz;
+	output.Normal = mul(World, float4(_input.Normal, 1.0f)).xyz;
 	output.Normal = normalize(output.Normal);
 	return output;
 }
@@ -71,29 +81,29 @@ SamplerState AlbedoSampler : register(s0);
 //
 // Entry Point
 //
-float4 PixelShader(VSOutput _input) : SV_TARGET
+float4 MainPS(VSOutput _input) : SV_TARGET
 {
 	float4 color = float4(0.5f, 0.0f, 0.0f, 0.0f);
 	float4 texColor = Albedo.Sample(AlbedoSampler, _input.Texture);
 
 	// Ambient Component
-	float4 ambient = LightCB.AmbientColour * ObjectCB.AmbientColour;
+	float4 ambient = LightAmbient * MaterialAmbient;
 
 	// Diffuse Component
-	float3 lightPos = LightCB.Position;
+	float3 lightPos = LightPosition;
 	float3 normal = normalize(_input.Normal);
 	float diffuseAmount = saturate(dot(lightPos, normal));
-	float4 diffuse = LightCB.DiffuseColour * ObjectCB.DiffuseColour;
+	float4 diffuse = LightDiffuse * MaterialDiffuse;
 
 	// Specular Component
-	float3 viewNormalized = normalize(PassCB.EyePosition - _input.PosW);
+	float3 viewNormalized = normalize(EyePosition - _input.PosW);
 	float reflection = normalize(2 * diffuseAmount * normal - normalize(lightPos));
-	float specularAmount = pow(saturate(dot(reflection, viewNormalized)), LightCB.SpecularPower);
+	float specularAmount = pow(saturate(dot(reflection, viewNormalized)), LightSpecularPower);
 
 	float4 specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
-	if (LightCB.SpecularPower > 0.0f)
+	if (LightSpecularPower > 0.0f)
 	{
-		specular.rgb = specularAmount * (ObjectCB.SpecularColour * LightCB.SpecularColour).rgb;
+		specular.rgb = specularAmount * (MaterialSpecular * LightSpecular).rgb;
 	}
 
 	return clamp(texColor * (specular + (diffuse * diffuseAmount) + ambient),0,1);

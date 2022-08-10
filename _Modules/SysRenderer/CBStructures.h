@@ -17,6 +17,15 @@ struct Light
 	float SpecularPower;
 };
 
+struct Spotlight
+{
+	Light LightData;
+	
+	float Theta;
+	float Phi;
+	float Falloff;
+};
+
 struct Material
 {
 	DirectX::XMFLOAT4 Diffuse = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);

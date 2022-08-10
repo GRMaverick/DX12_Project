@@ -17,30 +17,28 @@ struct VSOutput
 //
 // Constant Buffers / Resource Bindings
 //
-struct Pass
+cbuffer PassCB : register(b0)
 {
 	float4x4	ViewProjection;
 	float3		EyePosition;
 };
-ConstantBuffer<Pass> PassCB : register(b0);
 
-struct Object
+cbuffer ObjectCB : register(b1)
 {
 	float4x4 World;
 	float4	DiffuseColour;
 	float4	AmbientColour;
 	float4	SpecularColour;
 };
-ConstantBuffer<Object> ObjectCB : register(b1);
 
 //
 // Entry Point
 //
-VSOutput VertexShader(VSInput _input)
+VSOutput MainVS(VSInput _input)
 {
 	VSOutput output;
-	output.Position = mul(ObjectCB.World, float4(_input.Position, 1.0f));
-	output.Position = mul(PassCB.ViewProjection, float4(output.Position.xyz, 1.0f));
+	output.Position = mul(World, float4(_input.Position, 1.0f));
+	output.Position = mul(ViewProjection, float4(output.Position.xyz, 1.0f));
 	output.Texture = _input.Texture;
 	return output;
 }
@@ -54,7 +52,7 @@ SamplerState AlbedoSampler : register(s0);
 //
 // Entry Point
 //
-float4 PixelShader(VSOutput _input) : SV_TARGET
+float4 MainPS(VSOutput _input) : SV_TARGET
 {
 	return Albedo.Sample(AlbedoSampler, _input.Texture);
 }

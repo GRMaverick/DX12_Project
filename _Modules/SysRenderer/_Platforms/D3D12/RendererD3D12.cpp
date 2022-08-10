@@ -120,6 +120,7 @@ namespace SysRenderer
 
 		m_pMainPassCB = ConstantTable::Instance()->CreateConstantBuffer("PassCB");
 		m_pLightsCB = ConstantTable::Instance()->CreateConstantBuffer("LightCB");
+		m_pSpotlightCB = ConstantTable::Instance()->CreateConstantBuffer("SpotlightCB");
 
 		Material material;
 		material.Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -203,10 +204,13 @@ namespace SysRenderer
 		cbPass.ViewProjection = m_Camera->GetView() * m_Camera->GetProjection();
 
 		if (m_pMainPassCB)
-			m_pMainPassCB->UpdateValue("ViewProjection", &cbPass, sizeof(Pass));
+			m_pMainPassCB->UpdateValue(nullptr, &cbPass, sizeof(Pass));
 
 		if (m_pLightsCB)
-			m_pLightsCB->UpdateValue("ViewProjection", m_Light, sizeof(Light));
+			m_pLightsCB->UpdateValue(nullptr, m_Light, sizeof(Light));
+
+		if (m_pSpotlightCB)
+			m_pSpotlightCB->UpdateValue(nullptr, m_Spotlight, sizeof(Spotlight));
 	}
 
 	bool Renderer::Render(void)
@@ -405,6 +409,7 @@ namespace SysRenderer
 			pDevice->SetConstantBuffer("ObjectCB", pModelCB);
 			pDevice->SetConstantBuffer("PassCB", m_pMainPassCB);
 			pDevice->SetConstantBuffer("LightCB", m_pLightsCB);
+			pDevice->SetConstantBuffer("SpotlightCB", m_pSpotlightCB);
 
 			for (UINT i = 0; i < pModel->GetModel()->MeshCount; ++i)
 			{

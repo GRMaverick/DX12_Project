@@ -55,6 +55,7 @@ namespace SysRenderer
                 return DeviceD3D12::Instance()->CreateConstantBufferResource(m_mapConstantBuffers[ulHashName]);
             }
 
+            LogError("Constant Buffer: %s - Does not exist in Hash Map", _pBufferName);
             return nullptr;
         }
     }

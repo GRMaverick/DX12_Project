@@ -8,6 +8,7 @@
 #include "SysRenderer/_Interfaces/IRenderer.h"
 
 struct Light;
+struct Spotlight;
 
 namespace SysRenderer
 {
@@ -41,14 +42,18 @@ namespace SysRenderer
 
 		D3D12::SwapChain* m_pSwapChain;
 
-		Light* m_Light;
-		Scene::Camera* m_Camera;
+		Light*			m_Light;
+		Spotlight*		m_Spotlight;
+
+		Scene::Camera*	m_Camera;
 		Scene::RenderEntity** m_pRenderEntity;
 
 		D3D12::DescriptorHeap* m_pImGuiSRVHeap;
 
 		D3D12::ConstantBufferResource* m_pLightsCB;
 		D3D12::ConstantBufferResource* m_pMainPassCB;
+		D3D12::ConstantBufferResource* m_pSpotlightCB;
+
 		bool LoadContent();
 
 		void UpdatePassConstants();

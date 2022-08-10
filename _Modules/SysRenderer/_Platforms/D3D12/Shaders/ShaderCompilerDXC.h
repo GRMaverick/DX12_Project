@@ -16,9 +16,6 @@ namespace SysRenderer
 			virtual Interfaces::IShaderStage* Compile(const char* _pFilename, const char* _pFunctionName, char* _pError) override final;
 			virtual void		Reflect(Interfaces::IShaderStage* _pShader) override final;
 
-		protected:
-			virtual const wchar_t* GetTargetProfile(const char* _pFilename) override final;
-
 		private:
 		};
 	}

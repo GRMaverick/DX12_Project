@@ -45,23 +45,19 @@ namespace SysRenderer
 			return ext;
 		}
 
-		const wchar_t* ShaderCompilerFXC::GetTargetProfile(const char* _pFilename)
+		const char* GetTargetProfile(const char* _pFilename)
 		{
-			const char* pExtractedFileExtension = ExtractExtensionFXC(_pFilename);
-			if (strncmp(pExtractedFileExtension, "vs", strlen(pExtractedFileExtension)) == 0)
+			if (strstr(_pFilename, "MainVS"))
 			{
 				// Vertex Shader
-				delete pExtractedFileExtension;
-				return L"vs_5_1";
+				return "vs_5_1";
 			}
-			else if (strncmp(pExtractedFileExtension, "ps", strlen(pExtractedFileExtension)) == 0)
+			else if (strstr(_pFilename, "MainPS"))
 			{
 				// Pixel Shader
-				delete pExtractedFileExtension;
-				return L"ps_5_1";
+				return "ps_5_1";
 			}
-			delete pExtractedFileExtension;
-			return L"";
+			return "";
 		}
 
 		IShaderStage* ShaderCompilerFXC::Compile(const char* _pFilename, const char* _pFunctionName, char* _pError)
@@ -73,11 +69,7 @@ namespace SysRenderer
 			wchar_t* pFilenameWstr = new wchar_t[strlen(_pFilename)];
 			mbstowcs_s(&numRead, pFilenameWstr, strlen(_pFilename) + 1, _pFilename, strlen(_pFilename));
 
-			const wchar_t* pWstrTargetProfile = GetTargetProfile(_pFilename);
-
-			size_t converted = 0;
-			char pStrTargetProfile[10];
-			wcstombs_s(&converted, pStrTargetProfile, pWstrTargetProfile, ARRAYSIZE(pStrTargetProfile));
+			const char* pStrTargetProfile = GetTargetProfile(_pFunctionName);
 
 			UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 			VALIDATE_D3D(D3DCompileFromFile(pFilenameWstr, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, _pFunctionName,
@@ -88,6 +80,8 @@ namespace SysRenderer
 				_pError = new char[pError->GetBufferSize()];
 				strncpy_s(_pError, pError->GetBufferSize(), (const char*)pError->GetBufferPointer(), pError->GetBufferSize());
 				pError->Release();
+
+				LogError("\nD3DCompiler Error: %s", _pError);
 				return nullptr;
 			}
 

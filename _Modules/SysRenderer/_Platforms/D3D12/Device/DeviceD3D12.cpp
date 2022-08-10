@@ -383,6 +383,12 @@ namespace SysRenderer
 
 		bool DeviceD3D12::GetPipelineState(ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName)
 		{
+			if (!m_DeviceState.Resources)
+			{
+				LogError("No Valid Resource Table Flushed to Device State");
+				return false;
+			}
+
 			ID3D12RootSignature* pRootSignature = nullptr;
 			if (!GetRootSignature(m_DeviceState.Resources->GetVShader(), &pRootSignature))
 			{
@@ -592,14 +598,19 @@ namespace SysRenderer
 		bool DeviceD3D12::SetMaterial(const char* _pName)
 		{
 			unsigned long ulHash = Hashing::SimpleHash(_pName, strlen(_pName));
-			if (m_mapGpuResourceTables.find(ulHash) != m_mapGpuResourceTables.end()) {
+			if (m_mapGpuResourceTables.find(ulHash) != m_mapGpuResourceTables.end()) 
+			{
 				m_DeviceState.Resources = m_mapGpuResourceTables[ulHash];
 				return true;
 			}
 
 			Effect* set = ShaderCache::Instance()->GetEffect(_pName);
-			GpuResourceTable* pGpuResourceTable = new GpuResourceTable(set->GetVertexShader(), set->GetPixelShader());
+			if (!set)
+			{
+				return false;
+			}
 
+			GpuResourceTable* pGpuResourceTable = new GpuResourceTable(set->GetVertexShader(), set->GetPixelShader());
 			m_DeviceState.Resources = pGpuResourceTable;
 			m_mapGpuResourceTables[ulHash] = pGpuResourceTable;
 
@@ -618,16 +629,34 @@ namespace SysRenderer
 
 		bool DeviceD3D12::SetTexture(const char* _pName, IGpuBufferResource* _pTexture)
 		{
+			if (!m_DeviceState.Resources)
+			{
+				LogError("SetTexture - No Valid Resource Table Flushed to Device State");
+				return false;
+			}
+
 			return m_DeviceState.Resources->SetTexture(_pName, _pTexture);
 		}
 
 		bool DeviceD3D12::SetConstantBuffer(const char* _pName, IGpuBufferResource* _pCBuffer)
 		{
+			if (!m_DeviceState.Resources)
+			{
+				LogError("SetConstantBuffer - No Valid Resource Table Flushed to Device State");
+				return false;
+			}
+
 			return m_DeviceState.Resources->SetConstantBuffer(_pName, _pCBuffer);
 		}
 
 		bool DeviceD3D12::SetSamplerState(const char* _pName, ISamplerState* _pSamplerState)
 		{
+			if (!m_DeviceState.Resources)
+			{
+				LogError("SetSamplerState - No Valid Resource Table Flushed to Device State");
+				return false;
+			}
+
 			return m_DeviceState.Resources->SetSamplerState(_pName, _pSamplerState);
 		}
 	}

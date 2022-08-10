@@ -50,14 +50,14 @@ namespace SysRenderer
 			return ext;
 		}
 
-		const wchar_t* ShaderCompilerDXC::GetTargetProfile(const char* _pFilename)
+		const wchar_t* GetTargetProfile(const char* _pFilename)
 		{
-			if (strstr(_pFilename, "Vertex"))
+			if (strstr(_pFilename, "MainVS"))
 			{
 				// Vertex Shader
 				return L"vs_6_0";
 			}
-			else if (strstr(_pFilename, "Pixel"))
+			else if (strstr(_pFilename, "MainPS"))
 			{
 				// Pixel Shader
 				return L"ps_6_0";

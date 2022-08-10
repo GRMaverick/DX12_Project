@@ -90,8 +90,6 @@ namespace SysRenderer
 						strncmp(data.cFileName, "..", strlen(data.cFileName)) != 0 &&
 						(data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY)
 					{
-						LogInfo("\t- %s", data.cFileName);
-
 						char* pFullFilepath = new char[strlen(pDirectoryNoWildcard) + strlen(data.cFileName) + 1];
 						snprintf(
 							pFullFilepath,
@@ -101,13 +99,22 @@ namespace SysRenderer
 							data.cFileName
 						);
 
+						char pFullFullFileString[128];
+						GetFullPathNameA(pFullFilepath, ARRAYSIZE(pFullFullFileString), pFullFullFileString, nullptr);
+
+						LogInfo("\t- %s", pFullFullFileString);
+
 						size_t namelength = strlen(data.cFileName) - 2;
 						char* pFilename = new char[namelength];
 						snprintf(pFilename, namelength, "%s", data.cFileName);
 
 						char* aError = nullptr;
-						IShaderStage* pVertexShader = m_pShaderCompiler->Compile(pFullFilepath, "VertexShader", aError);
-						assert(pVertexShader && "Shader is invalid!");
+						IShaderStage* pVertexShader = m_pShaderCompiler->Compile(pFullFilepath, "MainVS", aError);
+						if (!pVertexShader)
+						{
+							LogError("\t- %s failed to compile [Vertex Shader]", pFullFullFileString);
+							continue;
+						}
 
 						char pVShaderName[32] = { 0 };
 						snprintf(pVShaderName, ARRAYSIZE(pVShaderName), "%s.vs", pFilename);
@@ -115,8 +122,12 @@ namespace SysRenderer
 						m_pShaderCompiler->Reflect(pVertexShader);
 						DumpShader(pVertexShader);
 
-						IShaderStage* pPixelShader = m_pShaderCompiler->Compile(pFullFilepath, "PixelShader", aError);
-						assert(pPixelShader && "Shader is invalid!");
+						IShaderStage* pPixelShader = m_pShaderCompiler->Compile(pFullFilepath, "MainPS", aError);
+						if (!pPixelShader)
+						{
+							LogError("\t- %s failed to compile [Pixel Shader]", pFullFullFileString);
+							continue;
+						}
 
 						char pPShaderName[32] = { 0 };
 						snprintf(pPShaderName, ARRAYSIZE(pPShaderName), "%s.ps", pFilename);
@@ -147,9 +158,9 @@ namespace SysRenderer
 		void ShaderCache::DumpShader(IShaderStage* _pShader)
 		{
 #if defined(_DEBUG) && defined(DUMP_SHADERS)
-			const ShaderIOParameters& parameters = _pShader->GetParameters();
+			const ShaderIOParameters& parameters = _pShader->GetShaderParameters();
 
-			LogInfo_Renderer("\t\tInputs: %u", parameters.NumberInputs);
+			LogInfo("\t\tInputs: %u", parameters.NumberInputs);
 			for (unsigned int parameter = 0; parameter < parameters.NumberInputs; ++parameter)
 			{
 				ShaderIOParameters::Parameter& p = parameters.Inputs[parameter];
@@ -160,7 +171,7 @@ namespace SysRenderer
 				LogInfo("\t\t\t\tSystemValueType: %u", p.SystemValueType);
 			}
 
-			LogInfo_Renderer("\t\tOutputs: %u", parameters.NumberOutputs);
+			LogInfo("\t\tOutputs: %u", parameters.NumberOutputs);
 			for (unsigned int parameter = 0; parameter < parameters.NumberOutputs; ++parameter)
 			{
 				ShaderIOParameters::Parameter& p = parameters.Outputs[parameter];

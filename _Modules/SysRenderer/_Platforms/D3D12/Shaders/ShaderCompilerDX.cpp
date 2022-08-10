@@ -6,6 +6,8 @@
 
 #include "D3D12\Resources\ConstantBufferParameters.h"
 
+#define DUMP_CONSTANTS
+
 using namespace SysUtilities;
 
 namespace SysRenderer
@@ -90,32 +92,21 @@ namespace SysRenderer
 									{
 										D3D12_SHADER_VARIABLE_DESC varDesc;
 										VALIDATE_D3D(pCBVariable->GetDesc(&varDesc));
-#if defined(DUMP_CONSTANTS)
-										LogInfo("\tVar Name: %s", varDesc.Name);
-										LogInfo("\t\tSize: %u", varDesc.Size);
-										LogInfo("\t\tOffset: %u", varDesc.StartOffset);
-#endif
-
-#if 0
+	
 										ID3D12ShaderReflectionType* pType = pCBVariable->GetType();
 										D3D12_SHADER_TYPE_DESC typeDesc;
 										VALIDATE_D3D(pType->GetDesc(&typeDesc));
-
-										unsigned int uiMembers = typeDesc.Members;
-										for (unsigned int member = 0; member < uiMembers; ++member)
-										{
-											ID3D12ShaderReflectionType* pMemberType = pType->GetMemberTypeByIndex(member);
-											D3D12_SHADER_TYPE_DESC memberTypeDesc;
-											VALIDATE_D3D(pMemberType->GetDesc(&memberTypeDesc));
-
-											ConstantBufferParameters::Variable& rVariable = rCBuffer.Variables[var];
-										}
-#endif
 
 										ConstantBufferParameters::Variable& rVariable = rCBuffer.Variables[var];
 										strncpy_s(rVariable.Name, varDesc.Name, ARRAYSIZE(rVariable.Name));
 										rVariable.Size = varDesc.Size;
 										rVariable.Offset = varDesc.StartOffset;
+
+#if defined(DUMP_CONSTANTS)
+										LogInfo("\tVar Name: %s", rVariable.Name);
+										LogInfo("\t\tSize: %u", rVariable.Size);
+										LogInfo("\t\tOffset: %u", rVariable.Offset);
+#endif
 									}
 								}
 							}
@@ -157,13 +148,6 @@ namespace SysRenderer
 							samplers.push_back(resource);
 							break;
 						}
-
-#if defined(DUMP_CONSTANTS)
-						LogInfo_Renderer("\tBR Name: %s", resource.Name);
-						LogInfo_Renderer("\t\tType: %u", resource.Type);
-						LogInfo_Renderer("\t\tBind Point: %u", resource.BindPoint);
-						LogInfo_Renderer("\t\tBind Count: %u", resource.BindCount);
-#endif
 					}
 
 					cbInfo.NumberTextures = (unsigned int)textures.size();
@@ -171,6 +155,13 @@ namespace SysRenderer
 					for (unsigned int cb = 0; cb < textures.size(); ++cb)
 					{
 						cbInfo.Textures[cb] = textures[cb];
+
+#if defined(DUMP_CONSTANTS)
+						LogInfo("\tTexture Name: %s", cbInfo.Textures[cb].Name);
+						LogInfo("\t\tType: %u", cbInfo.Textures[cb].Type);
+						LogInfo("\t\tBind Point: %u", cbInfo.Textures[cb].BindPoint);
+						LogInfo("\t\tBind Count: %u", cbInfo.Textures[cb].BindCount);
+#endif
 					}
 
 					cbInfo.NumberSamplers = (unsigned int)samplers.size();
@@ -178,6 +169,13 @@ namespace SysRenderer
 					for (unsigned int sam = 0; sam < samplers.size(); ++sam)
 					{
 						cbInfo.Samplers[sam] = samplers[sam];
+
+#if defined(DUMP_CONSTANTS)
+						LogInfo("\tSamplers Name: %s", cbInfo.Samplers[sam].Name);
+						LogInfo("\t\tType: %u", cbInfo.Samplers[sam].Type);
+						LogInfo("\t\tBind Point: %u", cbInfo.Samplers[sam].BindPoint);
+						LogInfo("\t\tBind Count: %u", cbInfo.Samplers[sam].BindCount);
+#endif
 					}
 				}
 
