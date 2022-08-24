@@ -1,4 +1,4 @@
-#include "MemoryGlobalTracking.h"
+#include "../include/MemoryGlobalTracking.h"
 
 #include <assert.h>
 #include <string.h>

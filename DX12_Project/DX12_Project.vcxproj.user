@@ -3,7 +3,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>/Width:2560 /Height:1440 /LogSev_Warn /LogSev_Err /LogCat_Renderer /dxc</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>/Width:2560 /Height:1440 /LogSev_Warn /LogSev_Err /LogCat_Renderer /dxc</RemoteDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>/Height:1080 /Width:1920</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>/Height:1080 /Width:1920</RemoteDebuggerCommandArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>/Height:1080 /Width:1920</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>/Height:1080 /Width:1920</RemoteDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

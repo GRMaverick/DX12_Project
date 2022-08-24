@@ -46,6 +46,12 @@
 *.rar
 
 #Visual Studio
+*.lib.recipe
+*.ixx.*
+*.ixx.*.*
+*.ixx.*.*.*
+*.ixx.ifc.dt.*
+*.vsidx
 
 #Output Paths
 x64/**

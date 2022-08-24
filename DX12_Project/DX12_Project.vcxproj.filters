@@ -27,6 +27,9 @@
     <ClCompile Include="_Core\InputManager.cpp">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
+    <ClCompile Include="main_modules.cpp">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_Core\Defines.h">

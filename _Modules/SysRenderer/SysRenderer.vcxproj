@@ -118,7 +118,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -189,6 +189,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)_Toolkits\DirectXTK12\Inc;$(SolutionDir)_Dependencies\include;$(ProjectDir);$(SolutionDir)_Modules;$(ProjectDir)_Interfaces;$(ProjectDir)_Platforms;$(ProjectDir)_ImGUI;$(ProjectDir)_Factories;$(ProjectDir)_Scene;$(ProjectDir)_Loading;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -207,6 +208,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)_Toolkits\DirectXTK12\Inc;$(SolutionDir)_Dependencies\include;$(ProjectDir);$(SolutionDir)_Modules;$(ProjectDir)_Interfaces;$(ProjectDir)_Platforms;$(ProjectDir)_ImGUI;$(ProjectDir)_Factories;$(ProjectDir)_Scene;$(ProjectDir)_Loading;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
