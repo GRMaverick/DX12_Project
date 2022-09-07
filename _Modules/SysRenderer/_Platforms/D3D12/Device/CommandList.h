@@ -69,14 +69,14 @@ namespace SysRenderer
 			void DrawImGUI();
 			void DrawIndexedInstanced(UINT _indicesPerInstance, UINT _instanceCount, UINT _startIndexLocation, UINT _baseVertexLocation, UINT _startInstanceLocation);
 
-			template<typename... Args>
-			void StartMarker(const char* _pFormatString, Args... _args)
+			//template<typename... Args>
+			void StartMarker(const char* _pFormatString/*, Args... _args*/)
 			{
 				// CPU
-				PIXBeginEvent(PIX_COLOR_DEFAULT, _pFormatString, _args...);
+				PIXBeginEvent(PIX_COLOR_DEFAULT, _pFormatString/*, _args...*/);
 
 				// GPU
-				PIXBeginEvent(m_pList.Get(), PIX_COLOR_INDEX(0), _pFormatString, _args...);
+				PIXBeginEvent(m_pList.Get(), PIX_COLOR_INDEX(0), _pFormatString/*, _args...*/);
 			}
 			void EndMarker(void)
 			{

@@ -52,6 +52,9 @@
 *.ixx.*.*.*
 *.ixx.ifc.dt.*
 *.vsidx
+*.ifc.*
+*.ifc.*.*
+*.ifc.*.*.*
 
 #Output Paths
 x64/**

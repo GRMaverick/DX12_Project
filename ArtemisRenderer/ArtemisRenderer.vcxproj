@@ -19,8 +19,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ArtemisMarkerCPU.h" />
-    <ClInclude Include="ArtemixMarkerGPU.h" />
+    <ClInclude Include="Device\CommandList.h" />
+    <ClInclude Include="Device\d3dx12.h" />
+    <ClInclude Include="Profiling\ArtemisMarkerCPU.h" />
+    <ClInclude Include="Profiling\ArtemisMarkerGPU.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Artemis.Renderer.ixx" />
+    <ClCompile Include="Device\Artemis.Renderer-Device-CommandList.cpp" />
+    <ClCompile Include="Device\Artemis.Renderer-Device.ixx" />
+    <ClCompile Include="Profiling\Artemis.Renderer-Profiling.cpp" />
+    <ClCompile Include="Profiling\Artemis.Renderer-Profiling.ixx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -114,8 +126,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <DisableSpecificWarnings>5244;4067;5105;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -133,6 +147,8 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <DisableSpecificWarnings>5244;4067;5105;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -144,5 +160,12 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\WinPixEventRuntime.1.0.220810001\build\WinPixEventRuntime.targets" Condition="Exists('..\packages\WinPixEventRuntime.1.0.220810001\build\WinPixEventRuntime.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\WinPixEventRuntime.1.0.220810001\build\WinPixEventRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\WinPixEventRuntime.1.0.220810001\build\WinPixEventRuntime.targets'))" />
+  </Target>
 </Project>

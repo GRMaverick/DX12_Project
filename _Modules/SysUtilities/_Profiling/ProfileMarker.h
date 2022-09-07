@@ -13,7 +13,7 @@ namespace SysUtilities
 		RenderMarker(SysRenderer::D3D12::CommandList* pCmdList, const char* _pFormatString, Args... _args)
 		{
 			m_pCmdList = pCmdList;
-			m_pCmdList->StartMarker(_pFormatString, _args...);
+			m_pCmdList->StartMarker(_pFormatString/*, _args...*/);
 		}
 
 		~RenderMarker()
