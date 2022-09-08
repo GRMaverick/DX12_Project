@@ -20,19 +20,30 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Device\CommandList.h" />
+    <ClInclude Include="Device\CommandQueue.h" />
     <ClInclude Include="Device\d3dx12.h" />
+    <ClInclude Include="Device\RenderDevice.h" />
+    <ClInclude Include="Device\SwapChain.h" />
     <ClInclude Include="Profiling\ArtemisMarkerCPU.h" />
     <ClInclude Include="Profiling\ArtemisMarkerGPU.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Artemis.Renderer.ixx" />
     <ClCompile Include="Device\Artemis.Renderer-Device-CommandList.cpp" />
+    <ClCompile Include="Device\Artemis.Renderer-Device-CommandQueue.cpp" />
+    <ClCompile Include="Device\Artemis.Renderer-Device-SwapChain.cpp" />
     <ClCompile Include="Device\Artemis.Renderer-Device.ixx" />
+    <ClCompile Include="Device\Artemis.Renderer-Device-RenderDevice.cpp" />
     <ClCompile Include="Profiling\Artemis.Renderer-Profiling.cpp" />
     <ClCompile Include="Profiling\Artemis.Renderer-Profiling.ixx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Artemis\Artemis.vcxproj">
+      <Project>{687aeb8d-e035-4653-8f54-0a7dcf3747fc}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

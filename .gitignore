@@ -55,6 +55,8 @@
 *.ifc.*
 *.ifc.*.*
 *.ifc.*.*.*
+*.ifc
+*.module.json
 
 #Output Paths
 x64/**

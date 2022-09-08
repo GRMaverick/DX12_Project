@@ -19,6 +19,9 @@
     <Filter Include="Module Headers\Profiling">
       <UniqueIdentifier>{59dfa21c-2526-48c0-95a8-09c418d1b949}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Module Implementations\Device">
+      <UniqueIdentifier>{cf9ce844-7126-4586-9d35-9bdbfed647ef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Device\CommandList.h">
@@ -33,6 +36,15 @@
     <ClInclude Include="Device\d3dx12.h">
       <Filter>Module Headers\Device</Filter>
     </ClInclude>
+    <ClInclude Include="Device\CommandQueue.h">
+      <Filter>Module Headers\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="Device\SwapChain.h">
+      <Filter>Module Headers\Device</Filter>
+    </ClInclude>
+    <ClInclude Include="Device\RenderDevice.h">
+      <Filter>Module Headers\Device</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Artemis.Renderer.ixx">
@@ -44,11 +56,20 @@
     <ClCompile Include="Device\Artemis.Renderer-Device.ixx">
       <Filter>Module Interfaces</Filter>
     </ClCompile>
-    <ClCompile Include="Device\Artemis.Renderer-Device-CommandList.cpp">
-      <Filter>Module Implementations</Filter>
-    </ClCompile>
     <ClCompile Include="Profiling\Artemis.Renderer-Profiling.cpp">
       <Filter>Module Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="Device\Artemis.Renderer-Device-CommandQueue.cpp">
+      <Filter>Module Implementations\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="Device\Artemis.Renderer-Device-CommandList.cpp">
+      <Filter>Module Implementations\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="Device\Artemis.Renderer-Device-SwapChain.cpp">
+      <Filter>Module Implementations\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="Device\Artemis.Renderer-Device-RenderDevice.cpp">
+      <Filter>Module Implementations\Device</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
