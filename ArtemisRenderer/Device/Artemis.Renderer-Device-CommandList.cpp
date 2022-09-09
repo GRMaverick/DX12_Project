@@ -1,12 +1,15 @@
 module;
 
-#include <cassert>
-#include "../Profiling/ArtemisMarkerGPU.h"
+#include "CommandList.h"
 
 #include <Windows.h>
 #include <pix3.h>
 
-#include "CommandList.h"
+#include "RenderDevice.h"
+
+#include "../Helpers/Defines.h"
+
+#include "../Profiling/ArtemisMarkerGPU.h"
 
 module Artemis.Renderer:Device;
 
@@ -28,13 +31,21 @@ namespace ArtemisRenderer::Device
 		m_pList = nullptr;
 		m_pAllocator = nullptr;
 	}
-//
-//	CommandList::~CommandList(void)
-//	{
-//		if (m_pList) m_pList->Release();
-//		if (m_pAllocator) m_pAllocator->Release();
-//	}
-//
+
+	CommandList::~CommandList(void)
+	{
+		if (m_pList) m_pList->Release();
+		if (m_pAllocator) m_pAllocator->Release();
+	}
+
+	CommandList* CommandList::Build(D3D12_COMMAND_LIST_TYPE _type, const wchar_t* _pDebugName)
+	{
+		CommandList* pCommandList = nullptr;
+		if (!DeviceD3D12::Instance()->CreateCommandList(_type, &pCommandList, _pDebugName))
+			return nullptr;
+		return pCommandList;
+	}
+
 	bool CommandList::Initialise(ID3D12Device* _pDevice, D3D12_COMMAND_LIST_TYPE _type, const wchar_t* _pDebugName)
 	{
 		HRESULT hr = S_OK;

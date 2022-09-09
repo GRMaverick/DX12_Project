@@ -2,7 +2,8 @@
 #define __BufferResource_h__
 
 #include <d3d12.h>
-#include "../Device/d3dx12.h"
+
+#include "../Helpers/d3dx12.h"
 
 namespace ArtemisRenderer::Device
 {

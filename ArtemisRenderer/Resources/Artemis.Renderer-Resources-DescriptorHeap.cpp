@@ -2,18 +2,9 @@ module;
 
 #include "DescriptorHeap.h"
 
-#include <assert.h>
+#include "../Helpers/Defines.h"
 
 module Artemis.Renderer:Resources;
-
-//LogError("[HRESULT Failure]: 0x%i", hr);
-#define VALIDATE_D3D(test) { \
-	HRESULT hr = test; \
-	if(FAILED(hr)) \
-	{ \
-		assert(false); \
-	} \
-} \
 
 namespace ArtemisRenderer::Resources
 {

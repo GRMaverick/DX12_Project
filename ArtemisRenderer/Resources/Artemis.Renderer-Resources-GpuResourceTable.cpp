@@ -2,13 +2,13 @@ module;
 
 #include "GpuResourceTable.h"
 
+#include <map>
+
 #include "../Shaders/IShader.h"
 
-#include "ConstantBufferParameters.h"
-#include "ConstantBufferResource.h"
+#include "ConstantBuffer.h"
 
-#include <map>
-#include <assert.h>
+#include "../Helpers/Defines.h"
 
 module Artemis.Renderer:Resources;
 

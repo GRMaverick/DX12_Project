@@ -2,7 +2,7 @@ module;
 
 #include "SamplerState.h"
 
-#include "../Device/d3dx12.h"
+#include "../Helpers/d3dx12.h"
 
 #include "../Resources/DescriptorHeap.h"
 

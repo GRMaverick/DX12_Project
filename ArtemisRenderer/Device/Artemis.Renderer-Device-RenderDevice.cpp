@@ -3,23 +3,24 @@ module;
 //#include "CoreWindow.h"
 
 #include "RenderDevice.h"
+
 #include "CommandList.h"
 #include "CommandQueue.h"
 #include "SwapChain.h"
 
+#include "../Helpers/Defines.h"
+
 #include "../Resources/DescriptorHeap.h"
-#include "../Resources/ConstantBufferResource.h"
-//#include "D3D12\Resources\Texture2DResource.h"
-//#include "D3D12\Resources\VertexBufferResource.h"
-//#include "D3D12\Resources\IndexBufferResource.h"
-//#include "D3D12\Resources\UploadBuffer.h"
+#include "../Resources/ConstantBuffer.h"
+#include "../Resources/Texture2D.h"
+#include "../Resources/VertexBuffer.h"
+#include "../Resources/IndexBuffer.h"
 #include "../Resources/GpuResourceTable.h"
 
 #include "../States/SamplerState.h"
 
 #include "../Shaders/ShaderCache.h"
 
-#include <assert.h>
 #include <DirectXMath.h>
 
 //#include <ImGUI\imgui_impl_win32.h>
@@ -34,21 +35,13 @@ module;
 
 module Artemis.Renderer:Device;
 
+using namespace DirectX;
+
 import Artemis.Core;
 
-using namespace DirectX;
 using namespace ArtemisRenderer::States;
 using namespace ArtemisRenderer::Shaders;
 using namespace ArtemisRenderer::Resources;
-
-//LogError("[HRESULT Failure]: 0x%i", hr);
-#define VALIDATE_D3D(test) { \
-	HRESULT hr = test; \
-	if(FAILED(hr)) \
-	{ \
-		assert(false); \
-	} \
-} \
 
 namespace ArtemisRenderer::Device
 {
@@ -56,7 +49,7 @@ namespace ArtemisRenderer::Device
 	{
 		if (_pShader->GetType() != IShaderStage::ShaderType::VertexShader)
 		{
-			//LogError("Shader generating Input Layout IS NOT a Vertex Shader");
+			LogError("Shader generating Input Layout IS NOT a Vertex Shader");
 			return;
 		}
 
@@ -317,31 +310,27 @@ namespace ArtemisRenderer::Device
 
 	Resources::IBufferResource* DeviceD3D12::CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName)
 	{
-		return nullptr;
-		//return new Texture2DResource(_pWstrFilename, true, m_DescHeapSrvCbv, m_pDevice, _pCommandList, _pDebugName);
+		return new Texture2D(_pWstrFilename, true, m_DescHeapSrvCbv, m_pDevice, _pCommandList, _pDebugName);
 	}
 
 	Resources::IBufferResource* DeviceD3D12::CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName)
 	{
-		return nullptr;
-		//return new Texture2DResource(_pWstrFilename, false, m_DescHeapSrvCbv, m_pDevice, _pCommandList, _pDebugName);
+		return new Texture2D(_pWstrFilename, false, m_DescHeapSrvCbv, m_pDevice, _pCommandList, _pDebugName);
 	}
 
 	Resources::IBufferResource* DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName)
 	{
-		return nullptr;
-		//return new VertexBufferResource(m_pDevice, _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, _pDebugName);
+		return new VertexBuffer(m_pDevice, _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, _pDebugName);
 	}
 
 	Resources::IBufferResource* DeviceD3D12::CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName)
 	{
-		return nullptr;
-		//return new IndexBufferResource(m_pDevice, _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, _pDebugName);
+		return new IndexBuffer(m_pDevice, _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, _pDebugName);
 	}
 
-	ConstantBufferResource* DeviceD3D12::CreateConstantBufferResource(const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName)
+	Resources::IBufferResource* DeviceD3D12::CreateConstantBufferResource(const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName)
 	{
-		return new ConstantBufferResource(m_pDevice, m_DescHeapSrvCbv, _params, _pDebugName);
+		return new ConstantBuffer(m_pDevice, m_DescHeapSrvCbv, _params, _pDebugName);
 	}
 
 	bool DeviceD3D12::GetRootSignature(Shaders::IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName)
@@ -398,7 +387,7 @@ namespace ArtemisRenderer::Device
 	{
 		if (!m_DeviceState.Resources)
 		{
-			//LogError("No Valid Resource Table Flushed to Device State");
+			LogError("No Valid Resource Table Flushed to Device State");
 			return false;
 		}
 
@@ -422,7 +411,7 @@ namespace ArtemisRenderer::Device
 			stateDesc.SampleMask = UINT_MAX;
 			stateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
-			//PRAGMA_TODO("Change Formats on Changed RTV/DSV");
+			PRAGMA_TODO("Change Formats on Changed RTV/DSV");
 			stateDesc.NumRenderTargets = 1;
 			stateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 			stateDesc.SampleDesc.Count = 1;
@@ -434,7 +423,7 @@ namespace ArtemisRenderer::Device
 		unsigned long long ulHash = 0;
 		// Parameterised
 		{
-			//LOW_LEVEL_PROFILE_MARKER(GetImmediateContext(), "GetPipelineState::Hash Ident");
+			LOW_LEVEL_PROFILE_MARKER(GetImmediateContext(), "GetPipelineState::Hash Ident");
 
 			stateDesc.InputLayout = { &inputLayout[0], (UINT)inputLayout.size() };
 			stateDesc.pRootSignature = pRootSignature;
@@ -453,7 +442,7 @@ namespace ArtemisRenderer::Device
 		}
 		else
 		{
-			//LOW_LEVEL_PROFILE_MARKER(GetImmediateContext(), "ID3D12Device::CreatePipelineState");
+			LOW_LEVEL_PROFILE_MARKER(GetImmediateContext(), "ID3D12Device::CreatePipelineState");
 
 			ID3D12PipelineState* pPSO = nullptr;
 			VALIDATE_D3D(m_pDevice->CreateGraphicsPipelineState(&stateDesc, IID_PPV_ARGS(&pPSO)));
@@ -499,7 +488,7 @@ namespace ArtemisRenderer::Device
 		CommandList* pGfxCmdList = GetImmediateContext();
 		GpuResourceTable& Resources = *m_DeviceState.Resources;
 
-		//LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "FlushState");
+		LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "FlushState");
 
 		ID3D12PipelineState* pPSO = nullptr;
 		if (!GetPipelineState(&pPSO))
@@ -523,7 +512,7 @@ namespace ArtemisRenderer::Device
 
 			if (!ppCBs[i])
 			{
-				//LogWarning("Null Constant Buffer");
+				LogWarning("Null Constant Buffer");
 				continue;
 			}
 
@@ -532,7 +521,7 @@ namespace ArtemisRenderer::Device
 			UINT size1 = 1;
 			UINT size2 = 1;
 
-			//LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "CBV Desc Copies");
+			LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "CBV Desc Copies");
 			m_pDevice->CopyDescriptors(
 				1, &hCpuNewResource, &size1,
 				1, &hCpuActual, &size2,
@@ -550,7 +539,7 @@ namespace ArtemisRenderer::Device
 
 			if (!ppTextures[i])
 			{
-				//LogWarning_Renderer("Invalid Texture");
+				LogWarning("Invalid Texture");
 
 				static D3D12_SHADER_RESOURCE_VIEW_DESC staticNullDesc;
 				staticNullDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -569,7 +558,7 @@ namespace ArtemisRenderer::Device
 			UINT size1 = 1;
 			UINT size2 = 1;
 
-			//LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "SRV Desc Copies");
+			LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "SRV Desc Copies");
 			m_pDevice->CopyDescriptors(
 				1, &hCpuNewResource, &size1,
 				1, &hCpuActual, &size2,
@@ -593,7 +582,7 @@ namespace ArtemisRenderer::Device
 			UINT size1 = 1;
 			UINT size2 = 1;
 
-			//LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "Sampler Desc Copies");
+			LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "Sampler Desc Copies");
 			m_pDevice->CopyDescriptors(
 				1, &tempHandleLoc, &size1,
 				1, &sampDescHandle, &size2,
@@ -644,7 +633,7 @@ namespace ArtemisRenderer::Device
 	{
 		if (!m_DeviceState.Resources)
 		{
-			//LogError("SetTexture - No Valid Resource Table Flushed to Device State");
+			LogError("SetTexture - No Valid Resource Table Flushed to Device State");
 			return false;
 		}
 
@@ -655,7 +644,7 @@ namespace ArtemisRenderer::Device
 	{
 		if (!m_DeviceState.Resources)
 		{
-			//LogError("SetConstantBuffer - No Valid Resource Table Flushed to Device State");
+			LogError("SetConstantBuffer - No Valid Resource Table Flushed to Device State");
 			return false;
 		}
 
@@ -666,7 +655,7 @@ namespace ArtemisRenderer::Device
 	{
 		if (!m_DeviceState.Resources)
 		{
-			//LogError("SetSamplerState - No Valid Resource Table Flushed to Device State");
+			LogError("SetSamplerState - No Valid Resource Table Flushed to Device State");
 			return false;
 		}
 

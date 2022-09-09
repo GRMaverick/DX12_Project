@@ -3,8 +3,6 @@ module;
 #include "ShaderCompilerDXC.h"
 #include "ShaderCompilerFXC.h"
 
-#include "Shader.h"
-
 #include <Windows.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -12,6 +10,9 @@ module;
 #include <d3dcompiler.h>
 #include <vector>
 
+#include "Shader.h"
+
+#include "../Helpers/Defines.h"
 
 #include "../Resources/ConstantBufferParameters.h"
 
@@ -22,38 +23,6 @@ module Artemis.Renderer:Shaders;
 
 //#define DUMP_CONSTANTS
 //#define DUMP_BLOBS
-
-//LogError("[HRESULT Failure]: 0x%i", hr);
-#define VALIDATE_D3D(test) { \
-	HRESULT hr = test; \
-	if(FAILED(hr)) \
-	{ \
-		assert(false); \
-	} \
-} \
-
-#define DXIL_FOURCC(ch0, ch1, ch2, ch3) (                            \
-  (unsigned int)(char)(ch0)        | (unsigned int)(char)(ch1) << 8  | \
-  (unsigned int)(char)(ch2) << 16  | (unsigned int)(char)(ch3) << 24   \
-  )
-
-enum DxilFourCC {
-	DFCC_Container = DXIL_FOURCC('D', 'X', 'B', 'C'), // for back-compat with tools that look for DXBC containers
-	DFCC_ResourceDef = DXIL_FOURCC('R', 'D', 'E', 'F'),
-	DFCC_InputSignature = DXIL_FOURCC('I', 'S', 'G', '1'),
-	DFCC_OutputSignature = DXIL_FOURCC('O', 'S', 'G', '1'),
-	DFCC_PatchConstantSignature = DXIL_FOURCC('P', 'S', 'G', '1'),
-	DFCC_ShaderStatistics = DXIL_FOURCC('S', 'T', 'A', 'T'),
-	DFCC_ShaderDebugInfoDXIL = DXIL_FOURCC('I', 'L', 'D', 'B'),
-	DFCC_ShaderDebugName = DXIL_FOURCC('I', 'L', 'D', 'N'),
-	DFCC_FeatureInfo = DXIL_FOURCC('S', 'F', 'I', '0'),
-	DFCC_PrivateData = DXIL_FOURCC('P', 'R', 'I', 'V'),
-	DFCC_RootSignature = DXIL_FOURCC('R', 'T', 'S', '0'),
-	DFCC_DXIL = DXIL_FOURCC('D', 'X', 'I', 'L'),
-	DFCC_PipelineStateValidation = DXIL_FOURCC('P', 'S', 'V', '0'),
-	DFCC_RuntimeData = DXIL_FOURCC('R', 'D', 'A', 'T'),
-	DFCC_ShaderHash = DXIL_FOURCC('H', 'A', 'S', 'H'),
-};
 
 namespace ArtemisRenderer::Shaders
 {
@@ -68,25 +37,6 @@ namespace ArtemisRenderer::Shaders
 	{
 
 	}
-
-	//const char* ExtractExtension(const char* _pFilename)
-	//{
-	//	size_t extensionStart = 0;
-	//	size_t size = strlen(_pFilename);
-	//	for (size_t i = size - 1; i >= 0; --i)
-	//	{
-	//		if (_pFilename[i] == '.')
-	//		{
-	//			extensionStart = i + 1;
-	//			break;
-	//		}
-	//	}
-
-	//	char* ext = new char[5]; 
-	//	strncpy_s(ext, 5, &_pFilename[extensionStart], 5);
-
-	//	return ext;
-	//}
 
 	const char* GetTargetProfileA(const char* _pFilename)
 	{
@@ -146,7 +96,7 @@ namespace ArtemisRenderer::Shaders
 
 		if (!pBlob)
 		{
-			//LogError("%s failed to load", _pFilename);
+			LogError("%s failed to load", _pFilename);
 			return nullptr;
 		}
 
@@ -160,7 +110,7 @@ namespace ArtemisRenderer::Shaders
 
 		if (!pOpsResult)
 		{
-			//LogError("%s failed to compile", _pFilename);
+			LogError("%s failed to compile", _pFilename);
 			return nullptr;
 		}
 
@@ -172,7 +122,7 @@ namespace ArtemisRenderer::Shaders
 			pOpsResult->GetErrorBuffer(&pError);
 
 			const char* pErrorString = (const char*)pError->GetBufferPointer();
-			//LogError("Shader Compiler Error %s\n", pErrorString);
+			LogError("Shader Compiler Error %s\n", pErrorString);
 			pError->Release();
 			return nullptr;
 		}
@@ -218,7 +168,7 @@ namespace ArtemisRenderer::Shaders
 			strncpy_s(_pError, pError->GetBufferSize(), (const char*)pError->GetBufferPointer(), pError->GetBufferSize());
 			pError->Release();
 
-			//LogError("\nD3DCompiler Error: %s", _pError);
+			LogError("\nD3DCompiler Error: %s", _pError);
 			return nullptr;
 		}
 

@@ -7,7 +7,7 @@
 
 #include <map>
 
-#include "d3dx12.h"
+#include "../Helpers/d3dx12.h"
 
 #include "../States/SamplerState.h"
 #include "../Resources/ConstantBufferParameters.h"
@@ -20,10 +20,6 @@ namespace SysCore
 namespace ArtemisRenderer::Resources
 {
 	class DescriptorHeap;
-	//class Texture2DResource;
-	//class VertexBufferResource;
-	//class IndexBufferResource;
-	class ConstantBufferResource;
 
 	class IBufferResource;
 	class IGpuBufferResource;
@@ -72,7 +68,7 @@ namespace ArtemisRenderer::Device
 		Resources::IBufferResource* CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName = L"");
 		Resources::IBufferResource* CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName = L"");
 		Resources::IBufferResource* CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName = L"");
-		Resources::ConstantBufferResource* CreateConstantBufferResource(const Resources::ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"");
+		Resources::IBufferResource* CreateConstantBufferResource(const Resources::ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"");
 
 		bool GetRootSignature(Shaders::IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName = L"");
 		bool GetPipelineState(ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName = L"");

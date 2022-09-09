@@ -40,6 +40,9 @@
     <Filter Include="Module Implementations\Shaders">
       <UniqueIdentifier>{efbc6e36-d1cb-4eae-9a8a-bd27e1ef74e8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Module Headers\Helpers">
+      <UniqueIdentifier>{4e8fed06-f69d-45fb-a976-aa4a4c868a94}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Device\CommandList.h">
@@ -50,9 +53,6 @@
     </ClInclude>
     <ClInclude Include="Profiling\ArtemisMarkerGPU.h">
       <Filter>Module Headers\Profiling</Filter>
-    </ClInclude>
-    <ClInclude Include="Device\d3dx12.h">
-      <Filter>Module Headers\Device</Filter>
     </ClInclude>
     <ClInclude Include="Device\CommandQueue.h">
       <Filter>Module Headers\Device</Filter>
@@ -69,7 +69,7 @@
     <ClInclude Include="Resources\ConstantBufferParameters.h">
       <Filter>Module Headers\Resources</Filter>
     </ClInclude>
-    <ClInclude Include="Resources\ConstantBufferResource.h">
+    <ClInclude Include="Resources\ConstantBuffer.h">
       <Filter>Module Headers\Resources</Filter>
     </ClInclude>
     <ClInclude Include="Resources\IBufferResource.h">
@@ -98,6 +98,24 @@
     </ClInclude>
     <ClInclude Include="Shaders\Shader.h">
       <Filter>Module Headers\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\IndexBuffer.h">
+      <Filter>Module Headers\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\Texture2D.h">
+      <Filter>Module Headers\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\UploadBuffer.h">
+      <Filter>Module Headers\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\VertexBuffer.h">
+      <Filter>Module Headers\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Helpers\Defines.h">
+      <Filter>Module Headers\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="Helpers\d3dx12.h">
+      <Filter>Module Headers\Helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -143,7 +161,7 @@
     <ClCompile Include="Resources\Artemis.Renderer-Resources-IBufferResources.cpp">
       <Filter>Module Implementations\Resources</Filter>
     </ClCompile>
-    <ClCompile Include="Resources\Artemis.Renderer-Resources-ConstantBufferResource.cpp">
+    <ClCompile Include="Resources\Artemis.Renderer-Resources-ConstantBuffer.cpp">
       <Filter>Module Implementations\Resources</Filter>
     </ClCompile>
     <ClCompile Include="Shaders\Artemis.Renderer-Shaders.ixx">
@@ -156,6 +174,15 @@
       <Filter>Module Implementations\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="Resources\Artemis.Renderer-Resources-GpuResourceTable.cpp">
+      <Filter>Module Implementations\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\Artemis.Renderer-Resources-IndexBuffer.cpp">
+      <Filter>Module Implementations\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\Artemis.Renderer-Resources-Texture2D.cpp">
+      <Filter>Module Implementations\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\Artemis.Renderer-Resources-VertexBuffer.cpp">
       <Filter>Module Implementations\Resources</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,7 +1,7 @@
 #ifndef __CommandList_h__
 #define __CommandList_h__
 
-#include "d3dx12.h"
+#include "../Helpers/d3dx12.h"
 
 namespace ArtemisRenderer::Device
 {
@@ -14,13 +14,7 @@ namespace ArtemisRenderer::Device
 		CommandList(void);
 		~CommandList(void);
 
-		static CommandList* Build(D3D12_COMMAND_LIST_TYPE _type, const wchar_t* _pDebugName = L"")
-		{
-			CommandList* pCommandList = nullptr;
-			//if (!DeviceD3D12::Instance()->CreateCommandList(_type, &pCommandList, _pDebugName))
-			//	return nullptr;
-			return pCommandList;
-		}
+		static CommandList* Build(D3D12_COMMAND_LIST_TYPE _type, const wchar_t* _pDebugName = L"");
 
 		bool Initialise(ID3D12Device* _pDevice, D3D12_COMMAND_LIST_TYPE _type, const wchar_t* _pDebugName = L"");
 

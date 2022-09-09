@@ -1,17 +1,16 @@
 module;
 
-#include "../Device/d3dx12.h"
-
+#include "ConstantBuffer.h"
 #include "DescriptorHeap.h"
-#include "ConstantBufferResource.h"
+
+#include "../Helpers/d3dx12.h"
+#include "../Helpers/Defines.h"
 
 module Artemis.Renderer:Resources;
 
-#define CONSTANT_BUFFER_SIZE(byteSize) (byteSize + 255) & ~255;
-
 namespace ArtemisRenderer::Resources
 {
-    ConstantBufferResource::ConstantBufferResource(ID3D12Device* _pDevice, DescriptorHeap* _pDescHeapCBV, const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pName)
+    ConstantBuffer::ConstantBuffer(ID3D12Device* _pDevice, DescriptorHeap* _pDescHeapCBV, const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pName)
     {
         // Constant buffer elements need to be multiples of 256 bytes.
         // This is because the hardware can only view constant data 
@@ -52,7 +51,7 @@ namespace ArtemisRenderer::Resources
         // the resource while it is in use by the GPU (so we must use synchronization techniques).
     }
 
-    ConstantBufferResource::~ConstantBufferResource(void)
+    ConstantBuffer::~ConstantBuffer(void)
     {
         if (m_GPUBuffer != nullptr)
             m_GPUBuffer->Unmap(0, nullptr);
@@ -60,7 +59,7 @@ namespace ArtemisRenderer::Resources
         m_pCPUMapped = nullptr;
     }
 
-    bool ConstantBufferResource::UpdateValue(const char* _pValueName, void* _pValue, unsigned int _szValue)
+    bool ConstantBuffer::UpdateValue(const char* _pValueName, void* _pValue, unsigned int _szValue)
     {
         if (m_ConstantParameters.Size == _szValue)
         {

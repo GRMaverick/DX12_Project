@@ -1,12 +1,12 @@
 module;
 
-#include <assert.h>
-
-#include "d3dx12.h"
-
 #include "SwapChain.h"
+
 #include "CommandList.h"
 #include "CommandQueue.h"
+
+#include "../Helpers/d3dx12.h"
+#include "../Helpers/Defines.h"
 
 #include "../Resources/DescriptorHeap.h"
 

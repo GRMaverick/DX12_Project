@@ -57,6 +57,7 @@
 *.ifc.*.*.*
 *.ifc
 *.module.json
+_IsIncrementalBuild
 
 #Output Paths
 x64/**

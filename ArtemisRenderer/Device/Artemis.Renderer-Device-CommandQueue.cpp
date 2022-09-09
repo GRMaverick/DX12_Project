@@ -1,9 +1,11 @@
 module;
 
 #include "CommandQueue.h"
+
+#include "RenderDevice.h"
 #include "CommandList.h"
 
-#include <assert.h>
+#include "../Helpers/Defines.h"
 
 //#include "SysUtilities\_Profiling\PixScopedEvent.h"
 
@@ -39,8 +41,8 @@ namespace ArtemisRenderer::Device
 
 			pGfx = new CommandQueue();
 
-			//if (!DeviceD3D12::Instance()->CreateCommandQueue(_type, &pGfx, L"GFX"))
-			//	return nullptr;
+			if (!DeviceD3D12::Instance()->CreateCommandQueue(_type, &pGfx, L"GFX"))
+				return nullptr;
 			return pGfx;
 		}
 		case D3D12_COMMAND_LIST_TYPE_COPY:
@@ -51,8 +53,8 @@ namespace ArtemisRenderer::Device
 
 			pCopy = new CommandQueue();
 
-			//if (!DeviceD3D12::Instance()->CreateCommandQueue(_type, &pCopy, L"CPY"))
-			//	return nullptr;
+			if (!DeviceD3D12::Instance()->CreateCommandQueue(_type, &pCopy, L"CPY"))
+				return nullptr;
 			return pCopy;
 		}
 		case D3D12_COMMAND_LIST_TYPE_COMPUTE:
@@ -63,8 +65,8 @@ namespace ArtemisRenderer::Device
 
 			pCompute = new CommandQueue();
 
-			//if (!DeviceD3D12::Instance()->CreateCommandQueue(_type, &pCompute, L"Compute"))
-			//	return nullptr;
+			if (!DeviceD3D12::Instance()->CreateCommandQueue(_type, &pCompute, L"Compute"))
+				return nullptr;
 			return pCompute;
 		}
 		default:
@@ -146,7 +148,7 @@ namespace ArtemisRenderer::Device
 
 		if (!vpLists.size())
 		{
-			//LogWarning("Execute requested on empty queue");
+			LogWarning("Execute requested on empty queue");
 			return;
 		}
 
@@ -156,7 +158,7 @@ namespace ArtemisRenderer::Device
 
 		if (!m_pAwaitingExecution.size())
 		{
-			//LogWarning("Execute requested on empty queue");
+			LogWarning("Execute requested on empty queue");
 			return;
 		}
 

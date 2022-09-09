@@ -1,20 +1,21 @@
 module;
 
 #include "ShaderCache.h"
-#include "ShaderCompilerDXC.h"
-#include "ShaderCompilerFXC.h"
 
 #include <Windows.h>
 #include <stdlib.h>
 #include <assert.h>
+
+#include "ShaderCompilerDXC.h"
+#include "ShaderCompilerFXC.h"
+
+#include "../Helpers/Defines.h"
 
 //#include "SysUtilities/_Loaders/CLParser.h"
 
 module Artemis.Renderer:Shaders;
 
 //#define DUMP_SHADERS
-
-//using namespace SysUtilities;
 
 namespace ArtemisRenderer::Shaders
 {
@@ -24,7 +25,7 @@ namespace ArtemisRenderer::Shaders
 
 	ShaderCache::ShaderCache(const char* _pShaderPaths)
 	{
-		//LogInfo("Loading ShaderCache:");
+		LogInfo("Loading ShaderCache:");
 
 		InitCompiler();
 
@@ -47,7 +48,7 @@ namespace ArtemisRenderer::Shaders
 
 		//if (CLParser::Instance()->HasArgument("dxc"))
 		{
-			//LogInfo("Compiling using: DXCompiler");
+			LogInfo("Compiling using: DXCompiler");
 			m_pShaderCompiler = new ShaderCompilerDXC();
 		}
 		//elses
@@ -64,7 +65,7 @@ namespace ArtemisRenderer::Shaders
 			InitCompiler();
 			if (!m_pShaderCompiler)
 			{
-				//LogError("\tInvalid Shader Compiler");
+				LogError("\tInvalid Shader Compiler");
 				return false;
 			}
 		}
@@ -101,7 +102,7 @@ namespace ArtemisRenderer::Shaders
 					char pFullFullFileString[128];
 					GetFullPathNameA(pFullFilepath, ARRAYSIZE(pFullFullFileString), pFullFullFileString, nullptr);
 
-					//LogInfo("\t- %s", pFullFullFileString);
+					LogInfo("\t- %s", pFullFullFileString);
 
 					size_t namelength = strlen(data.cFileName) - 2;
 					char* pFilename = new char[namelength];
@@ -111,7 +112,7 @@ namespace ArtemisRenderer::Shaders
 					IShaderStage* pVertexShader = m_pShaderCompiler->Compile(pFullFilepath, "MainVS", aError);
 					if (!pVertexShader)
 					{
-						//LogError("\t- %s failed to compile [Vertex Shader]", pFullFullFileString);
+						LogError("\t- %s failed to compile [Vertex Shader]", pFullFullFileString);
 						continue;
 					}
 
@@ -124,7 +125,7 @@ namespace ArtemisRenderer::Shaders
 					IShaderStage* pPixelShader = m_pShaderCompiler->Compile(pFullFilepath, "MainPS", aError);
 					if (!pPixelShader)
 					{
-						//LogError("\t- %s failed to compile [Pixel Shader]", pFullFullFileString);
+						LogError("\t- %s failed to compile [Pixel Shader]", pFullFullFileString);
 						continue;
 					}
 

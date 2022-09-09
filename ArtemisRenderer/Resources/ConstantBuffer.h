@@ -9,11 +9,11 @@ namespace ArtemisRenderer::Resources
 {
 	class DescriptorHeap;
 
-	class ConstantBufferResource : public IBufferResource, public IGpuBufferResource
+	class ConstantBuffer : public IBufferResource, public IGpuBufferResource
 	{
 	public:
-		ConstantBufferResource(ID3D12Device* _pDevice, DescriptorHeap* _pDescHeapCBV, const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pName);
-		~ConstantBufferResource(void);
+		ConstantBuffer(ID3D12Device* _pDevice, DescriptorHeap* _pDescHeapCBV, const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pName);
+		~ConstantBuffer(void);
 
 		bool UpdateValue(const char* _pValueName, void* _pValue, unsigned int _szValue);
 
