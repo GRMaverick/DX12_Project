@@ -1,5 +1,4 @@
 module;
-//#include "Defines.h"
 
 //#include "CoreWindow.h"
 
@@ -8,17 +7,17 @@ module;
 #include "CommandQueue.h"
 #include "SwapChain.h"
 
-//#include "D3D12\Resources\DescriptorHeap.h"
+#include "../Resources/DescriptorHeap.h"
+#include "../Resources/ConstantBufferResource.h"
 //#include "D3D12\Resources\Texture2DResource.h"
 //#include "D3D12\Resources\VertexBufferResource.h"
 //#include "D3D12\Resources\IndexBufferResource.h"
-//#include "D3D12\Resources\ConstantBufferResource.h"
 //#include "D3D12\Resources\UploadBuffer.h"
-//#include "D3D12\Resources\GpuResourceTable.h"
+#include "../Resources/GpuResourceTable.h"
 
-//#include "D3D12\States\SamplerStateD3D12.h"
+#include "../States/SamplerState.h"
 
-//#include "D3D12\Shaders\ShaderCache.h"
+#include "../Shaders/ShaderCache.h"
 
 #include <assert.h>
 #include <DirectXMath.h>
@@ -29,21 +28,18 @@ module;
 //#include "TextureLoader.h"
 //#include <WICTextureLoader.h>
 //
-//#include "SysUtilities\Hashing.h"
 //#include "SysUtilities\_Profiling\ProfileMarker.h"
 //
 //#include "SysMemory/include/ScopedMemoryRecord.h"
 
-import Artemis.Core;
-
 module Artemis.Renderer:Device;
 
-using namespace DirectX;
-//using namespace Microsoft::WRL;
+import Artemis.Core;
 
-//using namespace SysCore;
-//using namespace SysMemory;
-//using namespace SysUtilities;
+using namespace DirectX;
+using namespace ArtemisRenderer::States;
+using namespace ArtemisRenderer::Shaders;
+using namespace ArtemisRenderer::Resources;
 
 //LogError("[HRESULT Failure]: 0x%i", hr);
 #define VALIDATE_D3D(test) { \
@@ -58,66 +54,66 @@ namespace ArtemisRenderer::Device
 {
 	void GenerateInputLayout(IShaderStage* _pShader, std::vector<D3D12_INPUT_ELEMENT_DESC>* _pLayout)
 	{
-		//if (_pShader->GetType() != IShaderStage::ShaderType::VertexShader)
-		//{
-		//	LogError("Shader generating Input Layout IS NOT a Vertex Shader");
-		//	return;
-		//}
+		if (_pShader->GetType() != IShaderStage::ShaderType::VertexShader)
+		{
+			//LogError("Shader generating Input Layout IS NOT a Vertex Shader");
+			return;
+		}
 
-		//ShaderIOParameters parameters = _pShader->GetShaderParameters();
+		ShaderIOParameters parameters = _pShader->GetShaderParameters();
 
-		//_pLayout->reserve(parameters.NumberInputs);
+		_pLayout->reserve(parameters.NumberInputs);
 
-		//for (unsigned int input = 0; input < parameters.NumberInputs; ++input)
-		//{
-		//	const ShaderIOParameters::Parameter& p = parameters.Inputs[input];
-		//	D3D12_INPUT_ELEMENT_DESC desc;
-		//	ZeroMemory(&desc, sizeof(D3D12_INPUT_ELEMENT_DESC));
-		//	desc.SemanticIndex = p.SemanticIndex;
-		//	desc.SemanticName = p.SemanticName;
-		//	desc.InputSlot = 0;
-		//	desc.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-		//	desc.InstanceDataStepRate = 0;
-		//	desc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+		for (unsigned int input = 0; input < parameters.NumberInputs; ++input)
+		{
+			const ShaderIOParameters::Parameter& p = parameters.Inputs[input];
+			D3D12_INPUT_ELEMENT_DESC desc;
+			ZeroMemory(&desc, sizeof(D3D12_INPUT_ELEMENT_DESC));
+			desc.SemanticIndex = p.SemanticIndex;
+			desc.SemanticName = p.SemanticName;
+			desc.InputSlot = 0;
+			desc.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+			desc.InstanceDataStepRate = 0;
+			desc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 
-		//	if (p.Mask == 1)
-		//	{
-		//		if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
-		//			desc.Format = DXGI_FORMAT_R32_UINT;
-		//		else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
-		//			desc.Format = DXGI_FORMAT_R32_SINT;
-		//		else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
-		//			desc.Format = DXGI_FORMAT_R32_FLOAT;
-		//	}
-		//	else if (p.Mask <= 3)
-		//	{
-		//		if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
-		//			desc.Format = DXGI_FORMAT_R32G32_UINT;
-		//		else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
-		//			desc.Format = DXGI_FORMAT_R32G32_SINT;
-		//		else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
-		//			desc.Format = DXGI_FORMAT_R32G32_FLOAT;
-		//	}
-		//	else if (p.Mask <= 7)
-		//	{
-		//		if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
-		//			desc.Format = DXGI_FORMAT_R32G32B32_UINT;
-		//		else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
-		//			desc.Format = DXGI_FORMAT_R32G32B32_SINT;
-		//		else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
-		//			desc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		//	}
-		//	else if (p.Mask <= 15)
-		//	{
-		//		if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
-		//			desc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
-		//		else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
-		//			desc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
-		//		else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
-		//			desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		//	}
-		//	_pLayout->push_back(desc);
-		//}
+			if (p.Mask == 1)
+			{
+				if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+					desc.Format = DXGI_FORMAT_R32_UINT;
+				else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+					desc.Format = DXGI_FORMAT_R32_SINT;
+				else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+					desc.Format = DXGI_FORMAT_R32_FLOAT;
+			}
+			else if (p.Mask <= 3)
+			{
+				if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+					desc.Format = DXGI_FORMAT_R32G32_UINT;
+				else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+					desc.Format = DXGI_FORMAT_R32G32_SINT;
+				else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+					desc.Format = DXGI_FORMAT_R32G32_FLOAT;
+			}
+			else if (p.Mask <= 7)
+			{
+				if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+					desc.Format = DXGI_FORMAT_R32G32B32_UINT;
+				else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+					desc.Format = DXGI_FORMAT_R32G32B32_SINT;
+				else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+					desc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+			}
+			else if (p.Mask <= 15)
+			{
+				if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+					desc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
+				else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+					desc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
+				else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+					desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			}
+			_pLayout->push_back(desc);
+		}
 	}
 
 	DeviceD3D12* DeviceD3D12::Instance(void)
@@ -247,13 +243,13 @@ namespace ArtemisRenderer::Device
 			return false;
 
 		// Default Sampler
-		//m_pDefaultSampler = CreateSamplerState(SamplerStateFilter::Linear, SamplerStateWrapMode::Wrap, SamplerStateComparisonFunction::Always);
+		m_pDefaultSampler = CreateSamplerState(SamplerStateFilter::Linear, SamplerStateWrapMode::Wrap, SamplerStateComparisonFunction::Always);
 
 		return false;
 		//return true;
 	}
 
-	bool DeviceD3D12::InitialiseImGUI(HWND _hWindow, DescriptorHeap* _pSRVHeap)
+	bool DeviceD3D12::InitialiseImGUI(HWND _hWindow, Resources::DescriptorHeap* _pSRVHeap)
 	{
 		//ImGui_ImplWin32_Init(_hWindow);
 		//ImGui_ImplDX12_Init(m_pDevice.Get(), 1, DXGI_FORMAT_R8G8B8A8_UNORM,
@@ -281,17 +277,16 @@ namespace ArtemisRenderer::Device
 		return true;
 	}
 
-	bool DeviceD3D12::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE _type, DescriptorHeap** _pDescriptorHeap, UINT _numBuffers, D3D12_DESCRIPTOR_HEAP_FLAGS _flags, const wchar_t* _pDebugName)
+	bool DeviceD3D12::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE _type, Resources::DescriptorHeap** _pDescriptorHeap, UINT _numBuffers, D3D12_DESCRIPTOR_HEAP_FLAGS _flags, const wchar_t* _pDebugName)
 	{
-		//if (!(*_pDescriptorHeap)) {
-		//	*_pDescriptorHeap = new DescriptorHeap();
-		//}
+		if (!(*_pDescriptorHeap)) {
+			*_pDescriptorHeap = new Resources::DescriptorHeap();
+		}
 
-		//if (!(*_pDescriptorHeap)->Initialise(m_pDevice, _type, _numBuffers, _flags, _pDebugName))
-		//	return false;
+		if (!(*_pDescriptorHeap)->Initialise(m_pDevice, _type, _numBuffers, _flags, _pDebugName))
+			return false;
 
-		return false;
-		//return true;
+		return true;
 	}
 
 	bool DeviceD3D12::CreateSwapChain(SwapChain** _ppSwapChain, SysCore::GameWindow* _pWindow, UINT _numBackBuffers, const wchar_t* _pDebugName)
@@ -309,96 +304,94 @@ namespace ArtemisRenderer::Device
 		return true;
 	}
 
-	//ISamplerState* DeviceD3D12::CreateSamplerState(SamplerStateFilter _eFilter, SamplerStateWrapMode _eWrap, SamplerStateComparisonFunction _eCompFunc)
-	//{
-	//	SamplerStateD3D12* pSamplerState = new SamplerStateD3D12();
-	//	if (!pSamplerState->Initialise(m_pDevice.Get(), m_DescHeapSampler, _eFilter, _eWrap, _eCompFunc))
-	//	{
-	//		delete pSamplerState;
-	//		return nullptr;
-	//	}
-	//	return pSamplerState;
-	//}
+	States::SamplerState* DeviceD3D12::CreateSamplerState(States::SamplerStateFilter _eFilter, States::SamplerStateWrapMode _eWrap, States::SamplerStateComparisonFunction _eCompFunc)
+	{
+		States::SamplerState* pSamplerState = new States::SamplerState();
+		if (!pSamplerState->Initialise(m_pDevice, m_DescHeapSampler, _eFilter, _eWrap, _eCompFunc))
+		{
+			delete pSamplerState;
+			return nullptr;
+		}
+		return pSamplerState;
+	}
 
-	IBufferResource* DeviceD3D12::CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName)
+	Resources::IBufferResource* DeviceD3D12::CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName)
 	{
 		return nullptr;
 		//return new Texture2DResource(_pWstrFilename, true, m_DescHeapSrvCbv, m_pDevice, _pCommandList, _pDebugName);
 	}
 
-	IBufferResource* DeviceD3D12::CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName)
+	Resources::IBufferResource* DeviceD3D12::CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName)
 	{
 		return nullptr;
 		//return new Texture2DResource(_pWstrFilename, false, m_DescHeapSrvCbv, m_pDevice, _pCommandList, _pDebugName);
 	}
 
-	IBufferResource* DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName)
+	Resources::IBufferResource* DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName)
 	{
 		return nullptr;
 		//return new VertexBufferResource(m_pDevice, _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, _pDebugName);
 	}
 
-	IBufferResource* DeviceD3D12::CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName)
+	Resources::IBufferResource* DeviceD3D12::CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName)
 	{
 		return nullptr;
 		//return new IndexBufferResource(m_pDevice, _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, _pDebugName);
 	}
 
-	//ConstantBufferResource* DeviceD3D12::CreateConstantBufferResource(const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName)
-	//{
-	//	return nullptr;
-	//	//return new ConstantBufferResource(m_pDevice.Get(), m_DescHeapSrvCbv, _params, _pDebugName);
-	//}
-
-	bool DeviceD3D12::GetRootSignature(IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName)
+	ConstantBufferResource* DeviceD3D12::CreateConstantBufferResource(const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName)
 	{
-		//GpuResourceTable& resources = *m_DeviceState.Resources;
-		//ArtemisCore::Hashing::ArtemisHash ulHash = ArtemisCore::Hashing::SimpleHash((const char*)resources.GetVShader()->GetShaderName(), strlen(resources.GetVShader()->GetShaderName()));
-		//if (m_mapRootSignatures.find(ulHash.Hash) != m_mapRootSignatures.end())
-		//{
-		//	(*_ppRootSignature) = m_mapRootSignatures[ulHash.Hash];
-		//}
-		//else
-		//{
+		return new ConstantBufferResource(m_pDevice, m_DescHeapSrvCbv, _params, _pDebugName);
+	}
+
+	bool DeviceD3D12::GetRootSignature(Shaders::IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName)
+	{
+		GpuResourceTable& resources = *m_DeviceState.Resources;
+		ArtemisCore::Hashing::ArtemisHash ulHash = ArtemisCore::Hashing::SimpleHash((const char*)resources.GetVShader()->GetShaderName(), strlen(resources.GetVShader()->GetShaderName()));
+		if (m_mapRootSignatures.find(ulHash.Hash) != m_mapRootSignatures.end())
+		{
+			(*_ppRootSignature) = m_mapRootSignatures[ulHash.Hash];
+		}
+		else
+		{
 		//	RenderMarker profile(GetImmediateContext(), "ID3D12Device::CreateRootSignature");
 
-		//	ISamplerState** pSamplers = nullptr;
-		//	IGpuBufferResource** ppBuffers = nullptr, ** ppTextures = nullptr;
-		//	unsigned long ulSamplers = resources.GetSamplers(&pSamplers);
-		//	unsigned long ulTextures = resources.GetTextures(&ppTextures);
-		//	unsigned long ulCBuffers = resources.GetConstantBuffers(&ppBuffers);
+			SamplerState** pSamplers = nullptr;
+			IGpuBufferResource** ppBuffers = nullptr, ** ppTextures = nullptr;
+			unsigned long ulSamplers = resources.GetSamplers(&pSamplers);
+			unsigned long ulTextures = resources.GetTextures(&ppTextures);
+			unsigned long ulCBuffers = resources.GetConstantBuffers(&ppBuffers);
 
-		//	CD3DX12_DESCRIPTOR_RANGE1 Table1[2];
-		//	Table1[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, ulCBuffers, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
-		//	Table1[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, ulTextures, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
+			CD3DX12_DESCRIPTOR_RANGE1 Table1[2];
+			Table1[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, ulCBuffers, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
+			Table1[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, ulTextures, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
 
-		//	CD3DX12_DESCRIPTOR_RANGE1 Table2;
-		//	Table2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, ulSamplers, 0);
+			CD3DX12_DESCRIPTOR_RANGE1 Table2;
+			Table2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, ulSamplers, 0);
 
-		//	CD3DX12_ROOT_PARAMETER1 RootParameters[2];
-		//	RootParameters[0].InitAsDescriptorTable(ARRAYSIZE(Table1), Table1, D3D12_SHADER_VISIBILITY_ALL);
-		//	RootParameters[1].InitAsDescriptorTable(1, &Table2, D3D12_SHADER_VISIBILITY_ALL);
+			CD3DX12_ROOT_PARAMETER1 RootParameters[2];
+			RootParameters[0].InitAsDescriptorTable(ARRAYSIZE(Table1), Table1, D3D12_SHADER_VISIBILITY_ALL);
+			RootParameters[1].InitAsDescriptorTable(1, &Table2, D3D12_SHADER_VISIBILITY_ALL);
 
-		//	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC RootSig;
-		//	RootSig.Init_1_1(ARRAYSIZE(RootParameters), RootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-		//		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-		//		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-		//		D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS
-		//	);
+			CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC RootSig;
+			RootSig.Init_1_1(ARRAYSIZE(RootParameters), RootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+				D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+				D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
+				D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS
+			);
 
-		//	ID3DBlob* pSerializedRootSig;
-		//	VALIDATE_D3D(D3D12SerializeVersionedRootSignature(&RootSig, &pSerializedRootSig, nullptr));
+			ID3DBlob* pSerializedRootSig;
+			VALIDATE_D3D(D3D12SerializeVersionedRootSignature(&RootSig, &pSerializedRootSig, nullptr));
 
-		//	ID3D12RootSignature* pRootSig = nullptr;
-		//	VALIDATE_D3D(m_pDevice->CreateRootSignature(0, pSerializedRootSig->GetBufferPointer(), pSerializedRootSig->GetBufferSize(), IID_PPV_ARGS(&pRootSig)));
-		//	pRootSig->SetName(_pDebugName);
+			ID3D12RootSignature* pRootSig = nullptr;
+			VALIDATE_D3D(m_pDevice->CreateRootSignature(0, pSerializedRootSig->GetBufferPointer(), pSerializedRootSig->GetBufferSize(), IID_PPV_ARGS(&pRootSig)));
+			pRootSig->SetName(_pDebugName);
 
-		//	m_mapRootSignatures[ulHash] = pRootSig;
-		//	(*_ppRootSignature) = pRootSig;
-		//}
+			m_mapRootSignatures[ulHash.Hash] = pRootSig;
+			(*_ppRootSignature) = pRootSig;
+		}
 
-		return false;
-		//return true;
+		return true;
 	}
 
 	bool DeviceD3D12::GetPipelineState(ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName)
@@ -410,7 +403,7 @@ namespace ArtemisRenderer::Device
 		}
 
 		ID3D12RootSignature* pRootSignature = nullptr;
-		//if (!GetRootSignature(m_DeviceState.Resources->GetVShader(), &pRootSignature))
+		if (!GetRootSignature(m_DeviceState.Resources->GetVShader(), &pRootSignature))
 		{
 			assert(false && "Root Sig Creation Failure");
 		}
@@ -436,22 +429,22 @@ namespace ArtemisRenderer::Device
 		}
 
 		std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
-		//GenerateInputLayout(m_DeviceState.Resources->GetVShader(), &inputLayout);
+		GenerateInputLayout(m_DeviceState.Resources->GetVShader(), &inputLayout);
 
-		unsigned long ulHash = 0;
+		unsigned long long ulHash = 0;
 		// Parameterised
 		{
 			//LOW_LEVEL_PROFILE_MARKER(GetImmediateContext(), "GetPipelineState::Hash Ident");
 
 			stateDesc.InputLayout = { &inputLayout[0], (UINT)inputLayout.size() };
 			stateDesc.pRootSignature = pRootSignature;
-			//stateDesc.VS = { m_DeviceState.Resources->GetVShader()->GetBytecode(), m_DeviceState.Resources->GetVShader()->GetBytecodeSize() };
-			//stateDesc.PS = { m_DeviceState.Resources->GetPShader()->GetBytecode(), m_DeviceState.Resources->GetPShader()->GetBytecodeSize() };
+			stateDesc.VS = { m_DeviceState.Resources->GetVShader()->GetBytecode(), m_DeviceState.Resources->GetVShader()->GetBytecodeSize() };
+			stateDesc.PS = { m_DeviceState.Resources->GetPShader()->GetBytecode(), m_DeviceState.Resources->GetPShader()->GetBytecodeSize() };
 
 			ulHash += ArtemisCore::Hashing::SimpleHash((const char*)&inputLayout[0], sizeof(D3D12_INPUT_ELEMENT_DESC) * inputLayout.size()).Hash;
 			ulHash += ArtemisCore::Hashing::SimpleHash((const char*)&stateDesc.pRootSignature, sizeof(ID3D12RootSignature)).Hash;
-			//ulHash += ArtemisCore::Hashing::SimpleHash((const char*)m_DeviceState.Resources->GetVShader()->GetShaderName(), strlen(m_DeviceState.Resources->GetVShader()->GetShaderName())).Hash;
-			//ulHash += ArtemisCore::Hashing::SimpleHash((const char*)m_DeviceState.Resources->GetPShader()->GetShaderName(), strlen(m_DeviceState.Resources->GetPShader()->GetShaderName())).Hash;
+			ulHash += ArtemisCore::Hashing::SimpleHash((const char*)m_DeviceState.Resources->GetVShader()->GetShaderName(), strlen(m_DeviceState.Resources->GetVShader()->GetShaderName())).Hash;
+			ulHash += ArtemisCore::Hashing::SimpleHash((const char*)m_DeviceState.Resources->GetPShader()->GetShaderName(), strlen(m_DeviceState.Resources->GetPShader()->GetShaderName())).Hash;
 		}
 
 		if (m_mapPSO.find(ulHash) != m_mapPSO.end())
@@ -497,8 +490,8 @@ namespace ArtemisRenderer::Device
 
 	void DeviceD3D12::EndFrame(void)
 	{
-		//m_ActiveResourceHeap->~DescriptorHeap();
-		//m_ActiveSamplerHeap->~DescriptorHeap();
+		m_ActiveResourceHeap->~DescriptorHeap();
+		m_ActiveSamplerHeap->~DescriptorHeap();
 	}
 
 	bool DeviceD3D12::FlushState()
@@ -514,19 +507,19 @@ namespace ArtemisRenderer::Device
 
 		pGfxCmdList->SetPipelineState(pPSO);
 
-		//ID3D12DescriptorHeap* pHeaps[] = { m_ActiveResourceHeap->GetHeap(), m_ActiveSamplerHeap->GetHeap() };
-		//pGfxCmdList->SetDescriptorHeaps(pHeaps, _countof(pHeaps));
+		ID3D12DescriptorHeap* pHeaps[] = { m_ActiveResourceHeap->GetHeap(), m_ActiveSamplerHeap->GetHeap() };
+		pGfxCmdList->SetDescriptorHeaps(pHeaps, _countof(pHeaps));
 
-		unsigned int uiResourceStartIndex = 0; // m_ActiveResourceHeap->GetFreeIndex();
+		unsigned int uiResourceStartIndex = m_ActiveResourceHeap->GetFreeIndex();
 
 		//
 		// Copy CBVs
 		//
-		IGpuBufferResource** ppCBs = nullptr;
-		unsigned long ulResources = 0; // Resources.GetConstantBuffers(&ppCBs);
+		Resources::IGpuBufferResource** ppCBs = nullptr;
+		unsigned long ulResources = Resources.GetConstantBuffers(&ppCBs);
 		for (unsigned int i = 0; i < ulResources; ++i)
 		{
-			//CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource(m_ActiveResourceHeap->GetCPUStartHandle(), m_ActiveResourceHeap->GetFreeIndexAndIncrement(), m_ActiveResourceHeap->GetIncrementSize());
+			CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource(m_ActiveResourceHeap->GetCPUStartHandle(), m_ActiveResourceHeap->GetFreeIndexAndIncrement(), m_ActiveResourceHeap->GetIncrementSize());
 
 			if (!ppCBs[i])
 			{
@@ -534,26 +527,26 @@ namespace ArtemisRenderer::Device
 				continue;
 			}
 
-			//CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuActual = ppCBs[i]->GetCpuHandle();
+			CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuActual = ppCBs[i]->GetCpuHandle();
 
 			UINT size1 = 1;
 			UINT size2 = 1;
 
 			//LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "CBV Desc Copies");
-			//m_pDevice->CopyDescriptors(
-			//	1, &hCpuNewResource, &size1,
-			//	1, &hCpuActual, &size2,
-			//	D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+			m_pDevice->CopyDescriptors(
+				1, &hCpuNewResource, &size1,
+				1, &hCpuActual, &size2,
+				D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		}
 
 		// 
 		// Copy SRVs
 		// 
-		IGpuBufferResource** ppTextures = nullptr;
-		//ulResources = Resources.GetTextures(&ppTextures);
+		Resources::IGpuBufferResource** ppTextures = nullptr;
+		ulResources = Resources.GetTextures(&ppTextures);
 		for (unsigned int i = 0; i < ulResources; ++i)
 		{
-			//CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource(m_ActiveResourceHeap->GetCPUStartHandle(), m_ActiveResourceHeap->GetFreeIndexAndIncrement(), m_ActiveResourceHeap->GetIncrementSize());
+			CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource(m_ActiveResourceHeap->GetCPUStartHandle(), m_ActiveResourceHeap->GetFreeIndexAndIncrement(), m_ActiveResourceHeap->GetIncrementSize());
 
 			if (!ppTextures[i])
 			{
@@ -566,77 +559,75 @@ namespace ArtemisRenderer::Device
 				staticNullDesc.Texture2D.MostDetailedMip = 0;
 				staticNullDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 				staticNullDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-				//m_pDevice->CreateShaderResourceView(nullptr, &staticNullDesc, hCpuNewResource);
+				m_pDevice->CreateShaderResourceView(nullptr, &staticNullDesc, hCpuNewResource);
 
 				continue;
 			}
 
-			//CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuActual = ppTextures[i]->GetCpuHandle();
+			CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuActual = ppTextures[i]->GetCpuHandle();
 
 			UINT size1 = 1;
 			UINT size2 = 1;
 
 			//LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "SRV Desc Copies");
-			//m_pDevice->CopyDescriptors(
-			//	1, &hCpuNewResource, &size1,
-			//	1, &hCpuActual, &size2,
-			//	D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+			m_pDevice->CopyDescriptors(
+				1, &hCpuNewResource, &size1,
+				1, &hCpuActual, &size2,
+				D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		}
 
 		//
 		// Copy Sampler
 		//
-		//ISamplerState** pSamplers = nullptr;
-		//ulResources = Resources.GetSamplers(&pSamplers);
+		States::SamplerState** pSamplers = nullptr;
+		ulResources = Resources.GetSamplers(&pSamplers);
 
-		//unsigned int uiSamplerStartIndex = m_ActiveSamplerHeap->GetFreeIndex();
+		unsigned int uiSamplerStartIndex = m_ActiveSamplerHeap->GetFreeIndex();
 		for (unsigned int i = 0; i < ulResources; ++i)
 		{
-			//CD3DX12_CPU_DESCRIPTOR_HANDLE sampDescHandle(m_DescHeapSampler->GetCPUStartHandle());
-			//sampDescHandle.Offset(((SamplerStateD3D12*)pSamplers[i])->GetHeapIndex(), m_DescHeapSampler->GetIncrementSize());
+			CD3DX12_CPU_DESCRIPTOR_HANDLE sampDescHandle(m_DescHeapSampler->GetCPUStartHandle());
+			sampDescHandle.Offset(((States::SamplerState*)pSamplers[i])->GetHeapIndex(), m_DescHeapSampler->GetIncrementSize());
 
-			//CD3DX12_CPU_DESCRIPTOR_HANDLE tempHandleLoc(m_ActiveSamplerHeap->GetCPUStartHandle(), m_ActiveSamplerHeap->GetFreeIndexAndIncrement(), m_ActiveSamplerHeap->GetIncrementSize());
+			CD3DX12_CPU_DESCRIPTOR_HANDLE tempHandleLoc(m_ActiveSamplerHeap->GetCPUStartHandle(), m_ActiveSamplerHeap->GetFreeIndexAndIncrement(), m_ActiveSamplerHeap->GetIncrementSize());
 
 			UINT size1 = 1;
 			UINT size2 = 1;
 
 			//LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "Sampler Desc Copies");
-			//m_pDevice->CopyDescriptors(
-			//	1, &tempHandleLoc, &size1,
-			//	1, &sampDescHandle, &size2,
-			//	D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+			m_pDevice->CopyDescriptors(
+				1, &tempHandleLoc, &size1,
+				1, &sampDescHandle, &size2,
+				D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 		}
 
-		//pGfxCmdList->SetGraphicsRootDescriptorTable(0, CD3DX12_GPU_DESCRIPTOR_HANDLE(m_ActiveResourceHeap->GetGPUStartHandle(), uiResourceStartIndex, m_ActiveResourceHeap->GetIncrementSize()));
-		//pGfxCmdList->SetGraphicsRootDescriptorTable(1, CD3DX12_GPU_DESCRIPTOR_HANDLE(m_ActiveSamplerHeap->GetGPUStartHandle(), uiSamplerStartIndex, m_ActiveSamplerHeap->GetIncrementSize()));
+		pGfxCmdList->SetGraphicsRootDescriptorTable(0, CD3DX12_GPU_DESCRIPTOR_HANDLE(m_ActiveResourceHeap->GetGPUStartHandle(), uiResourceStartIndex, m_ActiveResourceHeap->GetIncrementSize()));
+		pGfxCmdList->SetGraphicsRootDescriptorTable(1, CD3DX12_GPU_DESCRIPTOR_HANDLE(m_ActiveSamplerHeap->GetGPUStartHandle(), uiSamplerStartIndex, m_ActiveSamplerHeap->GetIncrementSize()));
 
 		m_DeviceState.DirtyFlags = 0;
 
-		return false;
-		//return true;
+		return true;
 	}
 
 	bool DeviceD3D12::SetMaterial(const char* _pName)
 	{
-		unsigned long ulHash = ArtemisCore::Hashing::SimpleHash(_pName, strlen(_pName)).Hash;
+		unsigned long long ulHash = ArtemisCore::Hashing::SimpleHash(_pName, strlen(_pName)).Hash;
 		if (m_mapGpuResourceTables.find(ulHash) != m_mapGpuResourceTables.end())
 		{
 			m_DeviceState.Resources = m_mapGpuResourceTables[ulHash];
 			return true;
 		}
 
-		//Effect* set = ShaderCache::Instance()->GetEffect(_pName);
-		//if (!set)
-		//{
-		//	return false;
-		//}
+		Effect* set = ShaderCache::Instance()->GetEffect(_pName);
+		if (!set)
+		{
+			return false;
+		}
 
-		//GpuResourceTable* pGpuResourceTable = new GpuResourceTable(set->GetVertexShader(), set->GetPixelShader());
-		//m_DeviceState.Resources = pGpuResourceTable;
-		//m_mapGpuResourceTables[ulHash] = pGpuResourceTable;
+		GpuResourceTable* pGpuResourceTable = new GpuResourceTable(set->GetVertexShader(), set->GetPixelShader());
+		m_DeviceState.Resources = pGpuResourceTable;
+		m_mapGpuResourceTables[ulHash] = pGpuResourceTable;
 
-		return false;
-		//return true;
+		return true;
 	}
 
 	bool DeviceD3D12::SetRenderTarget(void)
@@ -649,7 +640,7 @@ namespace ArtemisRenderer::Device
 		return true;
 	}
 
-	bool DeviceD3D12::SetTexture(const char* _pName, IGpuBufferResource* _pTexture)
+	bool DeviceD3D12::SetTexture(const char* _pName, Resources::IGpuBufferResource* _pTexture)
 	{
 		if (!m_DeviceState.Resources)
 		{
@@ -657,11 +648,10 @@ namespace ArtemisRenderer::Device
 			return false;
 		}
 
-		return false;
-		//return m_DeviceState.Resources->SetTexture(_pName, _pTexture);
+		return m_DeviceState.Resources->SetTexture(_pName, _pTexture);
 	}
 
-	bool DeviceD3D12::SetConstantBuffer(const char* _pName, IGpuBufferResource* _pCBuffer)
+	bool DeviceD3D12::SetConstantBuffer(const char* _pName, Resources::IGpuBufferResource* _pCBuffer)
 	{
 		if (!m_DeviceState.Resources)
 		{
@@ -669,19 +659,17 @@ namespace ArtemisRenderer::Device
 			return false;
 		}
 
-		return false;
-		//return m_DeviceState.Resources->SetConstantBuffer(_pName, _pCBuffer);
+		return m_DeviceState.Resources->SetConstantBuffer(_pName, _pCBuffer);
 	}
 
-	//bool DeviceD3D12::SetSamplerState(const char* _pName, ISamplerState* _pSamplerState)
-	//{
-	//	//if (!m_DeviceState.Resources)
-	//	{
-	//		//LogError("SetSamplerState - No Valid Resource Table Flushed to Device State");
-	//		return false;
-	//	}
-	//	return false;
+	bool DeviceD3D12::SetSamplerState(const char* _pName, States::SamplerState* _pSamplerState)
+	{
+		if (!m_DeviceState.Resources)
+		{
+			//LogError("SetSamplerState - No Valid Resource Table Flushed to Device State");
+			return false;
+		}
 
-	//	//return m_DeviceState.Resources->SetSamplerState(_pName, _pSamplerState);
-	//}
+		return m_DeviceState.Resources->SetSamplerState(_pName, _pSamplerState);
+	}
 }

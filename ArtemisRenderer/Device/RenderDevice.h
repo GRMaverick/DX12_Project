@@ -4,36 +4,42 @@
 #include <d3d12.h>
 #include <dxgi.h>
 #include <dxgi1_6.h>
-//#include <wrl.h>
 
 #include <map>
 
 #include "d3dx12.h"
 
-//#include "D3D12\Resources\ConstantBufferParameters.h"
-
-//#include "_Interfaces\ISamplerState.h"
+#include "../States/SamplerState.h"
+#include "../Resources/ConstantBufferParameters.h"
 
 namespace SysCore
 {
 	class GameWindow;
 }
 
-namespace ArtemisRenderer::Device
+namespace ArtemisRenderer::Resources
 {
-	class IShaderStage;
+	class DescriptorHeap;
+	//class Texture2DResource;
+	//class VertexBufferResource;
+	//class IndexBufferResource;
+	class ConstantBufferResource;
+
 	class IBufferResource;
 	class IGpuBufferResource;
+	class GpuResourceTable;
+}
 
-	class DescriptorHeap;
+namespace ArtemisRenderer::Shaders
+{
+	class IShaderStage;
+}
+
+namespace ArtemisRenderer::Device
+{
 	class CommandQueue;
 	class CommandList;
 	class SwapChain;
-	class GpuResourceTable;
-	class Texture2DResource;
-	class VertexBufferResource;
-	class IndexBufferResource;
-	class ConstantBufferResource;
 
 	struct SamplerStateEntry;
 
@@ -54,21 +60,21 @@ namespace ArtemisRenderer::Device
 		static DeviceD3D12* Instance(void);
 
 		bool Initialise(bool _bDebugging);
-		bool InitialiseImGUI(HWND _hWindow, DescriptorHeap* _pSRVHeap);
+		bool InitialiseImGUI(HWND _hWindow, Resources::DescriptorHeap* _pSRVHeap);
 
 		bool CreateCommandQueue(D3D12_COMMAND_LIST_TYPE _type, CommandQueue** _ppCommandQueue, const wchar_t* _pDebugName = L"");
 		bool CreateCommandList(D3D12_COMMAND_LIST_TYPE _type, CommandList** _ppCommandList, const wchar_t* _pDebugName = L"");
-		bool CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE _type, DescriptorHeap** _ppDescriptorHeap, UINT _numBuffers = 1, D3D12_DESCRIPTOR_HEAP_FLAGS _flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, const wchar_t* _pDebugName = L"");
+		bool CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE _type, Resources::DescriptorHeap** _ppDescriptorHeap, UINT _numBuffers = 1, D3D12_DESCRIPTOR_HEAP_FLAGS _flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, const wchar_t* _pDebugName = L"");
 		bool CreateSwapChain(SwapChain** _ppSwapChain, SysCore::GameWindow* _pWindow, UINT _numBackBuffers, const wchar_t* _pDebugName = L"");
 
-		//Interfaces::ISamplerState* CreateSamplerState(SamplerStateFilter _eFilter, SamplerStateWrapMode _eWrap, SamplerStateComparisonFunction _eCompFunc);
-		IBufferResource* CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName = L"");
-		IBufferResource* CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName = L"");
-		IBufferResource* CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName = L"");
-		IBufferResource* CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName = L"");
-		//ConstantBufferResource* CreateConstantBufferResource(const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"");
+		States::SamplerState* CreateSamplerState(States::SamplerStateFilter _eFilter, States::SamplerStateWrapMode _eWrap, States::SamplerStateComparisonFunction _eCompFunc);
+		Resources::IBufferResource* CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName = L"");
+		Resources::IBufferResource* CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName = L"");
+		Resources::IBufferResource* CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName = L"");
+		Resources::IBufferResource* CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName = L"");
+		Resources::ConstantBufferResource* CreateConstantBufferResource(const Resources::ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"");
 
-		bool GetRootSignature(IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName = L"");
+		bool GetRootSignature(Shaders::IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName = L"");
 		bool GetPipelineState(ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName = L"");
 		bool CreateSamplerState(D3D12_SAMPLER_DESC* _pSamplerDesc, D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const wchar_t* _pDebugName = L"");
 
@@ -76,24 +82,24 @@ namespace ArtemisRenderer::Device
 		bool SetMaterial(const char* _pName);
 		bool SetRenderTarget(void);
 		bool SetDepthBuffer(void);
-		bool SetTexture(const char* _pName, IGpuBufferResource* _pTexture);
-		bool SetConstantBuffer(const char* _pName, IGpuBufferResource* _pCBuffer);
-		//bool SetSamplerState(const char* _pName, ISamplerState* _pSamplerState);
+		bool SetTexture(const char* _pName, Resources::IGpuBufferResource* _pTexture);
+		bool SetConstantBuffer(const char* _pName, Resources::IGpuBufferResource* _pCBuffer);
+		bool SetSamplerState(const char* _pName, States::SamplerState* _pSamplerState);
 
-		DescriptorHeap* GetSrvCbvHeap(void) { return m_DescHeapSrvCbv; }
+		Resources::DescriptorHeap* GetSrvCbvHeap(void) { return m_DescHeapSrvCbv; }
 
 		void BeginFrame(void);
 		void EndFrame(void);
 
 		CommandList* GetImmediateContext(void) { return m_pImmediateContext; }
-		//ISamplerState* GetDefaultSamplerState(void) { return m_pDefaultSampler; }
+		States::SamplerState* GetDefaultSamplerState(void) { return m_pDefaultSampler; }
 
 	private:
 
 		struct DeviceState
 		{
-			unsigned int			DirtyFlags = 0;
-			GpuResourceTable* Resources;
+			unsigned int					DirtyFlags = 0;
+			Resources::GpuResourceTable*	Resources;
 
 			bool IsDirty(const unsigned int _dirtyFlags)
 			{
@@ -111,31 +117,31 @@ namespace ArtemisRenderer::Device
 
 		DeviceD3D12(void);
 
-		DeviceState										m_DeviceState;
+		DeviceState					m_DeviceState;
 
-		DescriptorHeap* m_DescHeapRTV;
-		DescriptorHeap* m_DescHeapDSV;
-		DescriptorHeap* m_DescHeapSrvCbv;
-		DescriptorHeap* m_DescHeapSampler;
+		Resources::DescriptorHeap*	m_DescHeapRTV;
+		Resources::DescriptorHeap*	m_DescHeapDSV;
+		Resources::DescriptorHeap*	m_DescHeapSrvCbv;
+		Resources::DescriptorHeap*	m_DescHeapSampler;
 
-		DescriptorHeap* m_ActiveResourceHeap;
-		DescriptorHeap* m_ActiveSamplerHeap;
+		Resources::DescriptorHeap*	m_ActiveResourceHeap;
+		Resources::DescriptorHeap*	m_ActiveSamplerHeap;
 
-		//Interfaces::ISamplerState* m_pDefaultSampler;
-		D3D12_SAMPLER_DESC								m_DefaultSampler;
+		States::SamplerState*		m_pDefaultSampler;
+		D3D12_SAMPLER_DESC			m_DefaultSampler;
 
-		CommandList* m_pImmediateContext;
+		CommandList*				m_pImmediateContext;
 
-		ID3D12Device6*			m_pDevice = nullptr;
+		ID3D12Device6*				m_pDevice = nullptr;
 
-		IDXGIFactory5*			m_pDxgiFactory = nullptr;
-		IDXGIAdapter4*			m_pDxgiAdapter = nullptr;
+		IDXGIFactory5*				m_pDxgiFactory = nullptr;
+		IDXGIAdapter4*				m_pDxgiAdapter = nullptr;
 
-		std::map<unsigned long, GpuResourceTable*>			m_mapGpuResourceTables;
+		std::map<unsigned long long, Resources::GpuResourceTable*>		m_mapGpuResourceTables;
 
-		std::map<unsigned int, SamplerStateEntry*>			m_mapSamplers;
-		std::map<unsigned int, ID3D12RootSignature*>		m_mapRootSignatures;
-		std::map<unsigned int, ID3D12PipelineState*>		m_mapPSO;
+		std::map<unsigned int, SamplerStateEntry*>						m_mapSamplers;
+		std::map<unsigned long long, ID3D12RootSignature*>				m_mapRootSignatures;
+		std::map<unsigned long long, ID3D12PipelineState*>				m_mapPSO;
 	};
 }
 

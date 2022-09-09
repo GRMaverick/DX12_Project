@@ -26,6 +26,18 @@
     <ClInclude Include="Device\SwapChain.h" />
     <ClInclude Include="Profiling\ArtemisMarkerCPU.h" />
     <ClInclude Include="Profiling\ArtemisMarkerGPU.h" />
+    <ClInclude Include="Resources\ConstantBufferParameters.h" />
+    <ClInclude Include="Resources\ConstantBufferResource.h" />
+    <ClInclude Include="Resources\DescriptorHeap.h" />
+    <ClInclude Include="Resources\GpuResourceTable.h" />
+    <ClInclude Include="Resources\IBufferResource.h" />
+    <ClInclude Include="Shaders\IShader.h" />
+    <ClInclude Include="Shaders\IShaderCompiler.h" />
+    <ClInclude Include="Shaders\Shader.h" />
+    <ClInclude Include="Shaders\ShaderCache.h" />
+    <ClInclude Include="Shaders\ShaderCompilerDX.h" />
+    <ClInclude Include="Shaders\ShaderCompilerDXC.h" />
+    <ClInclude Include="Shaders\ShaderCompilerFXC.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Artemis.Renderer.ixx" />
@@ -36,6 +48,17 @@
     <ClCompile Include="Device\Artemis.Renderer-Device-RenderDevice.cpp" />
     <ClCompile Include="Profiling\Artemis.Renderer-Profiling.cpp" />
     <ClCompile Include="Profiling\Artemis.Renderer-Profiling.ixx" />
+    <ClCompile Include="Resources\Artemis.Renderer-Resources-ConstantBufferResource.cpp" />
+    <ClCompile Include="Resources\Artemis.Renderer-Resources-DescriptorHeap.cpp" />
+    <ClCompile Include="Resources\Artemis.Renderer-Resources-GpuResourceTable.cpp" />
+    <ClCompile Include="Resources\Artemis.Renderer-Resources-IBufferResources.cpp" />
+    <ClCompile Include="Resources\Artemis.Renderer-Resources.ixx" />
+    <ClCompile Include="Shaders\Artemis.Renderer-Shaders-ShaderCache.cpp" />
+    <ClCompile Include="Shaders\Artemis.Renderer-Shaders-ShaderCompiler.cpp" />
+    <ClCompile Include="Shaders\Artemis.Renderer-Shaders.ixx" />
+    <ClCompile Include="States\Artemis.Renderer-States-SamplerState.cpp" />
+    <ClCompile Include="States\Artemis.Renderer-States.ixx" />
+    <ClCompile Include="States\SamplerState.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

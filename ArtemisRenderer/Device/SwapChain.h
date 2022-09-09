@@ -15,6 +15,11 @@ namespace SysCore
 	class GameWindow;
 }
 
+namespace ArtemisRenderer::Resources
+{
+	class DescriptorHeap;
+}
+
 namespace ArtemisRenderer::Device
 {
 	class CommandList;
@@ -31,8 +36,8 @@ namespace ArtemisRenderer::Device
 			IDXGIFactory5* _pFactory,
 			CommandQueue* _pCommandQueue,
 			UINT _backBuffers,
-			DescriptorHeap* _pDescHeapRTV,
-			DescriptorHeap* _pDescHeapDSV,
+			Resources::DescriptorHeap* _pDescHeapRTV,
+			Resources::DescriptorHeap* _pDescHeapDSV,
 			SysCore::GameWindow* _pWindow);
 
 		bool Present(void);
@@ -48,8 +53,8 @@ namespace ArtemisRenderer::Device
 		UINT											m_CurrentBackBuffer = 0;
 		BOOL											m_bAllowTearing = false;
 
-		DescriptorHeap* m_pDescHeapRTV;
-		DescriptorHeap* m_pDescHeapDSV;
+		Resources::DescriptorHeap*						m_pDescHeapRTV;
+		Resources::DescriptorHeap*						m_pDescHeapDSV;
 
 		D3D12_VIEWPORT									m_Viewport;
 		D3D12_RECT										m_ScissorRect;

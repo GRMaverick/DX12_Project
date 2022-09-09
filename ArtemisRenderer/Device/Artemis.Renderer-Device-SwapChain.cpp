@@ -8,7 +8,7 @@ module;
 #include "CommandList.h"
 #include "CommandQueue.h"
 
-//#include "D3D12\Resources\DescriptorHeap.h"
+#include "../Resources/DescriptorHeap.h"
 
 //#include "SysCore\_Window\GameWindow.h"
 
@@ -61,7 +61,7 @@ namespace ArtemisRenderer::Device
 
 	bool SwapChain::Initialise(ID3D12Device* _pDevice, IDXGIFactory5* _pFactory,
 		CommandQueue* _pCommandQueue, UINT _backBuffers, 
-		DescriptorHeap* _pDescHeapRTV, DescriptorHeap* _pDescHeapDSV, SysCore::GameWindow* _pWindow)
+		Resources::DescriptorHeap* _pDescHeapRTV, Resources::DescriptorHeap* _pDescHeapDSV, SysCore::GameWindow* _pWindow)
 	{
 		HRESULT hr = S_OK;
 
@@ -129,61 +129,61 @@ namespace ArtemisRenderer::Device
 		}
 
 		// Create RTVs
-		//{
-		//	m_pDescHeapRTV = _pDescHeapRTV;
-		//	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_pDescHeapRTV->GetCPUStartHandle());
-		//	for (UINT rtvIndex = 0; rtvIndex < BACK_BUFFERS; ++rtvIndex)
-		//	{
-		//		ComPtr<ID3D12Resource> pBackBuffer = nullptr;
-		//		m_pSwapChain->GetBuffer(rtvIndex, IID_PPV_ARGS(&pBackBuffer));
+		{
+			m_pDescHeapRTV = _pDescHeapRTV;
+			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_pDescHeapRTV->GetCPUStartHandle());
+			for (UINT rtvIndex = 0; rtvIndex < BACK_BUFFERS; ++rtvIndex)
+			{
+				ID3D12Resource* pBackBuffer = nullptr;
+				m_pSwapChain->GetBuffer(rtvIndex, IID_PPV_ARGS(&pBackBuffer));
 
-		//		_pDevice->CreateRenderTargetView(pBackBuffer.Get(), nullptr, rtvHandle);
-		//		m_pBackBuffers[rtvIndex] = pBackBuffer;
+				_pDevice->CreateRenderTargetView(pBackBuffer, nullptr, rtvHandle);
+				m_pBackBuffers[rtvIndex] = pBackBuffer;
 
-		//		rtvHandle.Offset(m_pDescHeapRTV->GetIncrementSize());
-		//	}
-		//}
+				rtvHandle.Offset(m_pDescHeapRTV->GetIncrementSize());
+			}
+		}
 		//_pWindow->AddOnResizeDelegate(std::bind(&SwapChain::OnResize, this, std::placeholders::_1, std::placeholders::_2));
 
 		// Create DSV
-		//{
-		//	m_pDescHeapDSV = _pDescHeapDSV;
-		//	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_pDescHeapDSV->GetCPUStartHandle());
+		{
+			m_pDescHeapDSV = _pDescHeapDSV;
+			CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_pDescHeapDSV->GetCPUStartHandle());
 
-		//	D3D12_CLEAR_VALUE optimizedClearValue = {};
-		//	ZeroMemory(&optimizedClearValue, sizeof(D3D12_CLEAR_VALUE));
-		//	optimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
-		//	optimizedClearValue.DepthStencil = { 1.0f, 0 };
+			D3D12_CLEAR_VALUE optimizedClearValue = {};
+			ZeroMemory(&optimizedClearValue, sizeof(D3D12_CLEAR_VALUE));
+			optimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+			optimizedClearValue.DepthStencil = { 1.0f, 0 };
 
-		//	D3D12_HEAP_PROPERTIES defaultHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-		//	D3D12_RESOURCE_DESC defaultRdTex = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, _pWindow->GetDimensions().WindowWidth, _pWindow->GetDimensions().WindowHeight,
-		//		1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+			D3D12_HEAP_PROPERTIES defaultHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+			//D3D12_RESOURCE_DESC defaultRdTex = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, _pWindow->GetDimensions().WindowWidth, _pWindow->GetDimensions().WindowHeight,
+			//	1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 
-		//	_pDevice->CreateCommittedResource(
-		//		&defaultHeapProperties,
-		//		D3D12_HEAP_FLAG_NONE,
-		//		&defaultRdTex,
-		//		D3D12_RESOURCE_STATE_DEPTH_WRITE,
-		//		&optimizedClearValue,
-		//		IID_PPV_ARGS(&m_pDepthBuffer)
-		//	);
+			//_pDevice->CreateCommittedResource(
+			//	&defaultHeapProperties,
+			//	D3D12_HEAP_FLAG_NONE,
+			//	&defaultRdTex,
+			//	D3D12_RESOURCE_STATE_DEPTH_WRITE,
+			//	&optimizedClearValue,
+			//	IID_PPV_ARGS(&m_pDepthBuffer)
+			//);
 
-		//	D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {  };
-		//	dsv.Format = DXGI_FORMAT_D32_FLOAT;
-		//	dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-		//	dsv.Texture2D.MipSlice = 0;
-		//	dsv.Flags = D3D12_DSV_FLAG_NONE;
+			D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {  };
+			dsv.Format = DXGI_FORMAT_D32_FLOAT;
+			dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+			dsv.Texture2D.MipSlice = 0;
+			dsv.Flags = D3D12_DSV_FLAG_NONE;
 
-		//	_pDevice->CreateDepthStencilView(m_pDepthBuffer, &dsv, dsvHandle);
-		//	m_pDepthBuffer->SetName(L"Depth Buffer");
+			_pDevice->CreateDepthStencilView(m_pDepthBuffer, &dsv, dsvHandle);
+			m_pDepthBuffer->SetName(L"Depth Buffer");
 
-		//	const unsigned int kFormatInBytes = 4; // DXGI_FORMAT_D32_FLOAT
+			const unsigned int kFormatInBytes = 4; // DXGI_FORMAT_D32_FLOAT
 		//	//MemoryGlobalTracking::RecordExplicitAllocation(MemoryContextCategory::eRenderTarget, m_pDepthBuffer.Get(),
 		//	//	_pWindow->GetDimensions().WindowWidth * _pWindow->GetDimensions().WindowHeight * BACK_BUFFERS * kFormatInBytes
 		//	//);
-		//}
+		}
 
-		// Crete Viewport 
+		// Create Viewport 
 		{
 			//m_Viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, (FLOAT)_pWindow->GetDimensions().WindowWidth, (FLOAT)_pWindow->GetDimensions().WindowHeight);
 			m_ScissorRect = CD3DX12_RECT(0, 0, LONG_MAX, LONG_MAX);
@@ -215,26 +215,26 @@ namespace ArtemisRenderer::Device
 		_pCmdList->ResourceBarrier(1, &tgtBarrier);
 
 		FLOAT clearColour[] = { 0.1f, 0.1f, 0.1f, 0.1f };
-		//CD3DX12_CPU_DESCRIPTOR_HANDLE rtv(m_pDescHeapRTV->GetCPUStartHandle(), m_CurrentBackBuffer, m_pDescHeapRTV->GetIncrementSize());
-		//CD3DX12_CPU_DESCRIPTOR_HANDLE dsv(m_pDescHeapDSV->GetCPUStartHandle(), 0, m_pDescHeapDSV->GetIncrementSize());
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtv(m_pDescHeapRTV->GetCPUStartHandle(), m_CurrentBackBuffer, m_pDescHeapRTV->GetIncrementSize());
+		CD3DX12_CPU_DESCRIPTOR_HANDLE dsv(m_pDescHeapDSV->GetCPUStartHandle(), 0, m_pDescHeapDSV->GetIncrementSize());
 
-		//_pCmdList->ClearRenderTargetView(rtv, clearColour, 0, nullptr);
-		//_pCmdList->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+		_pCmdList->ClearRenderTargetView(rtv, clearColour, 0, nullptr);
+		_pCmdList->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 		_pCmdList->SetRSViewports(1, &m_Viewport);
 		_pCmdList->SetRSScissorRects(1, &m_ScissorRect);
 	}
 
 	void SwapChain::PrepareForPresentation(CommandList* _pCmdList)
 	{
-		//CD3DX12_RESOURCE_BARRIER tgtBarrier = CD3DX12_RESOURCE_BARRIER::Transition(m_pBackBuffers[m_CurrentBackBuffer].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, 0);
-		//_pCmdList->ResourceBarrier(1, &tgtBarrier);
+		CD3DX12_RESOURCE_BARRIER tgtBarrier = CD3DX12_RESOURCE_BARRIER::Transition(m_pBackBuffers[m_CurrentBackBuffer], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT, 0);
+		_pCmdList->ResourceBarrier(1, &tgtBarrier);
 	}
 
 	void SwapChain::SetOMRenderTargets(CommandList* _pCmdList)
 	{
-		//CD3DX12_CPU_DESCRIPTOR_HANDLE rtv(m_pDescHeapRTV->GetCPUStartHandle(), m_CurrentBackBuffer, m_pDescHeapRTV->GetIncrementSize());
-		//CD3DX12_CPU_DESCRIPTOR_HANDLE dsv(m_pDescHeapDSV->GetCPUStartHandle(), 0, m_pDescHeapDSV->GetIncrementSize());
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtv(m_pDescHeapRTV->GetCPUStartHandle(), m_CurrentBackBuffer, m_pDescHeapRTV->GetIncrementSize());
+		CD3DX12_CPU_DESCRIPTOR_HANDLE dsv(m_pDescHeapDSV->GetCPUStartHandle(), 0, m_pDescHeapDSV->GetIncrementSize());
 
-		//_pCmdList->SetOMRenderTargets(1, &rtv, FALSE, &dsv);
+		_pCmdList->SetOMRenderTargets(1, &rtv, FALSE, &dsv);
 	}
 }
