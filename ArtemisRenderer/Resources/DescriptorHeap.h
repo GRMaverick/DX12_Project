@@ -3,11 +3,16 @@
 
 #include <d3d12.h>
 
+namespace ArtemisRenderer::Device
+{
+	class RenderDevice;
+}
+
 namespace ArtemisRenderer::Resources
 {
 	class DescriptorHeap
 	{
-		friend class RenderDevice;
+		friend class ArtemisRenderer::Device::RenderDevice;
 
 	public:
 		DescriptorHeap(void);

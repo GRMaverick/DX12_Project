@@ -43,6 +43,24 @@
     <Filter Include="Module Headers\Helpers">
       <UniqueIdentifier>{4e8fed06-f69d-45fb-a976-aa4a4c868a94}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Module Implementations\Profiling">
+      <UniqueIdentifier>{cc5bb930-6be4-4289-b884-e14783f27429}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Module Headers\Core">
+      <UniqueIdentifier>{8bc20103-8303-49cf-99df-b73fdecaa7f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Module Implementations\Core">
+      <UniqueIdentifier>{99a3dd19-d7b9-4669-9c0e-05174cccbb09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Module Headers\Scene">
+      <UniqueIdentifier>{340370fb-4ec2-4b30-823d-c171b9c8af46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Module Implementations\Scene">
+      <UniqueIdentifier>{f6c5e9ae-59a5-4c81-8979-78f50c2da860}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Module Implementations\Helpers">
+      <UniqueIdentifier>{f7fb1e9b-18ba-4d2d-b829-7cb445a5de58}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Device\CommandList.h">
@@ -117,6 +135,30 @@
     <ClInclude Include="Helpers\d3dx12.h">
       <Filter>Module Headers\Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="Core\RendererForward.h">
+      <Filter>Module Headers\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\IRenderer.h">
+      <Filter>Module Headers\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\ConstantTable.h">
+      <Filter>Module Headers\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\CBStructures.h">
+      <Filter>Module Headers\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\Camera.h">
+      <Filter>Module Headers\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\RenderEntity.h">
+      <Filter>Module Headers\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Helpers\AssimpLoader.h">
+      <Filter>Module Headers\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="Helpers\TextureLoader.h">
+      <Filter>Module Headers\Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Artemis.Renderer.ixx">
@@ -127,9 +169,6 @@
     </ClCompile>
     <ClCompile Include="Device\Artemis.Renderer-Device.ixx">
       <Filter>Module Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="Profiling\Artemis.Renderer-Profiling.cpp">
-      <Filter>Module Implementations</Filter>
     </ClCompile>
     <ClCompile Include="Device\Artemis.Renderer-Device-CommandQueue.cpp">
       <Filter>Module Implementations\Device</Filter>
@@ -184,6 +223,36 @@
     </ClCompile>
     <ClCompile Include="Resources\Artemis.Renderer-Resources-VertexBuffer.cpp">
       <Filter>Module Implementations\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Profiling\Artemis.Renderer-Profiling.cpp">
+      <Filter>Module Implementations\Profiling</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Artemis.Renderer-Core-RendererForward.cpp">
+      <Filter>Module Implementations\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\Artemis.Renderer-Resources-ConstantTable.cpp">
+      <Filter>Module Implementations\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\Artemis.Renderer-Scene.ixx">
+      <Filter>Module Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Artemis.Renderer-Core.ixx">
+      <Filter>Module Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers\Artemis.Renderer-Helpers-AssimpLoader.cpp">
+      <Filter>Module Implementations\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers\Artemis.Renderer-Helpers-TextureLoader.cpp">
+      <Filter>Module Implementations\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers\Artemis.Renderer-Helpers.ixx">
+      <Filter>Module Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\Artemis.Renderer-Scene-RenderEntity.cpp">
+      <Filter>Module Implementations\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\Artemis.Renderer-Scene-Camera.cpp">
+      <Filter>Module Implementations\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
