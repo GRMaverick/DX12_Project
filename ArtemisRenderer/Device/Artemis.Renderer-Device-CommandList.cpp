@@ -41,7 +41,7 @@ namespace ArtemisRenderer::Device
 	CommandList* CommandList::Build(D3D12_COMMAND_LIST_TYPE _type, const wchar_t* _pDebugName)
 	{
 		CommandList* pCommandList = nullptr;
-		if (!DeviceD3D12::Instance()->CreateCommandList(_type, &pCommandList, _pDebugName))
+		if (!RenderDevice::Instance()->CreateCommandList(_type, &pCommandList, _pDebugName))
 			return nullptr;
 		return pCommandList;
 	}

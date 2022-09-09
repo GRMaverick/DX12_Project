@@ -41,7 +41,7 @@ namespace ArtemisRenderer::Device
 
 			pGfx = new CommandQueue();
 
-			if (!DeviceD3D12::Instance()->CreateCommandQueue(_type, &pGfx, L"GFX"))
+			if (!RenderDevice::Instance()->CreateCommandQueue(_type, &pGfx, L"GFX"))
 				return nullptr;
 			return pGfx;
 		}
@@ -53,7 +53,7 @@ namespace ArtemisRenderer::Device
 
 			pCopy = new CommandQueue();
 
-			if (!DeviceD3D12::Instance()->CreateCommandQueue(_type, &pCopy, L"CPY"))
+			if (!RenderDevice::Instance()->CreateCommandQueue(_type, &pCopy, L"CPY"))
 				return nullptr;
 			return pCopy;
 		}
@@ -65,7 +65,7 @@ namespace ArtemisRenderer::Device
 
 			pCompute = new CommandQueue();
 
-			if (!DeviceD3D12::Instance()->CreateCommandQueue(_type, &pCompute, L"Compute"))
+			if (!RenderDevice::Instance()->CreateCommandQueue(_type, &pCompute, L"Compute"))
 				return nullptr;
 			return pCompute;
 		}

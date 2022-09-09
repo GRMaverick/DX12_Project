@@ -47,13 +47,13 @@ namespace ArtemisRenderer::Device
 		CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE	RootSignature;
 	};
 
-	class DeviceD3D12
+	class RenderDevice
 	{
 		friend class RendererD3D12;
 	public:
-		~DeviceD3D12(void);
+		~RenderDevice(void);
 
-		static DeviceD3D12* Instance(void);
+		static RenderDevice* Instance(void);
 
 		bool Initialise(bool _bDebugging);
 		bool InitialiseImGUI(HWND _hWindow, Resources::DescriptorHeap* _pSRVHeap);
@@ -111,7 +111,7 @@ namespace ArtemisRenderer::Device
 		const unsigned int kDirtyConstantBuffer = 1 << 5;
 		const unsigned int kDirtyRootSignature = 1 << 6;
 
-		DeviceD3D12(void);
+		RenderDevice(void);
 
 		DeviceState					m_DeviceState;
 
