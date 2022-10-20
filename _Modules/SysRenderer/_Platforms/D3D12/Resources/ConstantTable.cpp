@@ -33,7 +33,7 @@ namespace SysRenderer
 
 			for ( unsigned int cb = 0; cb < _params.NumberBuffers; ++cb )
 			{
-				unsigned long ulHashName = Hashing::SimpleHash( _params.Buffers[cb].Name, strlen( _params.Buffers[cb].Name ) );
+				const unsigned long ulHashName = Hashing::SimpleHash( _params.Buffers[cb].Name, strlen( _params.Buffers[cb].Name ) );
 
 				if ( m_mapConstantBuffers.find( ulHashName ) != m_mapConstantBuffers.end() )
 				{
@@ -48,7 +48,7 @@ namespace SysRenderer
 
 		ConstantBufferResource* ConstantTable::CreateConstantBuffer( const char* _pBufferName )
 		{
-			unsigned long ulHashName = Hashing::SimpleHash( (char*)_pBufferName, strlen( _pBufferName ) );
+			const unsigned long ulHashName = Hashing::SimpleHash( (char*)_pBufferName, strlen( _pBufferName ) );
 			if ( m_mapConstantBuffers.find( ulHashName ) != m_mapConstantBuffers.end() )
 			{
 				return DeviceD3D12::Instance()->CreateConstantBufferResource( m_mapConstantBuffers[ulHashName] );

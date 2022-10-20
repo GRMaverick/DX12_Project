@@ -8,7 +8,7 @@
 
 #include "D3D12\Resources\ConstantBufferParameters.h"
 
-#define DUMP_CONSTANTS
+//#define DUMP_CONSTANTS
 
 using namespace SysUtilities;
 
