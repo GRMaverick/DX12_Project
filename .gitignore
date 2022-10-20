@@ -46,6 +46,14 @@
 *.rar
 
 #Visual Studio
+*.module.json
+*.ifc
+*.ifc.*
+*.ifc.*.*
+*.lib.recipe
+*.vsidx
+.suo
+_IsIncrementalBuild
 
 #Output Paths
 x64/**
