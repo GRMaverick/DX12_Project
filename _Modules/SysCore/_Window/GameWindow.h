@@ -43,7 +43,7 @@ namespace SysCore
 		HINSTANCE  m_HInstance;
 		Dimensions m_Dimensions;
 
-		OnResizeDelegate m_ResizeDelegate = nullptr;
+		OnResizeDelegate m_dResizeDelegate = nullptr;
 
 		void RegisterWindowClass( const wchar_t* _pClassName ) const;
 		void OpenWindow( const wchar_t* _pClassName, const wchar_t* _pWindowName, bool _bFullscreen );

@@ -13,8 +13,9 @@ namespace SysRenderer
 		class IRenderer
 		{
 		public:
-			virtual bool Initialise(SysCore::GameWindow* _pWindow) = 0;
-			virtual void Update(double _deltaTime) = 0;
+			virtual      ~IRenderer() = default;
+			virtual bool Initialise( SysCore::GameWindow* _pWindow ) = 0;
+			virtual void Update( double _deltaTime ) = 0;
 			virtual bool Render() = 0;
 		};
 	}

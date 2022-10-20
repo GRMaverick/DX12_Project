@@ -17,72 +17,72 @@ namespace SysRenderer
 			friend class SwapChain;
 
 		public:
-			static CommandQueue* Instance(D3D12_COMMAND_LIST_TYPE _type)
+			static CommandQueue* Instance( D3D12_COMMAND_LIST_TYPE _type )
 			{
-				switch (_type)
+				switch ( _type )
 				{
+					case D3D12_COMMAND_LIST_TYPE_DIRECT:
+					{
+						static CommandQueue* pGfx;
+						if ( pGfx )
+							return pGfx;
 
-				case D3D12_COMMAND_LIST_TYPE_DIRECT:
-				{
-					static CommandQueue* pGfx;
-					if (pGfx)
+						pGfx = new CommandQueue();
+
+						if ( !DeviceD3D12::Instance()->CreateCommandQueue( _type, &pGfx, L"GFX" ) )
+							return nullptr;
 						return pGfx;
+					}
+					case D3D12_COMMAND_LIST_TYPE_COPY:
+					{
+						static CommandQueue* pCopy;
+						if ( pCopy )
+							return pCopy;
 
-					pGfx = new CommandQueue();
+						pCopy = new CommandQueue();
 
-					if (!DeviceD3D12::Instance()->CreateCommandQueue(_type, &pGfx, L"GFX"))
-						return nullptr;
-					return pGfx;
-				}
-				case D3D12_COMMAND_LIST_TYPE_COPY:
-				{
-					static CommandQueue* pCopy;
-					if (pCopy)
+						if ( !DeviceD3D12::Instance()->CreateCommandQueue( _type, &pCopy, L"CPY" ) )
+							return nullptr;
 						return pCopy;
+					}
+					case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+					{
+						static CommandQueue* pCompute;
+						if ( pCompute )
+							return pCompute;
 
-					pCopy = new CommandQueue();
+						pCompute = new CommandQueue();
 
-					if (!DeviceD3D12::Instance()->CreateCommandQueue(_type, &pCopy, L"CPY"))
-						return nullptr;
-					return pCopy;
-				}
-				case D3D12_COMMAND_LIST_TYPE_COMPUTE:
-				{
-					static CommandQueue* pCompute;
-					if (pCompute)
+						if ( !DeviceD3D12::Instance()->CreateCommandQueue( _type, &pCompute, L"Compute" ) )
+							return nullptr;
 						return pCompute;
-
-					pCompute = new CommandQueue();
-
-					if (!DeviceD3D12::Instance()->CreateCommandQueue(_type, &pCompute, L"Compute"))
-						return nullptr;
-					return pCompute;
-				}
-				default:
-					return nullptr; // Unsupported Command List type.
+					}
+					default:
+						return nullptr; // Unsupported Command List type.
 				}
 			}
-			~CommandQueue(void);
 
-			bool	Initialise(Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, D3D12_COMMAND_LIST_TYPE _type, const wchar_t* _pDebugName);
+			~CommandQueue( void );
 
-			void	SubmitToQueue(CommandList* _pList) { m_pAwaitingExecution.push_back(_pList); }	// Proper Synchronisation Required
+			bool Initialise( Microsoft::WRL::ComPtr<ID3D12Device> _pDevice, D3D12_COMMAND_LIST_TYPE _type, const wchar_t* _pDebugName );
 
-			void	ExecuteCommandLists(void);
+			void SubmitToQueue( CommandList* _pList ) { m_pAwaitingExecution.push_back( _pList ); } // Proper Synchronisation Required
 
-			UINT64	Signal();
-			void	Wait();
-			void	Flush();
+			void ExecuteCommandLists( void );
+
+			UINT64 Signal();
+			void   Wait() const;
+			void   Flush();
 
 		private:
-			CommandQueue(void);
+			CommandQueue( void );
 
-			D3D12_COMMAND_LIST_TYPE						m_Type;
-			Microsoft::WRL::ComPtr<ID3D12Fence>			m_pFence;
-			UINT64										m_FenceValue;
-			HANDLE										m_FenceEvent;
+			D3D12_COMMAND_LIST_TYPE             m_eType;
+			Microsoft::WRL::ComPtr<ID3D12Fence> m_pFence;
+			UINT64                              m_uiFenceValue;
+			HANDLE                              m_hFenceEvent;
 
-			Microsoft::WRL::ComPtr<ID3D12CommandQueue>	m_pQueue;
+			Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_pQueue;
 
 			std::vector<CommandList*> m_pAwaitingExecution;
 		};
@@ -90,4 +90,3 @@ namespace SysRenderer
 }
 
 #endif // __CommandQueue_h__
-

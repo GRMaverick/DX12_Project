@@ -59,9 +59,9 @@ namespace SysCore
 
 	GameWindow::GameWindow( HINSTANCE _hInstance, const wchar_t* _pClassName, const wchar_t* _pWindowName, bool _bFullscreen )
 	{
-		m_HWindow        = nullptr;
-		m_HInstance      = _hInstance;
-		m_ResizeDelegate = OnResizeDelegate();
+		m_HWindow         = nullptr;
+		m_HInstance       = _hInstance;
+		m_dResizeDelegate = OnResizeDelegate();
 
 		RegisterWindowClass( _pClassName );
 		OpenWindow( _pClassName, _pWindowName, _bFullscreen );
@@ -132,13 +132,13 @@ namespace SysCore
 
 	void GameWindow::Resize( const UINT32 _width, const UINT32 _height ) const
 	{
-		if ( m_ResizeDelegate != nullptr )
-			m_ResizeDelegate( _width, _height );
+		if ( m_dResizeDelegate != nullptr )
+			m_dResizeDelegate( _width, _height );
 	}
 
 	void GameWindow::AddOnResizeDelegate( OnResizeDelegate _pCallback )
 	{
-		m_ResizeDelegate = std::move( _pCallback );
+		m_dResizeDelegate = std::move( _pCallback );
 	}
 
 	void GameWindow::SetFullscreen( bool _bFullscreen ) const

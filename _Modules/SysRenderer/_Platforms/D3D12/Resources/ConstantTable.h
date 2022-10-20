@@ -15,20 +15,20 @@ namespace SysRenderer
 		class ConstantTable
 		{
 		public:
-			~ConstantTable(void);
+			~ConstantTable( void );
 
-			static ConstantTable* Instance(void);
+			static ConstantTable* Instance( void );
 
-			ConstantBufferResource* CreateConstantBuffer(const char* _pBufferName);
-			bool CreateConstantBuffersEntries(const ConstantBufferParameters& _params);
+			ConstantBufferResource* CreateConstantBuffer( const char* _pBufferName );
+			bool                    CreateConstantBuffersEntries( const ConstantBufferParameters& _params );
 
-			DescriptorHeap* GetDescriptorHeap(void) { return m_pDescHeapCBV; }
+			DescriptorHeap* GetDescriptorHeap( void ) const { return m_pDescHeapCbv; }
 
 		private:
-			ConstantTable(void);
+			ConstantTable( void );
 
-			const unsigned int kMaxCBVs = 10;
-			DescriptorHeap* m_pDescHeapCBV = nullptr;
+			const unsigned int                                               m_uiMaxCbVs    = 10;
+			DescriptorHeap*                                                  m_pDescHeapCbv = nullptr;
 			std::map<unsigned int, ConstantBufferParameters::ConstantBuffer> m_mapConstantBuffers;
 		};
 	}

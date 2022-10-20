@@ -8,74 +8,79 @@ namespace SysRenderer
 {
 	namespace Scene
 	{
-		Camera::Camera(void)
+		Camera::Camera( void ):
+			m_xm3Up(),
+			m_xm3Target(),
+			m_xm3Position()
 		{
-			m_View = XMMatrixIdentity();
-			m_Projection = XMMatrixIdentity();
-		}
-		Camera::~Camera(void)
-		{
-			m_View = XMMatrixIdentity();
-			m_Projection = XMMatrixIdentity();
+			m_matView       = XMMatrixIdentity();
+			m_matProjection = XMMatrixIdentity();
 		}
 
-		void Camera::Update(void)
+		Camera::~Camera( void )
 		{
-			XMVECTOR vUp = XMVectorSet(m_Up.x, m_Up.y, m_Up.z, 1.0f);
-			XMVECTOR vTarget = XMVectorSet(m_Target.x, m_Target.y, m_Target.z, 1.0f);
-			XMVECTOR vPosition = XMVectorSet(m_Position.x, m_Position.y, m_Position.z, 1.0f);
-
-			m_View = XMMatrixLookAtLH(vPosition, vTarget, vUp);
-			m_Projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(m_FieldOfView), m_AspectRatio, 0.1f, 10000.0f);
+			m_matView       = XMMatrixIdentity();
+			m_matProjection = XMMatrixIdentity();
 		}
 
-		void Camera::SetUp(float _x, float _y, float _z)
+		void Camera::Update( void )
 		{
-			m_Up = XMFLOAT3(_x, _y, _z);
+			const XMVECTOR vUp       = XMVectorSet( m_xm3Up.x, m_xm3Up.y, m_xm3Up.z, 1.0f );
+			const XMVECTOR vTarget   = XMVectorSet( m_xm3Target.x, m_xm3Target.y, m_xm3Target.z, 1.0f );
+			const XMVECTOR vPosition = XMVectorSet( m_xm3Position.x, m_xm3Position.y, m_xm3Position.z, 1.0f );
+
+			m_matView       = XMMatrixLookAtLH( vPosition, vTarget, vUp );
+			m_matProjection = XMMatrixPerspectiveFovLH( XMConvertToRadians( m_FieldOfView ), m_AspectRatio, 0.1f, 10000.0f );
 		}
 
-		void Camera::SetTarget(float _x, float _y, float _z)
+		void Camera::SetUp( const float _x, const float _y, const float _z )
 		{
-			m_Target = XMFLOAT3(_x, _y, _z);
+			m_xm3Up = XMFLOAT3( _x, _y, _z );
 		}
 
-		void Camera::SetPosition(float _x, float _y, float _z)
+		void Camera::SetTarget( const float _x, const float _y, const float _z )
 		{
-			m_Position = XMFLOAT3(_x, _y, _z);
+			m_xm3Target = XMFLOAT3( _x, _y, _z );
 		}
 
-		void Camera::SetFieldOfView(float _fov)
+		void Camera::SetPosition( const float _x, const float _y, const float _z )
+		{
+			m_xm3Position = XMFLOAT3( _x, _y, _z );
+		}
+
+		void Camera::SetFieldOfView( const float _fov )
 		{
 			m_FieldOfView = _fov;
 		}
-		void Camera::SetAspectRatio(float _aspectRatio)
+
+		void Camera::SetAspectRatio( const float _aspectRatio )
 		{
 			m_AspectRatio = _aspectRatio;
 		}
 
-		XMFLOAT3 Camera::GetUp(void)
+		XMFLOAT3 Camera::GetUp( void ) const
 		{
-			return m_Up;
+			return m_xm3Up;
 		}
 
-		XMFLOAT3 Camera::GetTarget(void)
+		XMFLOAT3 Camera::GetTarget( void ) const
 		{
-			return m_Target;
+			return m_xm3Target;
 		}
 
-		XMFLOAT3 Camera::GetPosition(void)
+		XMFLOAT3 Camera::GetPosition( void ) const
 		{
-			return m_Position;
+			return m_xm3Position;
 		}
 
-		XMMATRIX Camera::GetView(void)
+		XMMATRIX Camera::GetView( void ) const
 		{
-			return m_View;
+			return m_matView;
 		}
 
-		XMMATRIX Camera::GetProjection(void)
+		XMMATRIX Camera::GetProjection( void ) const
 		{
-			return m_Projection;
+			return m_matProjection;
 		}
 	}
 }

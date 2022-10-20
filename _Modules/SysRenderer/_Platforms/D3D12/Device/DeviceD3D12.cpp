@@ -46,120 +46,133 @@ namespace SysRenderer
 
 	namespace D3D12
 	{
-		void GenerateInputLayout(IShaderStage* _pShader, std::vector<D3D12_INPUT_ELEMENT_DESC>* _pLayout)
+		void GenerateInputLayout( const IShaderStage* _pShader, std::vector<D3D12_INPUT_ELEMENT_DESC>* _pLayout )
 		{
-			if (_pShader->GetType() != IShaderStage::ShaderType::VertexShader)
+			if ( _pShader->GetType() != IShaderStage::ShaderType::EVertexShader )
 			{
-				LogError("Shader generating Input Layout IS NOT a Vertex Shader");
+				LogError( "Shader generating Input Layout IS NOT a Vertex Shader" );
 				return;
 			}
 
-			ShaderIOParameters parameters = _pShader->GetShaderParameters();
+			const ShaderIoParameters parameters = _pShader->GetShaderParameters();
 
-			_pLayout->reserve(parameters.NumberInputs);
+			_pLayout->reserve( parameters.NumberInputs );
 
-			for (unsigned int input = 0; input < parameters.NumberInputs; ++input)
+			for ( unsigned int input = 0; input < parameters.NumberInputs; ++input )
 			{
-				const ShaderIOParameters::Parameter& p = parameters.Inputs[input];
-				D3D12_INPUT_ELEMENT_DESC desc;
-				ZeroMemory(&desc, sizeof(D3D12_INPUT_ELEMENT_DESC));
-				desc.SemanticIndex = p.SemanticIndex;
-				desc.SemanticName = p.SemanticName;
-				desc.InputSlot = 0;
-				desc.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+				const ShaderIoParameters::Parameter& p = parameters.Inputs[input];
+				D3D12_INPUT_ELEMENT_DESC             desc;
+				ZeroMemory( &desc, sizeof(D3D12_INPUT_ELEMENT_DESC) );
+				desc.SemanticIndex        = p.SemanticIndex;
+				desc.SemanticName         = p.SemanticName;
+				desc.InputSlot            = 0;
+				desc.InputSlotClass       = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 				desc.InstanceDataStepRate = 0;
-				desc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+				desc.AlignedByteOffset    = D3D12_APPEND_ALIGNED_ELEMENT;
 
-				if (p.Mask == 1)
+				if ( p.Mask == 1 )
 				{
-					if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+					if ( p.ComponentType == D3D_REGISTER_COMPONENT_UINT32 )
 						desc.Format = DXGI_FORMAT_R32_UINT;
-					else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+					else if ( p.ComponentType == D3D_REGISTER_COMPONENT_SINT32 )
 						desc.Format = DXGI_FORMAT_R32_SINT;
-					else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+					else if ( p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 )
 						desc.Format = DXGI_FORMAT_R32_FLOAT;
 				}
-				else if (p.Mask <= 3)
+				else if ( p.Mask <= 3 )
 				{
-					if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+					if ( p.ComponentType == D3D_REGISTER_COMPONENT_UINT32 )
 						desc.Format = DXGI_FORMAT_R32G32_UINT;
-					else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+					else if ( p.ComponentType == D3D_REGISTER_COMPONENT_SINT32 )
 						desc.Format = DXGI_FORMAT_R32G32_SINT;
-					else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+					else if ( p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 )
 						desc.Format = DXGI_FORMAT_R32G32_FLOAT;
 				}
-				else if (p.Mask <= 7)
+				else if ( p.Mask <= 7 )
 				{
-					if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+					if ( p.ComponentType == D3D_REGISTER_COMPONENT_UINT32 )
 						desc.Format = DXGI_FORMAT_R32G32B32_UINT;
-					else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+					else if ( p.ComponentType == D3D_REGISTER_COMPONENT_SINT32 )
 						desc.Format = DXGI_FORMAT_R32G32B32_SINT;
-					else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+					else if ( p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 )
 						desc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
 				}
-				else if (p.Mask <= 15)
+				else if ( p.Mask <= 15 )
 				{
-					if (p.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
+					if ( p.ComponentType == D3D_REGISTER_COMPONENT_UINT32 )
 						desc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
-					else if (p.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
+					else if ( p.ComponentType == D3D_REGISTER_COMPONENT_SINT32 )
 						desc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
-					else if (p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
+					else if ( p.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32 )
 						desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 				}
-				_pLayout->push_back(desc);
+				_pLayout->push_back( desc );
 			}
 		}
 
-		DeviceD3D12* DeviceD3D12::Instance(void)
+		DeviceD3D12* DeviceD3D12::Instance( void )
 		{
 			static DeviceD3D12 device;
 			return &device;
 		}
 
-		DeviceD3D12::DeviceD3D12(void)
+		DeviceD3D12::DeviceD3D12( void ):
+			m_DeviceState(),
+			m_pDescHeapRtv( nullptr ),
+			m_pDescHeapDsv( nullptr ),
+			m_pDescHeapSrvCbv( nullptr ),
+			m_pDescHeapSampler( nullptr ),
+			m_pActiveResourceHeap( nullptr ),
+			m_pActiveSamplerHeap( nullptr ),
+			m_pDefaultSampler( nullptr ),
+			m_eDefaultSampler(),
+			m_pImmediateContext( nullptr )
 		{
-			m_pDevice = nullptr;
+			m_pDevice      = nullptr;
 			m_pDxgiFactory = nullptr;
 			m_pDxgiAdapter = nullptr;
 		}
 
-		DeviceD3D12::~DeviceD3D12(void)
+		DeviceD3D12::~DeviceD3D12( void )
 		{
-			if (m_pDevice) m_pDevice.Reset();
-			if (m_pDxgiFactory) m_pDxgiFactory.Reset();
-			if (m_pDxgiAdapter) m_pDxgiAdapter.Reset();
+			if ( m_pDevice )
+				m_pDevice.Reset();
+			if ( m_pDxgiFactory )
+				m_pDxgiFactory.Reset();
+			if ( m_pDxgiAdapter )
+				m_pDxgiAdapter.Reset();
 		}
 
-		bool DeviceD3D12::Initialise(bool _bDebugging)
+		bool DeviceD3D12::Initialise( bool _bDebugging )
 		{
 			// Query Adapter
 			HRESULT hr = S_OK;
 			{
-				hr = CreateDXGIFactory2(DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS(m_pDxgiFactory.GetAddressOf()));
-				if (FAILED(hr))
+				hr = CreateDXGIFactory2( DXGI_CREATE_FACTORY_DEBUG, IID_PPV_ARGS( m_pDxgiFactory.GetAddressOf() ) );
+				if ( FAILED( hr ) )
 				{
-					assert(false && "DXGI Factory Creation Failed");
+					assert( false && "DXGI Factory Creation Failed" );
 					return false;
 				}
 
-				SIZE_T maxDedicatedVMEM = 0;
-				ComPtr<IDXGIAdapter1> pAdapter1 = nullptr;
-				for (UINT adapter = 0; m_pDxgiFactory->EnumAdapters1(adapter, pAdapter1.GetAddressOf()) != DXGI_ERROR_NOT_FOUND; ++adapter)
+				SIZE_T                maxDedicatedVMEM = 0;
+				ComPtr<IDXGIAdapter1> pAdapter1        = nullptr;
+				for ( UINT adapter = 0; m_pDxgiFactory->EnumAdapters1( adapter, pAdapter1.GetAddressOf() ) != DXGI_ERROR_NOT_FOUND; ++adapter )
 				{
 					DXGI_ADAPTER_DESC1 adapterDesc1 = {};
-					ZeroMemory(&adapterDesc1, sizeof(DXGI_ADAPTER_DESC1));
-					pAdapter1->GetDesc1(&adapterDesc1);
+					ZeroMemory( &adapterDesc1, sizeof(DXGI_ADAPTER_DESC1) );
+					pAdapter1->GetDesc1( &adapterDesc1 );
 
-					bool bIsSoftwareFlag = (adapterDesc1.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) == 0;
-					bool bCanCreateDevice = SUCCEEDED(D3D12CreateDevice(pAdapter1.Get(), D3D_FEATURE_LEVEL_12_1, __uuidof(ID3D12Device), nullptr));
-					bool bHasMoreVMEM = adapterDesc1.DedicatedVideoMemory > maxDedicatedVMEM;
-					if (bIsSoftwareFlag && bCanCreateDevice && bHasMoreVMEM)
+					const bool bIsSoftwareFlag  = (adapterDesc1.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) == 0;
+					const bool bCanCreateDevice = SUCCEEDED( D3D12CreateDevice(pAdapter1.Get(), D3D_FEATURE_LEVEL_12_1, __uuidof(ID3D12Device), nullptr) );
+					const bool bHasMoreVmem     = adapterDesc1.DedicatedVideoMemory > maxDedicatedVMEM;
+					if ( bIsSoftwareFlag && bCanCreateDevice && bHasMoreVmem )
 					{
 						maxDedicatedVMEM = adapterDesc1.DedicatedVideoMemory;
-						hr = pAdapter1.As(&m_pDxgiAdapter);
-						if (FAILED(hr))
+						hr               = pAdapter1.As( &m_pDxgiAdapter );
+						if ( FAILED( hr ) )
 						{
-							assert(false && "Found appropriate adapter but failed casting to IDXGIAdapter4");
+							assert( false && "Found appropriate adapter but failed casting to IDXGIAdapter4" );
 							return false;
 						}
 					}
@@ -167,32 +180,32 @@ namespace SysRenderer
 			}
 
 			// If Debugging Enabled
-			if (_bDebugging)
+			if ( _bDebugging )
 			{
-				ComPtr<ID3D12Debug> spDebugController0;
+				ComPtr<ID3D12Debug>  spDebugController0;
 				ComPtr<ID3D12Debug1> spDebugController1;
-				hr = D3D12GetDebugInterface(IID_PPV_ARGS(&spDebugController0));
-				if (FAILED(hr))
+				hr = D3D12GetDebugInterface( IID_PPV_ARGS( &spDebugController0 ) );
+				if ( FAILED( hr ) )
 				{
-					assert(false && "No Debug Interface");
+					assert( false && "No Debug Interface" );
 				}
 
-				hr = spDebugController0->QueryInterface(IID_PPV_ARGS(&spDebugController1));
-				if (FAILED(hr))
+				hr = spDebugController0->QueryInterface( IID_PPV_ARGS( &spDebugController1 ) );
+				if ( FAILED( hr ) )
 				{
-					assert(false && "No Debug 1 Interface");
+					assert( false && "No Debug 1 Interface" );
 				}
 
 				spDebugController1->EnableDebugLayer();
 
 				ComPtr<ID3D12DeviceRemovedExtendedDataSettings> pDredSettings = nullptr;
-				hr = D3D12GetDebugInterface(IID_PPV_ARGS(&pDredSettings));
-				if (SUCCEEDED(hr))
+				hr                                                            = D3D12GetDebugInterface( IID_PPV_ARGS( &pDredSettings ) );
+				if ( SUCCEEDED( hr ) )
 				{
-					pDredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
-					pDredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+					pDredSettings->SetAutoBreadcrumbsEnablement( D3D12_DRED_ENABLEMENT_FORCED_ON );
+					pDredSettings->SetPageFaultEnablement( D3D12_DRED_ENABLEMENT_FORCED_ON );
 				}
-				spDebugController1->SetEnableGPUBasedValidation(true);
+				spDebugController1->SetEnableGPUBasedValidation( true );
 			}
 
 			// --------------------------------------------------------------------------------------------------------------------------------
@@ -204,101 +217,98 @@ namespace SysRenderer
 			// Enabling D3D12ExperimentalShaderModels needs no configuration struct, pass NULL in the pConfigurationStructs array.
 			//
 			// --------------------------------------------------------------------------------------------------------------------------------
-			static const UUID D3D12ExperimentalShaderModels = { /* 76f5573e-f13a-40f5-b297-81ce9e18933f */
-				0x76f5573e,
-				0xf13a,
-				0x40f5,
-				{ 0xb2, 0x97, 0x81, 0xce, 0x9e, 0x18, 0x93, 0x3f }
+			static constexpr UUID kD3D12ExperimentalShaderModels = {
+				/* 76f5573e-f13a-40f5-b297-81ce9e18933f */
+				0x76f5573e, 0xf13a, 0x40f5, {0xb2, 0x97, 0x81, 0xce, 0x9e, 0x18, 0x93, 0x3f}
 			};
 
-			VALIDATE_D3D(D3D12EnableExperimentalFeatures(1, &D3D12ExperimentalShaderModels, nullptr, nullptr));
+			VALIDATE_D3D( D3D12EnableExperimentalFeatures(1, &kD3D12ExperimentalShaderModels, nullptr, nullptr) );
 
 			// Create Device
-			VALIDATE_D3D(D3D12CreateDevice(m_pDxgiAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(m_pDevice.GetAddressOf())));
-			m_pDevice->SetName(L"Le Device");
+			VALIDATE_D3D( D3D12CreateDevice(m_pDxgiAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(m_pDevice.GetAddressOf())) );
+			m_pDevice->SetName( L"Le Device" );
 
-			if (_bDebugging)
+			if ( _bDebugging )
 			{
 				ComPtr<ID3D12InfoQueue> pInfoQueue = nullptr;
-				if (SUCCEEDED(m_pDevice.As(&pInfoQueue)))
+				if ( SUCCEEDED( m_pDevice.As(&pInfoQueue) ) )
 				{
-					pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
-					pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, FALSE);
-					pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+					pInfoQueue->SetBreakOnSeverity( D3D12_MESSAGE_SEVERITY_ERROR, TRUE );
+					pInfoQueue->SetBreakOnSeverity( D3D12_MESSAGE_SEVERITY_WARNING, FALSE );
+					pInfoQueue->SetBreakOnSeverity( D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE );
 				}
 			}
 
-			const unsigned int kMaxSrvCbvs = 1000;
-			if (!CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, &m_DescHeapSrvCbv, kMaxSrvCbvs, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, L"MainSrvCbvHeap"))
+			constexpr unsigned int kMaxSrvCbvs = 1000;
+			if ( !CreateDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, &m_pDescHeapSrvCbv, kMaxSrvCbvs, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, L"MainSrvCbvHeap" ) )
 				return false;
 
-			const unsigned int kMaxSamplerDescs = 1;
-			if (!CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, &m_DescHeapSampler, kMaxSamplerDescs, D3D12_DESCRIPTOR_HEAP_FLAG_NONE))
+			constexpr unsigned int kMaxSamplerDescs = 1;
+			if ( !CreateDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, &m_pDescHeapSampler, kMaxSamplerDescs, D3D12_DESCRIPTOR_HEAP_FLAG_NONE ) )
 				return false;
 
 			// Default Sampler
-			m_pDefaultSampler = CreateSamplerState(SamplerStateFilter::Linear, SamplerStateWrapMode::Wrap, SamplerStateComparisonFunction::Always);
+			m_pDefaultSampler = CreateSamplerState( SamplerStateFilter::ELinear, SamplerStateWrapMode::EWrap, SamplerStateComparisonFunction::EAlways );
 
 			return true;
 		}
 
-		bool DeviceD3D12::InitialiseImGUI(HWND _hWindow, DescriptorHeap* _pSRVHeap)
+		bool DeviceD3D12::InitialiseImGUI( const HWND _hWindow, const DescriptorHeap* _pSrvHeap ) const
 		{
-			ImGui_ImplWin32_Init(_hWindow);
-			ImGui_ImplDX12_Init(m_pDevice.Get(), 1, DXGI_FORMAT_R8G8B8A8_UNORM,
-				_pSRVHeap->m_pDescriptorHeap.Get(), _pSRVHeap->GetCPUStartHandle(),
-				_pSRVHeap->GetGPUStartHandle()
-			);
+			ImGui_ImplWin32_Init( _hWindow );
+			ImGui_ImplDX12_Init( m_pDevice.Get(), 1, DXGI_FORMAT_R8G8B8A8_UNORM, _pSrvHeap->m_pDescriptorHeap.Get(), _pSrvHeap->GetCpuStartHandle(), _pSrvHeap->GetGpuStartHandle() );
 			return true;
 		}
 
-		bool DeviceD3D12::CreateCommandQueue(D3D12_COMMAND_LIST_TYPE _type, CommandQueue** _ppCommandQueue, const wchar_t* _pDebugName)
+		bool DeviceD3D12::CreateCommandQueue( D3D12_COMMAND_LIST_TYPE _type, CommandQueue** _ppCommandQueue, const wchar_t* _pDebugName ) const
 		{
-			if (!(*_ppCommandQueue)->Initialise(m_pDevice, D3D12_COMMAND_LIST_TYPE_DIRECT, _pDebugName))
+			if ( !(*_ppCommandQueue)->Initialise( m_pDevice, D3D12_COMMAND_LIST_TYPE_DIRECT, _pDebugName ) )
 				return false;
 
 			return true;
 		}
 
-		bool DeviceD3D12::CreateCommandList(D3D12_COMMAND_LIST_TYPE _type, CommandList** _ppCommandList, const wchar_t* _pDebugName)
+		bool DeviceD3D12::CreateCommandList( D3D12_COMMAND_LIST_TYPE _type, CommandList** _ppCommandList, const wchar_t* _pDebugName ) const
 		{
 			*_ppCommandList = new CommandList();
-			if (!(*_ppCommandList)->Initialise(m_pDevice, D3D12_COMMAND_LIST_TYPE_DIRECT, _pDebugName))
+			if ( !(*_ppCommandList)->Initialise( m_pDevice, D3D12_COMMAND_LIST_TYPE_DIRECT, _pDebugName ) )
 				return false;
 
 			return true;
 		}
 
-		bool DeviceD3D12::CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE _type, DescriptorHeap** _pDescriptorHeap, UINT _numBuffers, D3D12_DESCRIPTOR_HEAP_FLAGS _flags, const wchar_t* _pDebugName)
+		bool DeviceD3D12::CreateDescriptorHeap( const D3D12_DESCRIPTOR_HEAP_TYPE _type, DescriptorHeap** _pDescriptorHeap, const UINT _numBuffers, const D3D12_DESCRIPTOR_HEAP_FLAGS _flags, const wchar_t* _pDebugName ) const
 		{
-			if (!(*_pDescriptorHeap)) {
+			if ( !(*_pDescriptorHeap) )
+			{
 				*_pDescriptorHeap = new DescriptorHeap();
 			}
 
-			if (!(*_pDescriptorHeap)->Initialise(m_pDevice, _type, _numBuffers, _flags, _pDebugName))
+			if ( !(*_pDescriptorHeap)->Initialise( m_pDevice, _type, _numBuffers, _flags, _pDebugName ) )
 				return false;
 
 			return true;
 		}
 
-		bool DeviceD3D12::CreateSwapChain(SwapChain** _ppSwapChain, GameWindow* _pWindow, UINT _numBackBuffers, const wchar_t* _pDebugName)
+		bool DeviceD3D12::CreateSwapChain( SwapChain** _ppSwapChain, GameWindow* _pWindow, UINT _numBackBuffers, const wchar_t* _pDebugName )
 		{
-			if (!CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, &m_DescHeapRTV, _numBackBuffers, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, _pDebugName))
+			if ( !CreateDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_RTV, &m_pDescHeapRtv, _numBackBuffers, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, _pDebugName ) )
 				return false;
 
-			if (!CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, &m_DescHeapDSV, 1, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, _pDebugName))
+			if ( !CreateDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_DSV, &m_pDescHeapDsv, 1, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, _pDebugName ) )
 				return false;
 
 			*_ppSwapChain = new SwapChain();
-			if (!(*_ppSwapChain)->Initialise(m_pDevice, m_pDxgiFactory, CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE_DIRECT), _numBackBuffers, m_DescHeapRTV, m_DescHeapDSV, _pWindow))
+			if ( !(*_ppSwapChain)->Initialise( m_pDevice, m_pDxgiFactory, CommandQueue::Instance( D3D12_COMMAND_LIST_TYPE_DIRECT ), _numBackBuffers, m_pDescHeapRtv, m_pDescHeapDsv, _pWindow ) )
 				return false;
 
 			return true;
 		}
-		ISamplerState* DeviceD3D12::CreateSamplerState(SamplerStateFilter _eFilter, SamplerStateWrapMode _eWrap, SamplerStateComparisonFunction _eCompFunc)
+
+		ISamplerState* DeviceD3D12::CreateSamplerState( const SamplerStateFilter _eFilter, const SamplerStateWrapMode _eWrap, const SamplerStateComparisonFunction _eCompFunc ) const
 		{
 			SamplerStateD3D12* pSamplerState = new SamplerStateD3D12();
-			if (!pSamplerState->Initialise(m_pDevice.Get(), m_DescHeapSampler, _eFilter, _eWrap, _eCompFunc))
+			if ( !pSamplerState->Initialise( m_pDevice.Get(), m_pDescHeapSampler, _eFilter, _eWrap, _eCompFunc ) )
 			{
 				delete pSamplerState;
 				return nullptr;
@@ -306,211 +316,207 @@ namespace SysRenderer
 			return pSamplerState;
 		}
 
-		IBufferResource* DeviceD3D12::CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName)
+		IBufferResource* DeviceD3D12::CreateTexture2D( const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName ) const
 		{
-			return new Texture2DResource(_pWstrFilename, true, m_DescHeapSrvCbv, m_pDevice.Get(), _pCommandList, _pDebugName);
+			return new Texture2DResource( _pWstrFilename, true, m_pDescHeapSrvCbv, m_pDevice.Get(), _pCommandList, _pDebugName );
 		}
 
-		IBufferResource* DeviceD3D12::CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName)
+		IBufferResource* DeviceD3D12::CreateWicTexture2D( const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName ) const
 		{
-			return new Texture2DResource(_pWstrFilename, false, m_DescHeapSrvCbv, m_pDevice.Get(), _pCommandList, _pDebugName);
+			return new Texture2DResource( _pWstrFilename, false, m_pDescHeapSrvCbv, m_pDevice.Get(), _pCommandList, _pDebugName );
 		}
 
-		IBufferResource* DeviceD3D12::CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName)
+		IBufferResource* DeviceD3D12::CreateVertexBufferResource( CommandList* _pCommandList, const UINT _sizeInBytes, const UINT _strideInBytes, const D3D12_RESOURCE_FLAGS _flags, const void* _pData, const wchar_t* _pDebugName ) const
 		{
-			return new VertexBufferResource(m_pDevice.Get(), _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, _pDebugName);
+			return new VertexBufferResource( m_pDevice.Get(), _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, _pDebugName );
 		}
 
-		IBufferResource* DeviceD3D12::CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName)
+		IBufferResource* DeviceD3D12::CreateIndexBufferResource( CommandList* _pCommandList, const UINT _sizeInBytes, const UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, const void* _pData, const wchar_t* _pDebugName ) const
 		{
-			return new IndexBufferResource(m_pDevice.Get(), _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, _pDebugName);
+			return new IndexBufferResource( m_pDevice.Get(), _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData, _pDebugName );
 		}
 
-		ConstantBufferResource* DeviceD3D12::CreateConstantBufferResource(const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName)
+		ConstantBufferResource* DeviceD3D12::CreateConstantBufferResource( const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName ) const
 		{
-			return new ConstantBufferResource(m_pDevice.Get(), m_DescHeapSrvCbv, _params, _pDebugName);
+			return new ConstantBufferResource( m_pDevice.Get(), m_pDescHeapSrvCbv, _params, _pDebugName );
 		}
 
-		bool DeviceD3D12::GetRootSignature(IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName)
+		bool DeviceD3D12::GetRootSignature( IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName )
 		{
-			GpuResourceTable& resources = *m_DeviceState.Resources;
-			unsigned long ulHash = Hashing::SimpleHash((const char*)resources.GetVShader()->GetShaderName(), strlen(resources.GetVShader()->GetShaderName()));
-			if (m_mapRootSignatures.find(ulHash) != m_mapRootSignatures.end())
+			GpuResourceTable&   resources = *m_DeviceState.Resources;
+			const unsigned long ulHash    = Hashing::SimpleHash( (const char*)resources.GetVShader()->GetShaderName(), strlen( resources.GetVShader()->GetShaderName() ) );
+			if ( m_mapRootSignatures.find( ulHash ) != m_mapRootSignatures.end() )
 			{
 				(*_ppRootSignature) = m_mapRootSignatures[ulHash];
 			}
 			else
 			{
-				RenderMarker profile(GetImmediateContext(), "ID3D12Device::CreateRootSignature");
+				RenderMarker profile( GetImmediateContext(), "ID3D12Device::CreateRootSignature" );
 
-				ISamplerState** pSamplers = nullptr;
-				IGpuBufferResource** ppBuffers = nullptr, ** ppTextures = nullptr;
-				unsigned long ulSamplers = resources.GetSamplers(&pSamplers);
-				unsigned long ulTextures = resources.GetTextures(&ppTextures);
-				unsigned long ulCBuffers = resources.GetConstantBuffers(&ppBuffers);
+				ISamplerState**     pSamplers  = nullptr;
+				IGpuBufferResource**ppBuffers  = nullptr,**ppTextures = nullptr;
+				const unsigned long ulSamplers = resources.GetSamplers( &pSamplers );
+				const unsigned long ulTextures = resources.GetTextures( &ppTextures );
+				const unsigned long ulCBuffers = resources.GetConstantBuffers( &ppBuffers );
 
-				CD3DX12_DESCRIPTOR_RANGE1 Table1[2];
-				Table1[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, ulCBuffers, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
-				Table1[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, ulTextures, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
+				CD3DX12_DESCRIPTOR_RANGE1 table1[2];
+				table1[0].Init( D3D12_DESCRIPTOR_RANGE_TYPE_CBV, ulCBuffers, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE );
+				table1[1].Init( D3D12_DESCRIPTOR_RANGE_TYPE_SRV, ulTextures, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE );
 
-				CD3DX12_DESCRIPTOR_RANGE1 Table2;
-				Table2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, ulSamplers, 0);
+				CD3DX12_DESCRIPTOR_RANGE1 table2;
+				table2.Init( D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, ulSamplers, 0 );
 
-				CD3DX12_ROOT_PARAMETER1 RootParameters[2];
-				RootParameters[0].InitAsDescriptorTable(ARRAYSIZE(Table1), Table1, D3D12_SHADER_VISIBILITY_ALL);
-				RootParameters[1].InitAsDescriptorTable(1, &Table2, D3D12_SHADER_VISIBILITY_ALL);
+				CD3DX12_ROOT_PARAMETER1 rootParameters[2];
+				rootParameters[0].InitAsDescriptorTable( ARRAYSIZE( table1 ), table1, D3D12_SHADER_VISIBILITY_ALL );
+				rootParameters[1].InitAsDescriptorTable( 1, &table2, D3D12_SHADER_VISIBILITY_ALL );
 
-				CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC RootSig;
-				RootSig.Init_1_1(ARRAYSIZE(RootParameters), RootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-					D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-					D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
-					D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS
-				);
+				CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSig;
+				rootSig.Init_1_1( ARRAYSIZE( rootParameters ), rootParameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS );
 
 				ID3DBlob* pSerializedRootSig;
-				VALIDATE_D3D(D3D12SerializeVersionedRootSignature(&RootSig, &pSerializedRootSig, nullptr));
+				VALIDATE_D3D( D3D12SerializeVersionedRootSignature(&rootSig, &pSerializedRootSig, nullptr) );
 
 				ID3D12RootSignature* pRootSig = nullptr;
-				VALIDATE_D3D(m_pDevice->CreateRootSignature(0, pSerializedRootSig->GetBufferPointer(), pSerializedRootSig->GetBufferSize(), IID_PPV_ARGS(&pRootSig)));
-				pRootSig->SetName(_pDebugName);
+				VALIDATE_D3D( m_pDevice->CreateRootSignature(0, pSerializedRootSig->GetBufferPointer(), pSerializedRootSig->GetBufferSize(), IID_PPV_ARGS(&pRootSig)) );
+				pRootSig->SetName( _pDebugName );
 
 				m_mapRootSignatures[ulHash] = pRootSig;
-				(*_ppRootSignature) = pRootSig;
+				(*_ppRootSignature)         = pRootSig;
 			}
 
 			return true;
 		}
 
-		bool DeviceD3D12::GetPipelineState(ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName)
+		bool DeviceD3D12::GetPipelineState( ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName )
 		{
-			if (!m_DeviceState.Resources)
+			if ( !m_DeviceState.Resources )
 			{
-				LogError("No Valid Resource Table Flushed to Device State");
+				LogError( "No Valid Resource Table Flushed to Device State" );
 				return false;
 			}
 
 			ID3D12RootSignature* pRootSignature = nullptr;
-			if (!GetRootSignature(m_DeviceState.Resources->GetVShader(), &pRootSignature))
+			if ( !GetRootSignature( m_DeviceState.Resources->GetVShader(), &pRootSignature ) )
 			{
-				assert(false && "Root Sig Creation Failure");
+				assert( false && "Root Sig Creation Failure" );
 			}
 
-			GetImmediateContext()->SetGraphicsRootSignature(pRootSignature);
+			GetImmediateContext()->SetGraphicsRootSignature( pRootSignature );
 
 			D3D12_GRAPHICS_PIPELINE_STATE_DESC stateDesc;
-			ZeroMemory(&stateDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+			ZeroMemory( &stateDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC) );
 
 			// Default
 			{
-				stateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-				stateDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-				stateDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-				stateDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-				stateDesc.SampleMask = UINT_MAX;
+				stateDesc.RasterizerState       = CD3DX12_RASTERIZER_DESC( D3D12_DEFAULT );
+				stateDesc.BlendState            = CD3DX12_BLEND_DESC( D3D12_DEFAULT );
+				stateDesc.DepthStencilState     = CD3DX12_DEPTH_STENCIL_DESC( D3D12_DEFAULT );
+				stateDesc.DSVFormat             = DXGI_FORMAT_D32_FLOAT;
+				stateDesc.SampleMask            = UINT_MAX;
 				stateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 
-				PRAGMA_TODO("Change Formats on Changed RTV/DSV");
+				PRAGMA_TODO( "Change Formats on Changed RTV/DSV" );
 				stateDesc.NumRenderTargets = 1;
-				stateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+				stateDesc.RTVFormats[0]    = DXGI_FORMAT_R8G8B8A8_UNORM;
 				stateDesc.SampleDesc.Count = 1;
 			}
 
 			std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
-			GenerateInputLayout(m_DeviceState.Resources->GetVShader(), &inputLayout);
+			GenerateInputLayout( m_DeviceState.Resources->GetVShader(), &inputLayout );
 
 			unsigned long ulHash = 0;
 			// Parameterised
 			{
-				LOW_LEVEL_PROFILE_MARKER(GetImmediateContext(), "GetPipelineState::Hash Ident");
+				LOW_LEVEL_PROFILE_MARKER( GetImmediateContext(), "GetPipelineState::Hash Ident" );
 
-				stateDesc.InputLayout = { &inputLayout[0], (UINT)inputLayout.size() };
+				stateDesc.InputLayout    = {&inputLayout[0], static_cast<UINT>(inputLayout.size())};
 				stateDesc.pRootSignature = pRootSignature;
-				stateDesc.VS = { m_DeviceState.Resources->GetVShader()->GetBytecode(), m_DeviceState.Resources->GetVShader()->GetBytecodeSize() };
-				stateDesc.PS = { m_DeviceState.Resources->GetPShader()->GetBytecode(), m_DeviceState.Resources->GetPShader()->GetBytecodeSize() };
+				stateDesc.VS             = {m_DeviceState.Resources->GetVShader()->GetBytecode(), m_DeviceState.Resources->GetVShader()->GetBytecodeSize()};
+				stateDesc.PS             = {m_DeviceState.Resources->GetPShader()->GetBytecode(), m_DeviceState.Resources->GetPShader()->GetBytecodeSize()};
 
-				ulHash += Hashing::SimpleHash((const char*)&inputLayout[0], sizeof(D3D12_INPUT_ELEMENT_DESC) * inputLayout.size());
-				ulHash += Hashing::SimpleHash((const char*)&stateDesc.pRootSignature, sizeof(ID3D12RootSignature));
-				ulHash += Hashing::SimpleHash((const char*)m_DeviceState.Resources->GetVShader()->GetShaderName(), strlen(m_DeviceState.Resources->GetVShader()->GetShaderName()));
-				ulHash += Hashing::SimpleHash((const char*)m_DeviceState.Resources->GetPShader()->GetShaderName(), strlen(m_DeviceState.Resources->GetPShader()->GetShaderName()));
+				ulHash += Hashing::SimpleHash( reinterpret_cast<const char*>(&inputLayout[0]), sizeof( D3D12_INPUT_ELEMENT_DESC ) * inputLayout.size() );
+				ulHash += Hashing::SimpleHash( reinterpret_cast<const char*>(&stateDesc.pRootSignature), sizeof( ID3D12RootSignature ) );
+				ulHash += Hashing::SimpleHash( m_DeviceState.Resources->GetVShader()->GetShaderName(), strlen( m_DeviceState.Resources->GetVShader()->GetShaderName() ) );
+				ulHash += Hashing::SimpleHash( m_DeviceState.Resources->GetPShader()->GetShaderName(), strlen( m_DeviceState.Resources->GetPShader()->GetShaderName() ) );
 			}
 
-			if (m_mapPSO.find(ulHash) != m_mapPSO.end())
+			if ( m_mapPso.find( ulHash ) != m_mapPso.end() )
 			{
-				(*_ppPipelineState) = m_mapPSO[ulHash];
+				(*_ppPipelineState) = m_mapPso[ulHash];
 			}
 			else
 			{
-				LOW_LEVEL_PROFILE_MARKER(GetImmediateContext(), "ID3D12Device::CreatePipelineState");
+				LOW_LEVEL_PROFILE_MARKER( GetImmediateContext(), "ID3D12Device::CreatePipelineState" );
 
-				ID3D12PipelineState* pPSO = nullptr;
-				VALIDATE_D3D(m_pDevice->CreateGraphicsPipelineState(&stateDesc, IID_PPV_ARGS(&pPSO)));
-				pPSO->SetName(_pDebugName);
+				ID3D12PipelineState* pPso = nullptr;
+				VALIDATE_D3D( m_pDevice->CreateGraphicsPipelineState(&stateDesc, IID_PPV_ARGS(&pPso)) );
+				pPso->SetName( _pDebugName );
 
-				m_mapPSO[ulHash] = pPSO;
-				(*_ppPipelineState) = pPSO;
+				m_mapPso[ulHash]    = pPso;
+				(*_ppPipelineState) = pPso;
 			}
 
 			return true;
 		}
 
-		bool DeviceD3D12::CreateSamplerState(D3D12_SAMPLER_DESC* _pSamplerDesc, D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const wchar_t* _pDebugName)
+		bool DeviceD3D12::CreateSamplerState( const D3D12_SAMPLER_DESC* _pSamplerDesc, const D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const wchar_t* _pDebugName ) const
 		{
-			m_pDevice->CreateSampler(_pSamplerDesc, _cpuHandle);
+			m_pDevice->CreateSampler( _pSamplerDesc, _cpuHandle );
 			return true;
 		}
 
-		void DeviceD3D12::BeginFrame(void)
+		void DeviceD3D12::BeginFrame( void )
 		{
-			m_pImmediateContext = CommandList::Build(D3D12_COMMAND_LIST_TYPE_DIRECT, L"ImmediateContext");
+			m_pImmediateContext = CommandList::Build( D3D12_COMMAND_LIST_TYPE_DIRECT, L"ImmediateContext" );
 
-			const unsigned int kElements = 2000;
-			if (!CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, &m_ActiveResourceHeap, kElements, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, L"Temp Texture Heap"))
+			constexpr unsigned int kElements = 2000;
+			if ( !CreateDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, &m_pActiveResourceHeap, kElements, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, L"Temp Texture Heap" ) )
 			{
-				assert(false && "Temp Texture Heap Creation Failure");
+				assert( false && "Temp Texture Heap Creation Failure" );
 			}
 
-			if (!CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, &m_ActiveSamplerHeap, kElements, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, L"Temp Sampler Heap"))
+			if ( !CreateDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, &m_pActiveSamplerHeap, kElements, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, L"Temp Sampler Heap" ) )
 			{
-				assert(false && "Temp Texture Heap Creation Failure");
+				assert( false && "Temp Texture Heap Creation Failure" );
 			}
 		}
 
-		void DeviceD3D12::EndFrame(void)
+		void DeviceD3D12::EndFrame( void ) const
 		{
-			m_ActiveResourceHeap->~DescriptorHeap();
-			m_ActiveSamplerHeap->~DescriptorHeap();
+			m_pActiveResourceHeap->~DescriptorHeap();
+			m_pActiveSamplerHeap->~DescriptorHeap();
 		}
 
 		bool DeviceD3D12::FlushState()
 		{
-			CommandList* pGfxCmdList = GetImmediateContext();
-			GpuResourceTable& Resources = *m_DeviceState.Resources;
+			const CommandList* pGfxCmdList = GetImmediateContext();
+			GpuResourceTable&  resources   = *m_DeviceState.Resources;
 
-			LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "FlushState");
+			LOW_LEVEL_PROFILE_MARKER( pGfxCmdList, "FlushState" );
 
 			ID3D12PipelineState* pPSO = nullptr;
-			if (!GetPipelineState(&pPSO))
+			if ( !GetPipelineState( &pPSO ) )
 				return false;
 
-			pGfxCmdList->SetPipelineState(pPSO);
+			pGfxCmdList->SetPipelineState( pPSO );
 
-			ID3D12DescriptorHeap* pHeaps[] = { m_ActiveResourceHeap->GetHeap(), m_ActiveSamplerHeap->GetHeap() };
-			pGfxCmdList->SetDescriptorHeaps(pHeaps, _countof(pHeaps));
+			ID3D12DescriptorHeap* pHeaps[] = {m_pActiveResourceHeap->GetHeap(), m_pActiveSamplerHeap->GetHeap()};
+			pGfxCmdList->SetDescriptorHeaps( pHeaps, _countof( pHeaps ) );
 
-			unsigned int uiResourceStartIndex = m_ActiveResourceHeap->GetFreeIndex();
+			unsigned int uiResourceStartIndex = m_pActiveResourceHeap->GetFreeIndex();
 
 			//
 			// Copy CBVs
 			//
-			IGpuBufferResource** ppCBs = nullptr;
-			unsigned long ulResources = Resources.GetConstantBuffers(&ppCBs);
-			for (unsigned int i = 0; i < ulResources; ++i)
+			IGpuBufferResource** ppCBs       = nullptr;
+			unsigned long        ulResources = resources.GetConstantBuffers( &ppCBs );
+			for ( unsigned int i = 0; i < ulResources; ++i )
 			{
-				CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource(m_ActiveResourceHeap->GetCPUStartHandle(), m_ActiveResourceHeap->GetFreeIndexAndIncrement(), m_ActiveResourceHeap->GetIncrementSize());
+				CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource( m_pActiveResourceHeap->GetCpuStartHandle(), m_pActiveResourceHeap->GetFreeIndexAndIncrement(), m_pActiveResourceHeap->GetIncrementSize() );
 
-				if (!ppCBs[i])
+				if ( !ppCBs[i] )
 				{
-					LogWarning("Null Constant Buffer");
+					LogWarning( "Null Constant Buffer" );
 					continue;
 				}
 
@@ -519,34 +525,31 @@ namespace SysRenderer
 				UINT size1 = 1;
 				UINT size2 = 1;
 
-				LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "CBV Desc Copies");
-				m_pDevice->CopyDescriptors(
-					1, &hCpuNewResource, &size1,
-					1, &hCpuActual, &size2,
-					D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+				LOW_LEVEL_PROFILE_MARKER( pGfxCmdList, "CBV Desc Copies" );
+				m_pDevice->CopyDescriptors( 1, &hCpuNewResource, &size1, 1, &hCpuActual, &size2, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
 			}
 
 			// 
 			// Copy SRVs
 			// 
 			IGpuBufferResource** ppTextures = nullptr;
-			ulResources = Resources.GetTextures(&ppTextures);
-			for (unsigned int i = 0; i < ulResources; ++i)
+			ulResources                     = resources.GetTextures( &ppTextures );
+			for ( unsigned int i = 0; i < ulResources; ++i )
 			{
-				CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource(m_ActiveResourceHeap->GetCPUStartHandle(), m_ActiveResourceHeap->GetFreeIndexAndIncrement(), m_ActiveResourceHeap->GetIncrementSize());
+				CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource( m_pActiveResourceHeap->GetCpuStartHandle(), m_pActiveResourceHeap->GetFreeIndexAndIncrement(), m_pActiveResourceHeap->GetIncrementSize() );
 
-				if (!ppTextures[i])
+				if ( !ppTextures[i] )
 				{
 					//LogWarning_Renderer("Invalid Texture");
 
 					static D3D12_SHADER_RESOURCE_VIEW_DESC staticNullDesc;
-					staticNullDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-					staticNullDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-					staticNullDesc.Texture2D.MipLevels = 0;
-					staticNullDesc.Texture2D.MostDetailedMip = 0;
+					staticNullDesc.Format                        = DXGI_FORMAT_R8G8B8A8_UNORM;
+					staticNullDesc.ViewDimension                 = D3D12_SRV_DIMENSION_TEXTURE2D;
+					staticNullDesc.Texture2D.MipLevels           = 0;
+					staticNullDesc.Texture2D.MostDetailedMip     = 0;
 					staticNullDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-					staticNullDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-					m_pDevice->CreateShaderResourceView(nullptr, &staticNullDesc, hCpuNewResource);
+					staticNullDesc.Shader4ComponentMapping       = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+					m_pDevice->CreateShaderResourceView( nullptr, &staticNullDesc, hCpuNewResource );
 
 					continue;
 				}
@@ -556,108 +559,102 @@ namespace SysRenderer
 				UINT size1 = 1;
 				UINT size2 = 1;
 
-				LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "SRV Desc Copies");
-				m_pDevice->CopyDescriptors(
-					1, &hCpuNewResource, &size1,
-					1, &hCpuActual, &size2,
-					D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+				LOW_LEVEL_PROFILE_MARKER( pGfxCmdList, "SRV Desc Copies" );
+				m_pDevice->CopyDescriptors( 1, &hCpuNewResource, &size1, 1, &hCpuActual, &size2, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
 			}
 
 			//
 			// Copy Sampler
 			//
 			ISamplerState** pSamplers = nullptr;
-			ulResources = Resources.GetSamplers(&pSamplers);
+			ulResources               = resources.GetSamplers( &pSamplers );
 
-			unsigned int uiSamplerStartIndex = m_ActiveSamplerHeap->GetFreeIndex();
-			for (unsigned int i = 0; i < ulResources; ++i)
+			const unsigned int uiSamplerStartIndex = m_pActiveSamplerHeap->GetFreeIndex();
+			for ( unsigned int i = 0; i < ulResources; ++i )
 			{
-				CD3DX12_CPU_DESCRIPTOR_HANDLE sampDescHandle(m_DescHeapSampler->GetCPUStartHandle());
-				sampDescHandle.Offset(((SamplerStateD3D12*)pSamplers[i])->GetHeapIndex(), m_DescHeapSampler->GetIncrementSize());
+				CD3DX12_CPU_DESCRIPTOR_HANDLE sampDescHandle( m_pDescHeapSampler->GetCpuStartHandle() );
+				sampDescHandle.Offset( static_cast<SamplerStateD3D12*>(pSamplers[i])->GetHeapIndex(), m_pDescHeapSampler->GetIncrementSize() );
 
-				CD3DX12_CPU_DESCRIPTOR_HANDLE tempHandleLoc(m_ActiveSamplerHeap->GetCPUStartHandle(), m_ActiveSamplerHeap->GetFreeIndexAndIncrement(), m_ActiveSamplerHeap->GetIncrementSize());
+				CD3DX12_CPU_DESCRIPTOR_HANDLE tempHandleLoc( m_pActiveSamplerHeap->GetCpuStartHandle(), m_pActiveSamplerHeap->GetFreeIndexAndIncrement(), m_pActiveSamplerHeap->GetIncrementSize() );
 
 				UINT size1 = 1;
 				UINT size2 = 1;
 
-				LOW_LEVEL_PROFILE_MARKER(pGfxCmdList, "Sampler Desc Copies");
-				m_pDevice->CopyDescriptors(
-					1, &tempHandleLoc, &size1,
-					1, &sampDescHandle, &size2,
-					D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+				LOW_LEVEL_PROFILE_MARKER( pGfxCmdList, "Sampler Desc Copies" );
+				m_pDevice->CopyDescriptors( 1, &tempHandleLoc, &size1, 1, &sampDescHandle, &size2, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER );
 			}
 
-			pGfxCmdList->SetGraphicsRootDescriptorTable(0, CD3DX12_GPU_DESCRIPTOR_HANDLE(m_ActiveResourceHeap->GetGPUStartHandle(), uiResourceStartIndex, m_ActiveResourceHeap->GetIncrementSize()));
-			pGfxCmdList->SetGraphicsRootDescriptorTable(1, CD3DX12_GPU_DESCRIPTOR_HANDLE(m_ActiveSamplerHeap->GetGPUStartHandle(), uiSamplerStartIndex, m_ActiveSamplerHeap->GetIncrementSize()));
+			pGfxCmdList->SetGraphicsRootDescriptorTable( 0, CD3DX12_GPU_DESCRIPTOR_HANDLE( m_pActiveResourceHeap->GetGpuStartHandle(), uiResourceStartIndex, m_pActiveResourceHeap->GetIncrementSize() ) );
+			pGfxCmdList->SetGraphicsRootDescriptorTable( 1, CD3DX12_GPU_DESCRIPTOR_HANDLE( m_pActiveSamplerHeap->GetGpuStartHandle(), uiSamplerStartIndex, m_pActiveSamplerHeap->GetIncrementSize() ) );
 
 			m_DeviceState.DirtyFlags = 0;
 
 			return true;
 		}
 
-		bool DeviceD3D12::SetMaterial(const char* _pName)
+		bool DeviceD3D12::SetMaterial( const char* _pName )
 		{
-			unsigned long ulHash = Hashing::SimpleHash(_pName, strlen(_pName));
-			if (m_mapGpuResourceTables.find(ulHash) != m_mapGpuResourceTables.end()) 
+			const unsigned long ulHash = Hashing::SimpleHash( _pName, strlen( _pName ) );
+			if ( m_mapGpuResourceTables.find( ulHash ) != m_mapGpuResourceTables.end() )
 			{
 				m_DeviceState.Resources = m_mapGpuResourceTables[ulHash];
 				return true;
 			}
 
-			Effect* set = ShaderCache::Instance()->GetEffect(_pName);
-			if (!set)
+			Effect* set = ShaderCache::Instance()->GetEffect( _pName );
+			if ( !set )
 			{
 				return false;
 			}
 
-			GpuResourceTable* pGpuResourceTable = new GpuResourceTable(set->GetVertexShader(), set->GetPixelShader());
-			m_DeviceState.Resources = pGpuResourceTable;
-			m_mapGpuResourceTables[ulHash] = pGpuResourceTable;
+			GpuResourceTable* pGpuResourceTable = new GpuResourceTable( set->GetVertexShader(), set->GetPixelShader() );
+			m_DeviceState.Resources             = pGpuResourceTable;
+			m_mapGpuResourceTables[ulHash]      = pGpuResourceTable;
 
 			return true;
 		}
 
-		bool DeviceD3D12::SetRenderTarget(void)
+		bool DeviceD3D12::SetRenderTarget( void )
 		{
 			return true;
 		}
 
-		bool DeviceD3D12::SetDepthBuffer(void)
+		bool DeviceD3D12::SetDepthBuffer( void )
 		{
 			return true;
 		}
 
-		bool DeviceD3D12::SetTexture(const char* _pName, IGpuBufferResource* _pTexture)
+		bool DeviceD3D12::SetTexture( const char* _pName, IGpuBufferResource* _pTexture ) const
 		{
-			if (!m_DeviceState.Resources)
+			if ( !m_DeviceState.Resources )
 			{
-				LogError("SetTexture - No Valid Resource Table Flushed to Device State");
+				LogError( "SetTexture - No Valid Resource Table Flushed to Device State" );
 				return false;
 			}
 
-			return m_DeviceState.Resources->SetTexture(_pName, _pTexture);
+			return m_DeviceState.Resources->SetTexture( _pName, _pTexture );
 		}
 
-		bool DeviceD3D12::SetConstantBuffer(const char* _pName, IGpuBufferResource* _pCBuffer)
+		bool DeviceD3D12::SetConstantBuffer( const char* _pName, IGpuBufferResource* _pCBuffer ) const
 		{
-			if (!m_DeviceState.Resources)
+			if ( !m_DeviceState.Resources )
 			{
-				LogError("SetConstantBuffer - No Valid Resource Table Flushed to Device State");
+				LogError( "SetConstantBuffer - No Valid Resource Table Flushed to Device State" );
 				return false;
 			}
 
-			return m_DeviceState.Resources->SetConstantBuffer(_pName, _pCBuffer);
+			return m_DeviceState.Resources->SetConstantBuffer( _pName, _pCBuffer );
 		}
 
-		bool DeviceD3D12::SetSamplerState(const char* _pName, ISamplerState* _pSamplerState)
+		bool DeviceD3D12::SetSamplerState( const char* _pName, ISamplerState* _pSamplerState ) const
 		{
-			if (!m_DeviceState.Resources)
+			if ( !m_DeviceState.Resources )
 			{
-				LogError("SetSamplerState - No Valid Resource Table Flushed to Device State");
+				LogError( "SetSamplerState - No Valid Resource Table Flushed to Device State" );
 				return false;
 			}
 
-			return m_DeviceState.Resources->SetSamplerState(_pName, _pSamplerState);
+			return m_DeviceState.Resources->SetSamplerState( _pName, _pSamplerState );
 		}
 	}
 }

@@ -18,30 +18,32 @@ namespace SysRenderer
 		class IBufferResource
 		{
 		public:
-			virtual ~IBufferResource(void);
+			virtual ~IBufferResource( void );
 
-			bool UploadResource(ID3D12Device* _pDevice, D3D12::CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, const void* _pData, const wchar_t* _pDebugName = nullptr);
+			bool UploadResource( ID3D12Device* _pDevice, D3D12::CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, const void* _pData, const wchar_t* _pDebugName = nullptr );
 
-			void SetCPUBuffer(Microsoft::WRL::ComPtr<ID3D12Resource> _pBuffer);
-			void SetGPUBuffer(Microsoft::WRL::ComPtr<ID3D12Resource> _pBuffer);
+			void SetCpuBuffer( Microsoft::WRL::ComPtr<ID3D12Resource> _pBuffer );
+			void SetGpuBuffer( Microsoft::WRL::ComPtr<ID3D12Resource> _pBuffer );
 
-			Microsoft::WRL::ComPtr<ID3D12Resource> GetCPUBuffer(void);
-			Microsoft::WRL::ComPtr<ID3D12Resource> GetGPUBuffer(void);
+			Microsoft::WRL::ComPtr<ID3D12Resource> GetCpuBuffer( void ) const;
+			Microsoft::WRL::ComPtr<ID3D12Resource> GetGpuBuffer( void ) const;
 
 		protected:
-			Microsoft::WRL::ComPtr<ID3D12Resource> m_CPUBuffer;
-			Microsoft::WRL::ComPtr<ID3D12Resource> m_GPUBuffer;
+			Microsoft::WRL::ComPtr<ID3D12Resource> m_cpuBuffer;
+			Microsoft::WRL::ComPtr<ID3D12Resource> m_gpuBuffer;
 		};
 
 		class IGpuBufferResource
 		{
 		public:
-			virtual ~IGpuBufferResource(void) { }
+			virtual ~IGpuBufferResource( void )
+			{
+			}
 
-			CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuHandle(void) { return m_hCpuHandle; }
+			CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuHandle( void ) const { return m_hCpuHandle; }
 
 		protected:
-			CD3DX12_CPU_DESCRIPTOR_HANDLE m_hCpuHandle;
+			CD3DX12_CPU_DESCRIPTOR_HANDLE m_hCpuHandle = {};
 		};
 	}
 }

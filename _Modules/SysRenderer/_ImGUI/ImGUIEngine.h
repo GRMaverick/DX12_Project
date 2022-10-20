@@ -5,7 +5,7 @@
 
 #include "Defines.h"
 
-PRAGMA_TODO("Remove Windows Platform From Here")
+PRAGMA_TODO( "Remove Windows Platform From Here" )
 #include <Windows.h>
 
 namespace SysRenderer
@@ -16,7 +16,7 @@ namespace SysRenderer
 		class DescriptorHeap;
 	}
 
-	namespace ImGUI
+	namespace ImGuiUtils
 	{
 		class ImGUIEngine
 		{
@@ -24,22 +24,22 @@ namespace SysRenderer
 			//
 			// Call from Device
 			//
-			static void Initialise(HWND _hWindow, D3D12::DescriptorHeap* _pSRVHeap);
+			static void Initialise( HWND _hWindow, D3D12::DescriptorHeap* _pSRVHeap );
 
 			//
 			// Call from Renderer
 			static void Begin();
 			static void Update();
-			static void DrawSlider3f(const char* _pLabel, float* _pX, float* _pY, float* _pZ);
+			static void DrawSlider3F( const char* _pLabel, float* _pX, float* _pY, float* _pZ );
 			static void End();
 
 			//
 			// Call from CommandList
 			//
-			static void Draw(D3D12::CommandList* _pCommandList);
+			static void Draw( D3D12::CommandList* _pCommandList );
 
 		private:
-			static ImGuiIO* m_IO;
+			static ImGuiIO* m_io;
 		};
 	}
 }

@@ -10,18 +10,20 @@ namespace SysRenderer
 		class ShaderD3D12 final : public Interfaces::IShaderStage
 		{
 		public:
-			ShaderD3D12(void* pBytecode, const size_t& _szBytecode, ShaderType _type)
+			ShaderD3D12( const void* _pBytecode, const size_t& _szBytecode, ShaderType _type )
 			{
-				m_Type = _type;
+				m_stType             = _type;
 				m_ShaderBytecodeSize = _szBytecode;
 
 				m_pShaderBytecode = new char[m_ShaderBytecodeSize];
-				memcpy_s(m_pShaderBytecode, m_ShaderBytecodeSize, pBytecode, m_ShaderBytecodeSize);
+				memcpy_s( m_pShaderBytecode, m_ShaderBytecodeSize, _pBytecode, m_ShaderBytecodeSize );
 			}
 
-			~ShaderD3D12(void)
+			~ShaderD3D12( void )
 			{
-				if (m_pShaderBytecode) delete[] m_pShaderBytecode; m_pShaderBytecode = nullptr;
+				if ( m_pShaderBytecode )
+					delete[] m_pShaderBytecode;
+				m_pShaderBytecode = nullptr;
 			}
 		};
 	}

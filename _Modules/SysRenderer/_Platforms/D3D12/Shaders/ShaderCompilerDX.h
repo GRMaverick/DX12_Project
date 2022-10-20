@@ -12,10 +12,12 @@ namespace SysRenderer
 		class ShaderCompilerDX : public Interfaces::IShaderCompiler
 		{
 		public:
-			virtual ~ShaderCompilerDX(void) { }
+			~ShaderCompilerDX( void ) override
+			{
+			}
 
 		protected:
-			void ReflectInternal(Interfaces::IShaderStage* _pShader, ID3D12ShaderReflection* _pReflection);
+			void ReflectInternal( Interfaces::IShaderStage* _pShader, ID3D12ShaderReflection* _pReflection ) const;
 		};
 	}
 }

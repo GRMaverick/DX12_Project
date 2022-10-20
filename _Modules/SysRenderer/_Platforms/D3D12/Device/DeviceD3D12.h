@@ -44,9 +44,9 @@ namespace SysRenderer
 
 		struct PipelineStateDesc
 		{
-			CD3DX12_PIPELINE_STATE_STREAM_VS VertexShader;
-			CD3DX12_PIPELINE_STATE_STREAM_PS PixelShader;
-			CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT InputLayout;
+			CD3DX12_PIPELINE_STATE_STREAM_VS             VertexShader;
+			CD3DX12_PIPELINE_STATE_STREAM_PS             PixelShader;
+			CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT   InputLayout;
 			CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE RootSignature;
 		};
 
@@ -54,93 +54,92 @@ namespace SysRenderer
 		{
 			friend class RendererD3D12;
 		public:
-			~DeviceD3D12(void);
+			~DeviceD3D12( void );
 
-			static DeviceD3D12* Instance(void);
+			static DeviceD3D12* Instance( void );
 
-			bool Initialise(bool _bDebugging);
-			bool InitialiseImGUI(HWND _hWindow, DescriptorHeap* _pSRVHeap);
+			bool Initialise( bool _bDebugging );
+			bool InitialiseImGUI( HWND _hWindow, const DescriptorHeap* _pSrvHeap ) const;
 
-			bool CreateCommandQueue(D3D12_COMMAND_LIST_TYPE _type, CommandQueue** _ppCommandQueue, const wchar_t* _pDebugName = L"");
-			bool CreateCommandList(D3D12_COMMAND_LIST_TYPE _type, CommandList** _ppCommandList, const wchar_t* _pDebugName = L"");
-			bool CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE _type, DescriptorHeap** _ppDescriptorHeap, UINT _numBuffers = 1, D3D12_DESCRIPTOR_HEAP_FLAGS _flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, const wchar_t* _pDebugName = L"");
-			bool CreateSwapChain(SwapChain** _ppSwapChain, SysCore::GameWindow* _pWindow, UINT _numBackBuffers, const wchar_t* _pDebugName = L"");
+			bool CreateCommandQueue( D3D12_COMMAND_LIST_TYPE _type, CommandQueue** _ppCommandQueue, const wchar_t* _pDebugName = L"" ) const;
+			bool CreateCommandList( D3D12_COMMAND_LIST_TYPE _type, CommandList** _ppCommandList, const wchar_t* _pDebugName = L"" ) const;
+			bool CreateDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE _type, DescriptorHeap** _ppDescriptorHeap, UINT _numBuffers = 1, D3D12_DESCRIPTOR_HEAP_FLAGS _flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, const wchar_t* _pDebugName = L"" ) const;
+			bool CreateSwapChain( SwapChain** _ppSwapChain, SysCore::GameWindow* _pWindow, UINT _numBackBuffers, const wchar_t* _pDebugName = L"" );
 
-			Interfaces::ISamplerState* CreateSamplerState(SamplerStateFilter _eFilter, SamplerStateWrapMode _eWrap, SamplerStateComparisonFunction _eCompFunc);
-			Interfaces::IBufferResource* CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName = L"");
-			Interfaces::IBufferResource* CreateWICTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName = L"");
-			Interfaces::IBufferResource* CreateIndexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName = L"");
-			Interfaces::IBufferResource* CreateVertexBufferResource(CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, void* _pData, const wchar_t* _pDebugName = L"");
-			ConstantBufferResource* CreateConstantBufferResource(const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"");
+			Interfaces::ISamplerState*   CreateSamplerState( SamplerStateFilter _eFilter, SamplerStateWrapMode _eWrap, SamplerStateComparisonFunction _eCompFunc ) const;
+			Interfaces::IBufferResource* CreateTexture2D( const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName = L"" ) const;
+			Interfaces::IBufferResource* CreateWicTexture2D( const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName = L"" ) const;
+			Interfaces::IBufferResource* CreateIndexBufferResource( CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, const void* _pData, const wchar_t* _pDebugName = L"" ) const;
+			Interfaces::IBufferResource* CreateVertexBufferResource( CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, const void* _pData, const wchar_t* _pDebugName = L"" ) const;
+			ConstantBufferResource*      CreateConstantBufferResource( const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"" ) const;
 
-			bool GetRootSignature(Interfaces::IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName = L"");
-			bool GetPipelineState(ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName = L"");
-			bool CreateSamplerState(D3D12_SAMPLER_DESC* _pSamplerDesc, D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const wchar_t* _pDebugName = L"");
+			bool GetRootSignature( Interfaces::IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName = L"" );
+			bool GetPipelineState( ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName = L"" );
+			bool CreateSamplerState( const D3D12_SAMPLER_DESC* _pSamplerDesc, D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const wchar_t* _pDebugName = L"" ) const;
 
-			bool FlushState();
-			bool SetMaterial(const char* _pName);
-			bool SetRenderTarget(void);
-			bool SetDepthBuffer(void);
-			bool SetTexture(const char* _pName, Interfaces::IGpuBufferResource* _pTexture);
-			bool SetConstantBuffer(const char* _pName, Interfaces::IGpuBufferResource* _pCBuffer);
-			bool SetSamplerState(const char* _pName, Interfaces::ISamplerState* _pSamplerState);
+			bool        FlushState();
+			bool        SetMaterial( const char* _pName );
+			static bool SetRenderTarget( void );
+			static bool SetDepthBuffer( void );
+			bool        SetTexture( const char* _pName, Interfaces::IGpuBufferResource* _pTexture ) const;
+			bool        SetConstantBuffer( const char* _pName, Interfaces::IGpuBufferResource* _pCBuffer ) const;
+			bool        SetSamplerState( const char* _pName, Interfaces::ISamplerState* _pSamplerState ) const;
 
-			DescriptorHeap* GetSrvCbvHeap(void) { return m_DescHeapSrvCbv; }
+			DescriptorHeap* GetSrvCbvHeap( void ) const { return m_pDescHeapSrvCbv; }
 
-			void BeginFrame(void);
-			void EndFrame(void);
+			void BeginFrame( void );
+			void EndFrame( void ) const;
 
-			CommandList* GetImmediateContext(void) { return m_pImmediateContext; }
-			Interfaces::ISamplerState* GetDefaultSamplerState(void) { return m_pDefaultSampler; }
+			CommandList*               GetImmediateContext( void ) const { return m_pImmediateContext; }
+			Interfaces::ISamplerState* GetDefaultSamplerState( void ) const { return m_pDefaultSampler; }
 
 		private:
-
 			struct DeviceState
 			{
-				unsigned int			DirtyFlags = 0;
+				unsigned int      DirtyFlags = 0;
 				GpuResourceTable* Resources;
 
-				bool IsDirty(const unsigned int _dirtyFlags)
+				bool IsDirty( const unsigned int _dirtyFlags ) const
 				{
 					return (DirtyFlags & _dirtyFlags) == _dirtyFlags;
 				}
 			};
 
-			const unsigned int kDirtyShaders = 1 << 0;
-			const unsigned int kDirtySamplerState = 1 << 1;
-			const unsigned int kDirtyRenderTarget = 1 << 2;
-			const unsigned int kDirtyDepthBuffer = 1 << 3;
-			const unsigned int kDirtyTexture = 1 << 4;
-			const unsigned int kDirtyConstantBuffer = 1 << 5;
-			const unsigned int kDirtyRootSignature = 1 << 6;
+			constexpr static unsigned int kDirtyShaders        = 1 << 0;
+			constexpr static unsigned int kDirtySamplerState   = 1 << 1;
+			constexpr static unsigned int kDirtyRenderTarget   = 1 << 2;
+			constexpr static unsigned int kDirtyDepthBuffer    = 1 << 3;
+			constexpr static unsigned int kDirtyTexture        = 1 << 4;
+			constexpr static unsigned int kDirtyConstantBuffer = 1 << 5;
+			constexpr static unsigned int kDirtyRootSignature  = 1 << 6;
 
-			DeviceD3D12(void);
+			DeviceD3D12( void );
 
-			DeviceState										m_DeviceState;
+			DeviceState m_DeviceState;
 
-			DescriptorHeap* m_DescHeapRTV;
-			DescriptorHeap* m_DescHeapDSV;
-			DescriptorHeap* m_DescHeapSrvCbv;
-			DescriptorHeap* m_DescHeapSampler;
+			DescriptorHeap* m_pDescHeapRtv;
+			DescriptorHeap* m_pDescHeapDsv;
+			DescriptorHeap* m_pDescHeapSrvCbv;
+			DescriptorHeap* m_pDescHeapSampler;
 
-			DescriptorHeap* m_ActiveResourceHeap;
-			DescriptorHeap* m_ActiveSamplerHeap;
+			DescriptorHeap* m_pActiveResourceHeap;
+			DescriptorHeap* m_pActiveSamplerHeap;
 
 			Interfaces::ISamplerState* m_pDefaultSampler;
-			D3D12_SAMPLER_DESC								m_DefaultSampler;
+			D3D12_SAMPLER_DESC         m_eDefaultSampler;
 
 			CommandList* m_pImmediateContext;
 
-			Microsoft::WRL::ComPtr<ID3D12Device6>			m_pDevice = nullptr;
+			Microsoft::WRL::ComPtr<ID3D12Device6> m_pDevice = nullptr;
 
-			Microsoft::WRL::ComPtr<IDXGIFactory5>			m_pDxgiFactory = nullptr;
-			Microsoft::WRL::ComPtr<IDXGIAdapter4>			m_pDxgiAdapter = nullptr;
+			Microsoft::WRL::ComPtr<IDXGIFactory5> m_pDxgiFactory = nullptr;
+			Microsoft::WRL::ComPtr<IDXGIAdapter4> m_pDxgiAdapter = nullptr;
 
-			std::map<unsigned long, GpuResourceTable*>			m_mapGpuResourceTables;
+			std::map<unsigned long, GpuResourceTable*> m_mapGpuResourceTables;
 
-			std::map<unsigned int, SamplerStateEntry*>			m_mapSamplers;
-			std::map<unsigned int, ID3D12RootSignature*>		m_mapRootSignatures;
-			std::map<unsigned int, ID3D12PipelineState*>		m_mapPSO;
+			std::map<unsigned int, SamplerStateEntry*>   m_mapSamplers;
+			std::map<unsigned int, ID3D12RootSignature*> m_mapRootSignatures;
+			std::map<unsigned int, ID3D12PipelineState*> m_mapPso;
 		};
 	}
 }

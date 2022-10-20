@@ -10,11 +10,11 @@ namespace SysRenderer
 		class ShaderCompilerDXC final : public ShaderCompilerDX
 		{
 		public:
-			ShaderCompilerDXC(void);
-			~ShaderCompilerDXC(void);
+			ShaderCompilerDXC( void );
+			~ShaderCompilerDXC( void ) override;
 
-			virtual Interfaces::IShaderStage* Compile(const char* _pFilename, const char* _pFunctionName, char* _pError) override final;
-			virtual void		Reflect(Interfaces::IShaderStage* _pShader) override final;
+			virtual Interfaces::IShaderStage* Compile( const char* _pFilename, const char* _pFunctionName, char* _pError ) override final;
+			virtual void                      Reflect( Interfaces::IShaderStage* _pShader ) override final;
 
 		private:
 		};

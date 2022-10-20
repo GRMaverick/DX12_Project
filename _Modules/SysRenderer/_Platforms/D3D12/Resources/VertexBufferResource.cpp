@@ -4,24 +4,24 @@ namespace SysRenderer
 {
 	namespace D3D12
 	{
-		VertexBufferResource::VertexBufferResource(ID3D12Device* _pDevice, CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, const void* _pData, const wchar_t* _pDebugName)
+		VertexBufferResource::VertexBufferResource( ID3D12Device* _pDevice, CommandList* _pCommandList, const UINT _sizeInBytes, const UINT _strideInBytes, const D3D12_RESOURCE_FLAGS _flags, const void* _pData, const wchar_t* _pDebugName )
 		{
-			if (UploadResource(_pDevice, _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData))
+			if ( UploadResource( _pDevice, _pCommandList, _sizeInBytes, _strideInBytes, _flags, _pData ) )
 			{
-				ZeroMemory(&m_View, sizeof(D3D12_VERTEX_BUFFER_VIEW));
-				m_View.BufferLocation = m_GPUBuffer->GetGPUVirtualAddress();
-				m_View.SizeInBytes = _sizeInBytes;
-				m_View.StrideInBytes = _strideInBytes;
+				ZeroMemory( &m_vbView, sizeof(D3D12_VERTEX_BUFFER_VIEW) );
+				m_vbView.BufferLocation = m_gpuBuffer->GetGPUVirtualAddress();
+				m_vbView.SizeInBytes    = _sizeInBytes;
+				m_vbView.StrideInBytes  = _strideInBytes;
 			}
 		}
 
-		VertexBufferResource::~VertexBufferResource(void)
+		VertexBufferResource::~VertexBufferResource( void )
 		{
 		}
 
-		D3D12_VERTEX_BUFFER_VIEW VertexBufferResource::GetView()
+		D3D12_VERTEX_BUFFER_VIEW VertexBufferResource::GetView() const
 		{
-			return m_View;
+			return m_vbView;
 		}
 	}
 }

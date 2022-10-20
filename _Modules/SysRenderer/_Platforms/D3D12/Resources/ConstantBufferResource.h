@@ -9,20 +9,20 @@ namespace SysRenderer
 {
 	namespace D3D12
 	{
-		class ConstantBufferResource : public Interfaces::IBufferResource, public Interfaces::IGpuBufferResource
+		class ConstantBufferResource final : public Interfaces::IBufferResource, public Interfaces::IGpuBufferResource
 		{
 		public:
-			ConstantBufferResource(ID3D12Device* _pDevice, DescriptorHeap* _pDescHeapCBV, const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pName);
-			~ConstantBufferResource(void);
+			ConstantBufferResource( ID3D12Device* _pDevice, DescriptorHeap* _pDescHeapCbv, const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pName );
+			~ConstantBufferResource( void ) override;
 
-			bool UpdateValue(const char* _pValueName, void* _pValue, unsigned int _szValue);
+			bool UpdateValue( const char* _pValueName, const void* _pValue, unsigned int _szValue ) const;
 
-			unsigned int GetHeapIndex(void) { return m_HeapIndex; }
-			unsigned int GetBindPoint(void) { return m_ConstantParameters.BindPoint; }
+			unsigned int GetHeapIndex( void ) const { return m_uiHeapIndex; }
+			unsigned int GetBindPoint( void ) const { return m_cbpConstantParameters.BindPoint; }
 		private:
-			unsigned int m_HeapIndex;
-			char* m_pCPUMapped = nullptr;
-			ConstantBufferParameters::ConstantBuffer m_ConstantParameters;
+			unsigned int                             m_uiHeapIndex;
+			char*                                    m_pCpuMapped = nullptr;
+			ConstantBufferParameters::ConstantBuffer m_cbpConstantParameters;
 		};
 	}
 }
