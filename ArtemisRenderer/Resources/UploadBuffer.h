@@ -3,6 +3,8 @@
 
 #include <d3d12.h>
 
+import "Helpers\\d3dx12.h";
+
 #define CONSTANT_BUFFER_SIZE(byteSize) (byteSize + 255) & ~255;
 
 namespace ArtemisRenderer::Resources

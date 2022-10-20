@@ -1,16 +1,14 @@
 module;
 
-#include "GpuResourceTable.h"
-
 #include <map>
 
-#include "../Shaders/IShader.h"
-
-#include "ConstantBuffer.h"
-
-#include "../Helpers/Defines.h"
-
 module Artemis.Renderer:Resources;
+
+import "GpuResourceTable.h";
+import "ConstantBuffer.h";
+
+import "Shaders/IShader.h";
+import "Helpers/Defines.h";
 
 using namespace ArtemisRenderer::Shaders;
 using namespace ArtemisRenderer::States;

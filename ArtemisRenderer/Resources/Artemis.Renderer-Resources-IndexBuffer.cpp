@@ -1,7 +1,8 @@
 module;
-#include "../Resources/IndexBuffer.h"
 
 module Artemis.Renderer:Resources;
+
+import "Resources/IndexBuffer.h";
 
 namespace ArtemisRenderer::Resources
 {

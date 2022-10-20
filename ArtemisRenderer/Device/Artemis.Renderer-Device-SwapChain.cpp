@@ -1,28 +1,24 @@
 module;
 
-#include "SwapChain.h"
-
-#include "CommandList.h"
-#include "CommandQueue.h"
-
-#include "../Helpers/d3dx12.h"
-#include "../Helpers/Defines.h"
-
-#include "../Resources/DescriptorHeap.h"
-
-//#include "SysCore\_Window\GameWindow.h"
+#include <functional>
 
 //#include "SysMemory\include\ScopedMemoryRecord.h"
 //#include "SysMemory\include\MemoryGlobalTracking.h"
 
 //#include "SysUtilities\_Profiling\PixScopedEvent.h"
 
-//using namespace Microsoft::WRL;
-
-//using namespace SysCore;
-//using namespace SysMemory;
+#include "SwapChain.h"
 
 module Artemis.Renderer:Device;
+
+import "CommandList.h";
+import "CommandQueue.h";
+
+import "Helpers/d3dx12.h";
+
+import "Resources/DescriptorHeap.h";
+
+import Artemis.Core;
 
 namespace ArtemisRenderer::Device
 {
@@ -61,7 +57,7 @@ namespace ArtemisRenderer::Device
 
 	bool SwapChain::Initialise(ID3D12Device* _pDevice, IDXGIFactory5* _pFactory,
 		CommandQueue* _pCommandQueue, UINT _backBuffers, 
-		Resources::DescriptorHeap* _pDescHeapRTV, Resources::DescriptorHeap* _pDescHeapDSV, SysCore::GameWindow* _pWindow)
+		Resources::DescriptorHeap* _pDescHeapRTV, Resources::DescriptorHeap* _pDescHeapDSV, ArtemisCore::Window::ArtemisWindow* _pWindow)
 	{
 		HRESULT hr = S_OK;
 
@@ -79,8 +75,8 @@ namespace ArtemisRenderer::Device
 		{
 			DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { };
 			ZeroMemory(&swapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC1));
-			//swapChainDesc.Width = _pWindow->GetDimensions().ScreenWidth;
-			//swapChainDesc.Height = _pWindow->GetDimensions().ScreenHeight;
+			swapChainDesc.Width = _pWindow->GetDimensions().ScreenWidth;
+			swapChainDesc.Height = _pWindow->GetDimensions().ScreenHeight;
 			swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 			swapChainDesc.Stereo = FALSE;
 			swapChainDesc.SampleDesc = { 1, 0 };
@@ -94,8 +90,7 @@ namespace ArtemisRenderer::Device
 			IDXGISwapChain1* pSwapChain1 = nullptr;
 			hr = _pFactory->CreateSwapChainForHwnd(
 				_pCommandQueue->m_pQueue,
-				//_pWindow->GetWindowHandle(),
-				NULL,
+				_pWindow->GetWindowHandle(),
 				&swapChainDesc,
 				nullptr,
 				nullptr,
@@ -108,14 +103,15 @@ namespace ArtemisRenderer::Device
 				return false;
 			}
 
-			//hr = _pFactory->MakeWindowAssociation(_pWindow->GetWindowHandle(), DXGI_MWA_NO_ALT_ENTER);
+			hr = _pFactory->MakeWindowAssociation(_pWindow->GetWindowHandle(), DXGI_MWA_NO_ALT_ENTER);
 			if (FAILED(hr))
 			{
 				assert(false && "MakeWindowAssociation failed");
 				return false;
 			}
 
-			//hr = pSwapChain1.As(&m_pSwapChain);
+			hr = pSwapChain1.As(&m_pSwapChain);
+			hr = m_
 			if (FAILED(hr))
 			{
 				assert(false && "SwapChain4 cast failed");
@@ -143,7 +139,7 @@ namespace ArtemisRenderer::Device
 				rtvHandle.Offset(m_pDescHeapRTV->GetIncrementSize());
 			}
 		}
-		//_pWindow->AddOnResizeDelegate(std::bind(&SwapChain::OnResize, this, std::placeholders::_1, std::placeholders::_2));
+		_pWindow->AddOnResizeDelegate(std::bind(&SwapChain::OnResize, this, std::placeholders::_1, std::placeholders::_2));
 
 		// Create DSV
 		{
@@ -156,17 +152,17 @@ namespace ArtemisRenderer::Device
 			optimizedClearValue.DepthStencil = { 1.0f, 0 };
 
 			D3D12_HEAP_PROPERTIES defaultHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-			//D3D12_RESOURCE_DESC defaultRdTex = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, _pWindow->GetDimensions().WindowWidth, _pWindow->GetDimensions().WindowHeight,
-			//	1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+			D3D12_RESOURCE_DESC defaultRdTex = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, _pWindow->GetDimensions().WindowWidth, _pWindow->GetDimensions().WindowHeight,
+				1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 
-			//_pDevice->CreateCommittedResource(
-			//	&defaultHeapProperties,
-			//	D3D12_HEAP_FLAG_NONE,
-			//	&defaultRdTex,
-			//	D3D12_RESOURCE_STATE_DEPTH_WRITE,
-			//	&optimizedClearValue,
-			//	IID_PPV_ARGS(&m_pDepthBuffer)
-			//);
+			_pDevice->CreateCommittedResource(
+				&defaultHeapProperties,
+				D3D12_HEAP_FLAG_NONE,
+				&defaultRdTex,
+				D3D12_RESOURCE_STATE_DEPTH_WRITE,
+				&optimizedClearValue,
+				IID_PPV_ARGS(&m_pDepthBuffer)
+			);
 
 			D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {  };
 			dsv.Format = DXGI_FORMAT_D32_FLOAT;
@@ -178,14 +174,14 @@ namespace ArtemisRenderer::Device
 			m_pDepthBuffer->SetName(L"Depth Buffer");
 
 			const unsigned int kFormatInBytes = 4; // DXGI_FORMAT_D32_FLOAT
-		//	//MemoryGlobalTracking::RecordExplicitAllocation(MemoryContextCategory::eRenderTarget, m_pDepthBuffer.Get(),
-		//	//	_pWindow->GetDimensions().WindowWidth * _pWindow->GetDimensions().WindowHeight * BACK_BUFFERS * kFormatInBytes
-		//	//);
+			//MemoryGlobalTracking::RecordExplicitAllocation(MemoryContextCategory::eRenderTarget, m_pDepthBuffer.Get(),
+			//	_pWindow->GetDimensions().WindowWidth * _pWindow->GetDimensions().WindowHeight * BACK_BUFFERS * kFormatInBytes
+			//);
 		}
 
 		// Create Viewport 
 		{
-			//m_Viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, (FLOAT)_pWindow->GetDimensions().WindowWidth, (FLOAT)_pWindow->GetDimensions().WindowHeight);
+			m_Viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, (FLOAT)_pWindow->GetDimensions().WindowWidth, (FLOAT)_pWindow->GetDimensions().WindowHeight);
 			m_ScissorRect = CD3DX12_RECT(0, 0, LONG_MAX, LONG_MAX);
 		}
 		return true;

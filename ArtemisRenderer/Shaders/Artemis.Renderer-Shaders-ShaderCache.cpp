@@ -1,19 +1,18 @@
 module;
 
-#include "ShaderCache.h"
-
-#include <Windows.h>
-#include <stdlib.h>
-#include <assert.h>
-
-#include "ShaderCompilerDXC.h"
-#include "ShaderCompilerFXC.h"
-
-#include "../Helpers/Defines.h"
-
 //#include "SysUtilities/_Loaders/CLParser.h"
 
+#include "ShaderCompilerFXC.h"
+#include "ShaderCompilerDXC.h"
+
+#include "ShaderCache.h"
+
+
+#include "Helpers/Defines.h"
 module Artemis.Renderer:Shaders;
+
+import Artemis.Core;
+using namespace ArtemisCore;
 
 //#define DUMP_SHADERS
 
@@ -46,16 +45,16 @@ namespace ArtemisRenderer::Shaders
 	{
 		m_pShaderCompiler = nullptr;
 
-		//if (CLParser::Instance()->HasArgument("dxc"))
+		if (CommandLine::HasArgument("dxc"))
 		{
 			LogInfo("Compiling using: DXCompiler");
 			m_pShaderCompiler = new ShaderCompilerDXC();
 		}
-		//elses
-		//{
-			//LogInfo("Compiling using: D3DCompiler");
-			//m_pShaderCompiler = new ShaderCompilerFXC();
-		//}
+		else
+		{
+			LogInfo("Compiling using: D3DCompiler");
+			m_pShaderCompiler = new ShaderCompilerFXC();
+		}
 	}
 
 	bool ShaderCache::Load(const char* _pShadersPath)

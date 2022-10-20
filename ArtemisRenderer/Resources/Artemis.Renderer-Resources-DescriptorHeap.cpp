@@ -1,10 +1,10 @@
 module;
 
-#include "DescriptorHeap.h"
-
-#include "../Helpers/Defines.h"
-
 module Artemis.Renderer:Resources;
+
+import "DescriptorHeap.h";
+
+import "Helpers/Defines.h";
 
 namespace ArtemisRenderer::Resources
 {

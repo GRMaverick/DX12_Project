@@ -2,46 +2,42 @@ module;
 
 //#include "CoreWindow.h"
 
-#include "RenderDevice.h"
-
-#include "CommandList.h"
-#include "CommandQueue.h"
-#include "SwapChain.h"
-
-#include "../Helpers/Defines.h"
-
-#include "../Resources/DescriptorHeap.h"
-#include "../Resources/ConstantBuffer.h"
-#include "../Resources/Texture2D.h"
-#include "../Resources/VertexBuffer.h"
-#include "../Resources/IndexBuffer.h"
-#include "../Resources/GpuResourceTable.h"
-
-#include "../States/SamplerState.h"
-
-#include "../Shaders/ShaderCache.h"
-
 #include <DirectXMath.h>
 
-//#include <ImGUI\imgui_impl_win32.h>
-//#include <ImGUI\imgui_impl_dx12.h>
-//
-//#include "TextureLoader.h"
-//#include <WICTextureLoader.h>
-//
 //#include "SysUtilities\_Profiling\ProfileMarker.h"
-//
+
 //#include "SysMemory/include/ScopedMemoryRecord.h"
 
 module Artemis.Renderer:Device;
+
+import "RenderDevice.h";
+import "CommandList.h";
+import "CommandQueue.h";
+import "SwapChain.h";
+
+import "Helpers/Defines.h";
+import "Helpers/ImGUIEngine.h";
+
+import "Resources/DescriptorHeap.h";
+import "Resources/ConstantBuffer.h";
+import "Resources/Texture2D.h";
+import "Resources/VertexBuffer.h";
+import "Resources/IndexBuffer.h";
+import "Resources/GpuResourceTable.h";
+
+import "States/SamplerState.h";
+
+import "Shaders/ShaderCache.h";
+
+using namespace ArtemisRenderer::States;
+using namespace ArtemisRenderer::Shaders;
+using namespace ArtemisRenderer::Resources;
 
 using namespace DirectX;
 
 import Artemis.Core;
 
-using namespace ArtemisRenderer::States;
-using namespace ArtemisRenderer::Shaders;
-using namespace ArtemisRenderer::Resources;
+using namespace ArtemisCore;
 
 namespace ArtemisRenderer::Device
 {
@@ -216,16 +212,16 @@ namespace ArtemisRenderer::Device
 		VALIDATE_D3D(D3D12CreateDevice(m_pDxgiAdapter, D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&m_pDevice)));
 		m_pDevice->SetName(L"Le Device");
 
-		if (_bDebugging)
-		{
-			//ID3D12InfoQueue* pInfoQueue = nullptr;
-			//if (SUCCEEDED(m_pDevice.As(&pInfoQueue)))
-			//{
-			//	pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
-			//	pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, FALSE);
-			//	pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
-			//}
-		}
+		//if (_bDebugging)
+		//{
+		//	ID3D12InfoQueue* pInfoQueue = nullptr;
+		//	if (SUCCEEDED(m_pDevice.As(&pInfoQueue)))
+		//	{
+		//		pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
+		//		pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, FALSE);
+		//		pInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+		//	}
+		//}
 
 		const unsigned int kMaxSrvCbvs = 1000;
 		if (!CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, &m_DescHeapSrvCbv, kMaxSrvCbvs, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, L"MainSrvCbvHeap"))
@@ -238,19 +234,18 @@ namespace ArtemisRenderer::Device
 		// Default Sampler
 		m_pDefaultSampler = CreateSamplerState(SamplerStateFilter::Linear, SamplerStateWrapMode::Wrap, SamplerStateComparisonFunction::Always);
 
-		return false;
-		//return true;
+		//return false;
+		return true;
 	}
 
 	bool RenderDevice::InitialiseImGUI(HWND _hWindow, Resources::DescriptorHeap* _pSRVHeap)
 	{
 		//ImGui_ImplWin32_Init(_hWindow);
-		//ImGui_ImplDX12_Init(m_pDevice.Get(), 1, DXGI_FORMAT_R8G8B8A8_UNORM,
-		//	_pSRVHeap->m_pDescriptorHeap.Get(), _pSRVHeap->GetCPUStartHandle(),
-		//	_pSRVHeap->GetGPUStartHandle()
-		//);
-		//return true;
-		return false;
+		ImGui_ImplDX12_Init(m_pDevice, 1, DXGI_FORMAT_R8G8B8A8_UNORM,
+			_pSRVHeap->m_pDescriptorHeap, _pSRVHeap->GetCPUStartHandle(),
+			_pSRVHeap->GetGPUStartHandle()
+		);
+		return true;
 	}
 
 	bool RenderDevice::CreateCommandQueue(D3D12_COMMAND_LIST_TYPE _type, CommandQueue** _ppCommandQueue, const wchar_t* _pDebugName)
@@ -282,7 +277,7 @@ namespace ArtemisRenderer::Device
 		return true;
 	}
 
-	bool RenderDevice::CreateSwapChain(SwapChain** _ppSwapChain, SysCore::GameWindow* _pWindow, UINT _numBackBuffers, const wchar_t* _pDebugName)
+	bool RenderDevice::CreateSwapChain(SwapChain** _ppSwapChain, Window::ArtemisWindow* _pWindow, UINT _numBackBuffers, const wchar_t* _pDebugName)
 	{
 		if (!CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, &m_DescHeapRTV, _numBackBuffers, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, _pDebugName))
 			return false;

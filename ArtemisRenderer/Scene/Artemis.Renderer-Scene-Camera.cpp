@@ -1,10 +1,10 @@
 module;
 
-#include "Camera.h"
-
-#include "Helpers/Defines.h"
-
 module Artemis.Renderer:Scene;
+
+import "Camera.h";
+
+import "Helpers/Defines.h";
 
 using namespace DirectX;
 

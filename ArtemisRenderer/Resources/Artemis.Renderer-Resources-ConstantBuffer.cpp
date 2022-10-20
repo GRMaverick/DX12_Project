@@ -1,12 +1,12 @@
 module;
 
-#include "ConstantBuffer.h"
-#include "DescriptorHeap.h"
-
-#include "../Helpers/d3dx12.h"
-#include "../Helpers/Defines.h"
-
 module Artemis.Renderer:Resources;
+
+import "ConstantBuffer.h";
+import "DescriptorHeap.h";
+
+import "Helpers/d3dx12.h";
+import "Helpers/Defines.h";
 
 namespace ArtemisRenderer::Resources
 {

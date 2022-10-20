@@ -2,9 +2,9 @@ module;
 
 #include "SamplerState.h"
 
-#include "../Helpers/d3dx12.h"
+#include "Helpers/d3dx12.h"
 
-#include "../Resources/DescriptorHeap.h"
+#include "Resources/DescriptorHeap.h"
 
 module Artemis.Renderer:States;
 

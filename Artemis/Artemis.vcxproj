@@ -25,11 +25,23 @@
     <ClCompile Include="Artemis.Core-Hashing.ixx" />
     <ClCompile Include="Artemis.Core-Logging.cpp" />
     <ClCompile Include="Artemis.Core-Logging.ixx" />
+    <ClCompile Include="Artemis.Core-Window.cpp" />
+    <ClCompile Include="Artemis.Core-Window.ixx" />
     <ClCompile Include="Artemis.Core.ixx" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ArtemisHash.h" />
-    <ClInclude Include="ArtemisLogger.h" />
+    <ClCompile Include="ArtemisHash.h">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsHeaderUnit</CompileAs>
+    </ClCompile>
+    <ClCompile Include="ArtemisLogger.h">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsHeaderUnit</CompileAs>
+    </ClCompile>
+    <ClCompile Include="ArtemisWindow.h">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsHeaderUnit</CompileAs>
+    </ClCompile>
+    <ClCompile Include="Defines.h">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsHeaderUnit</CompileAs>
+    </ClCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -118,6 +130,8 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)_Dependencies\include;</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>5105;4005;5106;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,6 +147,8 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)_Dependencies\include;</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>5105;4005;5106;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

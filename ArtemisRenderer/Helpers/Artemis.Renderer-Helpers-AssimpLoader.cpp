@@ -1,21 +1,12 @@
 module;
 
-#include "AssimpLoader.h"
-
-#include <assert.h>
-
-#include "Defines.h"
-
-#include "Device/RenderDevice.h"
-#include "Device/CommandList.h"
-
-#include "Resources/Texture2D.h"
-
 #include <assimp\Importer.hpp>
 #include <assimp\scene.h>
 #include <assimp\postprocess.h>
 
 #include <WICTextureLoader.h>
+
+#include "AssimpLoader.h"
 
 #define ALBEDO 0
 
@@ -25,6 +16,13 @@ module;
 #pragma comment(lib, "IrrXMLd.lib")
 
 module Artemis.Renderer:Helpers;
+
+import "Defines.h";
+
+import "Device/RenderDevice.h";
+import "Device/CommandList.h";
+
+import "Resources/Texture2D.h";
 
 using namespace ArtemisRenderer::Device;
 using namespace ArtemisRenderer::Resources;

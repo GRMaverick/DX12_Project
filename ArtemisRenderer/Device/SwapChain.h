@@ -1,18 +1,15 @@
 #ifndef __SwapChain_h__
 #define __SwapChain_h__
 
-//#include "Defines.h"
+#include "Helpers/Defines.h"
 
 #include <d3d12.h>
 #include <dxgi.h>
 #include <dxgi1_6.h>
-//#include <wrl.h>
 
-#define BACK_BUFFERS 2
-
-namespace SysCore
+namespace ArtemisCore::Window
 {
-	class GameWindow;
+	class ArtemisWindow;
 }
 
 namespace ArtemisRenderer::Resources
@@ -38,7 +35,7 @@ namespace ArtemisRenderer::Device
 			UINT _backBuffers,
 			Resources::DescriptorHeap* _pDescHeapRTV,
 			Resources::DescriptorHeap* _pDescHeapDSV,
-			SysCore::GameWindow* _pWindow);
+			ArtemisCore::Window::ArtemisWindow* _pWindow);
 
 		bool Present(void);
 		void Swap(void);

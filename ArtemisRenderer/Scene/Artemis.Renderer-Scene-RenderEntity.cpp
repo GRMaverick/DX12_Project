@@ -1,15 +1,15 @@
 module;
 
-#include "RenderEntity.h"
-
-#include "Helpers/Defines.h"
-#include "Helpers/AssimpLoader.h"
-
-#include "Device/RenderDevice.h"
-#include "Device/CommandList.h"
-#include "Device/CommandQueue.h"
-
 module Artemis.Renderer:Scene;
+
+import "RenderEntity.h";
+
+import "Helpers/Defines.h";
+import "Helpers/AssimpLoader.h";
+
+import "Device/RenderDevice.h";
+import "Device/CommandList.h";
+import "Device/CommandQueue.h";
 
 using namespace ArtemisRenderer::Device;
 using namespace ArtemisRenderer::Helpers;

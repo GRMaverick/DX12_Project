@@ -1,40 +1,36 @@
 module;
 
-#include "RendererForward.h"
-
-#include <assert.h>
 #include <DirectXMath.h>
 
-#include "Helpers/AssimpLoader.h"
 #include "Helpers/d3dx12.h"
-#include "Helpers/Defines.h"
 
 #include <WICTextureLoader.h>
 
-//#include "SysCore\_Window\GameWindow.h"
-
 //#include "SysMemory\include\MemoryGlobalTracking.h"
 
-//#include "SysUtilities\_Loaders\CLParser.h"
 //#include "SysUtilities\_Profiling\ProfileMarker.h"
 
-#include "Scene/Camera.h"
-#include "Scene/RenderEntity.h"
+#include "RendererForward.h"
 
-//#include "_ImGUI\ImGUIEngine.h"
+#include "Helpers/Defines.h"
+#include "Helpers/ImGUIEngine.h"
+//#include "Helpers/AssimpLoader.h"
 
-#include "Device/SwapChain.h"
-#include "Device/CommandList.h"
-#include "Device/CommandQueue.h"
-#include "Device/RenderDevice.h"
+//#include "Scene/Camera.h"
+//#include "Scene/RenderEntity.h"
+
+//#include "Device/SwapChain.h"
+//#include "Device/CommandList.h"
+//#include "Device/CommandQueue.h"
+//#include "Device/RenderDevice.h"
 
 #include "Shaders/ShaderCache.h"
 
 #include "Resources/ConstantTable.h"
 #include "Resources/DescriptorHeap.h"
-#include "Resources/Texture2D.h"
-#include "Resources/ConstantBuffer.h"
-#include "Resources/CBStructures.h"
+//#include "Resources/Texture2D.h"
+//#include "Resources/ConstantBuffer.h"
+//#include "Resources/CBStructures.h"
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d12.lib")
@@ -42,11 +38,19 @@ module;
 
 module Artemis.Renderer:Core;
 
+import :Device;
+import :Resources;
+import :Shaders;
+import :Helpers;
+import :Scene;
+
 using namespace ArtemisRenderer::Device;
 using namespace ArtemisRenderer::Resources;
 using namespace ArtemisRenderer::Shaders;
 using namespace ArtemisRenderer::Helpers;
 using namespace ArtemisRenderer::Scene;
+
+import Artemis.Core;
 
 using namespace DirectX;
 
@@ -60,20 +64,20 @@ using namespace DirectX;
 
 namespace ArtemisRenderer::Core
 {
-	Renderer::Renderer(void)
+	RendererForward::RendererForward(void)
 	{
 		m_pSwapChain = nullptr;
 	}
 
-	Renderer::~Renderer(void)
+	RendererForward::~RendererForward(void)
 	{
 		if (m_pSwapChain) delete m_pSwapChain; m_pSwapChain = nullptr;
 	}
 
-	bool Renderer::Initialise(SysCore::GameWindow* _pWindow)
+	bool RendererForward::Initialise(ArtemisCore::Window::ArtemisWindow* _pWindow)
 	{
-		//if (!RenderDevice::Instance()->Initialise(CLParser::Instance()->HasArgument("d3ddebug")))
-		//	return false;
+		if (!RenderDevice::Instance()->Initialise(ArtemisCore::CommandLine::HasArgument("d3ddebug")))
+			return false;
 
 		ShaderCache::Instance()->Load(SHADER_CACHE_LOCATION);
 
@@ -118,11 +122,11 @@ namespace ArtemisRenderer::Core
 	#endif
 	};
 
-	bool Renderer::LoadContent(void)
+	bool RendererForward::LoadContent(void)
 	{
 		m_bNewModelsLoaded = true;
 
-		m_pMainPassCB = (ConstantBuffer*)ConstantTable::Instance()->CreateConstantBuffer("PassCB");
+		m_pMainPassCB = (ConstantBuffer*)(ConstantTable::Instance()->CreateConstantBuffer("PassCB"));
 		m_pLightsCB = (ConstantBuffer*)ConstantTable::Instance()->CreateConstantBuffer("LightCB");
 		m_pSpotlightCB = (ConstantBuffer*)ConstantTable::Instance()->CreateConstantBuffer("SpotlightCB");
 
@@ -182,7 +186,7 @@ namespace ArtemisRenderer::Core
 		return true;
 	}
 
-	void Renderer::Update(double _deltaTime)
+	void RendererForward::Update(double _deltaTime)
 	{
 		UpdatePassConstants();
 
@@ -199,7 +203,7 @@ namespace ArtemisRenderer::Core
 		}
 	}
 
-	void Renderer::UpdatePassConstants()
+	void RendererForward::UpdatePassConstants()
 	{
 		m_Camera->Update();
 
@@ -217,7 +221,7 @@ namespace ArtemisRenderer::Core
 			m_pSpotlightCB->UpdateValue(nullptr, m_Spotlight, sizeof(Spotlight));
 	}
 
-	bool Renderer::Render(void)
+	bool RendererForward::Render(void)
 	{
 		RenderDevice::Instance()->BeginFrame();
 
@@ -254,9 +258,9 @@ namespace ArtemisRenderer::Core
 		return true;
 	}
 
-	void Renderer::ImGuiPass(CommandList* _pGfxCmdList)
+	void RendererForward::ImGuiPass(CommandList* _pGfxCmdList)
 	{
-#if 0 //defined(_DEBUG)
+#if defined(_DEBUG)
 		//RenderMarker profile(_pGfxCmdList, "%s", "ImGUI");
 
 		ID3D12DescriptorHeap* pHeaps[] = { m_pImGuiSRVHeap->GetHeap() };
@@ -294,29 +298,29 @@ namespace ArtemisRenderer::Core
 			ImGui::End();
 		}
 
-		if (ImGui::Begin("Memory"))
-		{
-			static const float kMB = 1024 * 1024;
-			float fTotalMemUsage = 0.0f;
-			int iTotalAllocations = 0;
-			for (unsigned int i = 0; i < (unsigned int)MemoryContextCategory::eCategories; ++i)
-			{
-				const char* pCatName = MemoryGlobalTracking::GetContextName((MemoryContextCategory)i);
-				const MemoryContextData& data = MemoryGlobalTracking::GetContextStats((MemoryContextCategory)i);
+		//if (ImGui::Begin("Memory"))
+		//{
+		//	static const float kMB = 1024 * 1024;
+		//	float fTotalMemUsage = 0.0f;
+		//	int iTotalAllocations = 0;
+		//	for (unsigned int i = 0; i < (unsigned int)MemoryContextCategory::eCategories; ++i)
+		//	{
+		//		const char* pCatName = MemoryGlobalTracking::GetContextName((MemoryContextCategory)i);
+		//		const MemoryContextData& data = MemoryGlobalTracking::GetContextStats((MemoryContextCategory)i);
 
-				int iNetAllocations = data.Allocations - data.Deallocations;
-				ImGui::CollapsingHeader(pCatName, ImGuiTreeNodeFlags_Bullet);
-				ImGui::Text("Net Allocations: %i", iNetAllocations);
-				ImGui::Text("Allocated Size: %0.3f MB", data.TotalAllocationSize / kMB);
+		//		int iNetAllocations = data.Allocations - data.Deallocations;
+		//		ImGui::CollapsingHeader(pCatName, ImGuiTreeNodeFlags_Bullet);
+		//		ImGui::Text("Net Allocations: %i", iNetAllocations);
+		//		ImGui::Text("Allocated Size: %0.3f MB", data.TotalAllocationSize / kMB);
 
-				fTotalMemUsage += data.TotalAllocationSize;
-				iTotalAllocations += iNetAllocations;
-			}
-			ImGui::CollapsingHeader("Total Memory Usage:", ImGuiTreeNodeFlags_Bullet);
-			ImGui::Text("Size Allocation: %0.3f MB", fTotalMemUsage / kMB);
-			ImGui::Text("Net Allocations: %i", iTotalAllocations);
-			ImGui::End();
-		}
+		//		fTotalMemUsage += data.TotalAllocationSize;
+		//		iTotalAllocations += iNetAllocations;
+		//	}
+		//	ImGui::CollapsingHeader("Total Memory Usage:", ImGuiTreeNodeFlags_Bullet);
+		//	ImGui::Text("Size Allocation: %0.3f MB", fTotalMemUsage / kMB);
+		//	ImGui::Text("Net Allocations: %i", iTotalAllocations);
+		//	ImGui::End();
+		//}
 
 		if (ImGui::Begin("Lights"))
 		{
@@ -392,7 +396,7 @@ namespace ArtemisRenderer::Core
 #endif
 	}
 
-	void Renderer::MainRenderPass(CommandList* _pGfxCmdList)
+	void RendererForward::MainRenderPass(CommandList* _pGfxCmdList)
 	{
 		//RenderMarker profile(_pGfxCmdList, "MainRenderPass");
 
@@ -400,37 +404,37 @@ namespace ArtemisRenderer::Core
 		ConstantTable* pConstantTable = ConstantTable::Instance();
 
 		// Per Object Draws
-		for (UINT i = 0; i < m_ModelCount; ++i)
-		{
-			RenderEntity* pModel = m_pRenderEntity[i];
-			DirectX::XMMATRIX world = pModel->GetWorld();
-			ConstantBuffer* pModelCB = pModel->GetConstantBuffer();
+		//for (UINT i = 0; i < m_ModelCount; ++i)
+		//{
+		//	RenderEntity* pModel = m_pRenderEntity[i];
+		//	DirectX::XMMATRIX world = pModel->GetWorld();
+		//	ConstantBuffer* pModelCB = pModel->GetConstantBuffer();
 
-			pDevice->SetMaterial(pModel->GetMaterialName());
-			pDevice->SetSamplerState("Albedo", pDevice->GetDefaultSamplerState());
-			pDevice->SetSamplerState("Normal", pDevice->GetDefaultSamplerState());
+		//	pDevice->SetMaterial(pModel->GetMaterialName());
+		//	pDevice->SetSamplerState("Albedo", pDevice->GetDefaultSamplerState());
+		//	pDevice->SetSamplerState("Normal", pDevice->GetDefaultSamplerState());
 
-			pDevice->SetConstantBuffer("ObjectCB", pModelCB);
-			pDevice->SetConstantBuffer("PassCB", m_pMainPassCB);
-			pDevice->SetConstantBuffer("LightCB", m_pLightsCB);
-			pDevice->SetConstantBuffer("SpotlightCB", m_pSpotlightCB);
+		//	pDevice->SetConstantBuffer("ObjectCB", pModelCB);
+		//	pDevice->SetConstantBuffer("PassCB", m_pMainPassCB);
+		//	pDevice->SetConstantBuffer("LightCB", m_pLightsCB);
+		//	pDevice->SetConstantBuffer("SpotlightCB", m_pSpotlightCB);
 
-			for (UINT i = 0; i < pModel->GetModel()->MeshCount; ++i)
-			{
-				Mesh& rMesh = pModel->GetModel()->pMeshList[i];
+		//	for (UINT i = 0; i < pModel->GetModel()->MeshCount; ++i)
+		//	{
+		//		Mesh& rMesh = pModel->GetModel()->pMeshList[i];
 
-				pDevice->SetTexture("Albedo", (Texture2D*)rMesh.pTexture[ALBEDO]);
-				pDevice->SetTexture("Normal", (Texture2D*)rMesh.pTexture[NORMAL]);
+		//		pDevice->SetTexture("Albedo", (Texture2D*)rMesh.pTexture[ALBEDO]);
+		//		pDevice->SetTexture("Normal", (Texture2D*)rMesh.pTexture[NORMAL]);
 
-				if (pDevice->FlushState())
-				{
-					auto vbView = ((VertexBuffer*)rMesh.pVertexBuffer)->GetView();
-					auto ibView = ((IndexBuffer*)rMesh.pIndexBuffer)->GetView();
-					_pGfxCmdList->SetIAVertexBuffers(0, 1, &vbView);
-					_pGfxCmdList->SetIAIndexBuffer(&ibView);
-					_pGfxCmdList->DrawIndexedInstanced(rMesh.Indices, 1, 0, 0, 0);
-				}
-			}
-		}
+		//		if (pDevice->FlushState())
+		//		{
+		//			auto vbView = ((VertexBuffer*)rMesh.pVertexBuffer)->GetView();
+		//			auto ibView = ((IndexBuffer*)rMesh.pIndexBuffer)->GetView();
+		//			_pGfxCmdList->SetIAVertexBuffers(0, 1, &vbView);
+		//			_pGfxCmdList->SetIAIndexBuffer(&ibView);
+		//			_pGfxCmdList->DrawIndexedInstanced(rMesh.Indices, 1, 0, 0, 0);
+		//		}
+		//	}
+		//}
 	}
 }

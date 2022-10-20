@@ -1,19 +1,20 @@
 module;
 
-#include "Texture2D.h"
-
-#include "../Helpers/Defines.h"
-
-#include "../Device/RenderDevice.h"
-#include "../Device/CommandList.h"
-#include "../Resources/DescriptorHeap.h"
-
 //#include "TextureLoader.h"
 //#include <WICTextureLoader.h>
 
 //#include "SysMemory/include/MemoryGlobalTracking.h"
 
 module Artemis.Renderer:Resources;
+
+import "Texture2D.h";
+
+import "Helpers/Defines.h";
+
+import "Device/RenderDevice.h";
+import "Device/CommandList.h";
+
+import "Resources/DescriptorHeap.h";
 
 namespace ArtemisRenderer::Resources
 {

@@ -1,13 +1,13 @@
 module;
 
-#include "ConstantTable.h"
-
-#include "ConstantBuffer.h"
-
-#include "Helpers/Defines.h"
-#include "Device/RenderDevice.h"
-
 module Artemis.Renderer:Resources;
+
+import "ConstantTable.h";
+
+import "ConstantBuffer.h";
+
+import "Helpers/Defines.h";
+import "Device/RenderDevice.h";
 
 using namespace ArtemisRenderer::Device;
 
@@ -53,7 +53,7 @@ namespace ArtemisRenderer::Resources
 
     IBufferResource* ConstantTable::CreateConstantBuffer(const char* _pBufferName)
     {
-        unsigned long ulHashName = SimpleHash((char*)_pBufferName, strlen(_pBufferName)).Hash;
+        unsigned long long ulHashName = SimpleHash((char*)_pBufferName, strlen(_pBufferName)).Hash;
         if (m_mapConstantBuffers.find(ulHashName) != m_mapConstantBuffers.end())
         {
             return RenderDevice::Instance()->CreateConstantBufferResource(m_mapConstantBuffers[ulHashName]);

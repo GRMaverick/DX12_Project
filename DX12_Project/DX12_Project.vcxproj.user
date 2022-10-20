@@ -3,8 +3,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>/Height:1080 /Width:1920</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>/Height:1080 /Width:1920</RemoteDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>/d3ddebug /Width:1920 /Height:1080</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>/d3ddebug /Width:1920 /Height:1080</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommandArguments>/Height:1080 /Width:1920</LocalDebuggerCommandArguments>

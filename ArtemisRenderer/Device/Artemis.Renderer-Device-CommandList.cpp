@@ -1,17 +1,17 @@
 module;
 
-#include "CommandList.h"
-
 #include <Windows.h>
 #include <pix3.h>
-
-#include "RenderDevice.h"
-
-#include "../Helpers/Defines.h"
-
-#include "../Profiling/ArtemisMarkerGPU.h"
+//#include <assert.h>
 
 module Artemis.Renderer:Device;
+
+import "CommandList.h";
+import "RenderDevice.h";
+
+import "Helpers/Defines.h";
+
+import "Profiling/ArtemisMarkerGPU.h";
 
 namespace ArtemisRenderer::Device
 {
@@ -60,7 +60,7 @@ namespace ArtemisRenderer::Device
 			hr = _pDevice->CreateCommandAllocator(_type, IID_PPV_ARGS(&m_pAllocator));
 			if (FAILED(hr))
 			{
-				assert(false && "Command Allocator Creation Failed");
+				//assert(false && "Command Allocator Creation Failed");
 				hr = _pDevice->GetDeviceRemovedReason();
 				if (FAILED(hr))
 				{
@@ -76,7 +76,7 @@ namespace ArtemisRenderer::Device
 			hr = _pDevice->CreateCommandList(0, _type, m_pAllocator, nullptr, IID_PPV_ARGS(&m_pList));
 			if (FAILED(hr))
 			{
-				assert(false && "Command List Creation Failed");
+				//assert(false && "Command List Creation Failed");
 				return false;
 			}
 			m_pList->SetName(_pDebugName);

@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../Resources/ConstantBufferParameters.h"
+#include "Resources/ConstantBufferParameters.h"
 //#include "D3D12\Resources\ConstantTable.h"
 
 namespace ArtemisRenderer::Shaders

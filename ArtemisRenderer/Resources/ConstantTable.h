@@ -27,7 +27,7 @@ namespace ArtemisRenderer::Resources
 
 		const unsigned int kMaxCBVs = 10;
 		DescriptorHeap* m_pDescHeapCBV = nullptr;
-		std::map<unsigned int, ConstantBufferParameters::ConstantBuffer> m_mapConstantBuffers;
+		std::map<unsigned long long, ConstantBufferParameters::ConstantBuffer> m_mapConstantBuffers;
 	};
 }
 

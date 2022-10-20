@@ -1,20 +1,21 @@
 #ifndef __DeviceD3D12_h__
 #define __DeviceD3D12_h__
 
+#include <Windows.h>
 #include <d3d12.h>
 #include <dxgi.h>
 #include <dxgi1_6.h>
 
 #include <map>
 
-#include "../Helpers/d3dx12.h"
+#include "Helpers/d3dx12.h"
 
-#include "../States/SamplerState.h"
-#include "../Resources/ConstantBufferParameters.h"
+#include "States/SamplerState.h"
+#include "Resources/ConstantBufferParameters.h"
 
-namespace SysCore
+namespace ArtemisCore::Window
 {
-	class GameWindow;
+	class ArtemisWindow;
 }
 
 namespace ArtemisRenderer::Resources
@@ -61,7 +62,7 @@ namespace ArtemisRenderer::Device
 		bool CreateCommandQueue(D3D12_COMMAND_LIST_TYPE _type, CommandQueue** _ppCommandQueue, const wchar_t* _pDebugName = L"");
 		bool CreateCommandList(D3D12_COMMAND_LIST_TYPE _type, CommandList** _ppCommandList, const wchar_t* _pDebugName = L"");
 		bool CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE _type, Resources::DescriptorHeap** _ppDescriptorHeap, UINT _numBuffers = 1, D3D12_DESCRIPTOR_HEAP_FLAGS _flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE, const wchar_t* _pDebugName = L"");
-		bool CreateSwapChain(SwapChain** _ppSwapChain, SysCore::GameWindow* _pWindow, UINT _numBackBuffers, const wchar_t* _pDebugName = L"");
+		bool CreateSwapChain(SwapChain** _ppSwapChain, ArtemisCore::Window::ArtemisWindow* _pWindow, UINT _numBackBuffers, const wchar_t* _pDebugName = L"");
 
 		States::SamplerState* CreateSamplerState(States::SamplerStateFilter _eFilter, States::SamplerStateWrapMode _eWrap, States::SamplerStateComparisonFunction _eCompFunc);
 		Resources::IBufferResource* CreateTexture2D(const wchar_t* _pWstrFilename, CommandList* _pCommandList, const wchar_t* _pDebugName = L"");

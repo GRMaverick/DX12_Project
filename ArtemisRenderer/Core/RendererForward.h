@@ -1,40 +1,28 @@
 #ifndef __RendererForward_h__
 #define __RendererForward_h__
 
-#include <d3d12.h>
+import <Windows.h>;
 
-#include "IRenderer.h"
+import "IRenderer.h";
 
-namespace ArtemisRenderer::Device
-{
-	class CommandList;
-	class SwapChain;
-}
+import "Scene/Camera.h";
+import "Scene/RenderEntity.h";
 
-namespace ArtemisRenderer::Resources
-{
-	struct Light;
-	struct Spotlight;
+import "Device/SwapChain.h";
 
-	class DescriptorHeap;
-	class ConstantBuffer;
-}	
-
-namespace ArtemisRenderer::Scene
-{
-	class Camera;
-	class RenderEntity;
-}
+import "Resources/CBStructures.h";
+import "Resources/ConstantBuffer.h";
+import "Resources/DescriptorHeap.h";
 
 namespace ArtemisRenderer::Core
 {
-	class Renderer : public IRenderer
+	class RendererForward final : public IRenderer
 	{
 	public:
-		Renderer(void);
-		~Renderer(void);
+		RendererForward(void);
+		~RendererForward(void);
 
-		virtual bool Initialise(SysCore::GameWindow* _pWindow) override final;
+		virtual bool Initialise(ArtemisCore::Window::ArtemisWindow* _pWindow) override final;
 		virtual void Update(double _deltaTime) override final;
 		virtual bool Render(void) override final;
 
@@ -52,9 +40,9 @@ namespace ArtemisRenderer::Core
 
 		Resources::DescriptorHeap*	m_pImGuiSRVHeap;
 
-		Resources::ConstantBuffer* m_pLightsCB;
-		Resources::ConstantBuffer* m_pMainPassCB;
-		Resources::ConstantBuffer* m_pSpotlightCB;
+		Resources::ConstantBuffer*	m_pLightsCB;
+		Resources::ConstantBuffer*	m_pMainPassCB;
+		Resources::ConstantBuffer*	m_pSpotlightCB;
 
 		bool LoadContent();
 

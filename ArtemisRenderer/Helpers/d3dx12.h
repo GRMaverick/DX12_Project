@@ -1905,7 +1905,7 @@ inline UINT64 GetRequiredIntermediateSize(
     UINT64 RequiredSize = 0;
 
     ID3D12Device* pDevice = nullptr;
-    pDestinationResource->GetDevice(IID_ID3D12Device, reinterpret_cast<void**>(&pDevice));
+    pDestinationResource->GetDevice(IID_PPV_ARGS(&pDevice));
     pDevice->GetCopyableFootprints(&Desc, FirstSubresource, NumSubresources, 0, nullptr, nullptr, nullptr, &RequiredSize);
     pDevice->Release();
 
@@ -2026,7 +2026,7 @@ inline UINT64 UpdateSubresources(
 
     auto Desc = pDestinationResource->GetDesc();
     ID3D12Device* pDevice = nullptr;
-    pDestinationResource->GetDevice(IID_ID3D12Device, reinterpret_cast<void**>(&pDevice));
+    pDestinationResource->GetDevice(IID_PPV_ARGS(&pDevice));
     pDevice->GetCopyableFootprints(&Desc, FirstSubresource, NumSubresources, IntermediateOffset, Layouts, NumRows, RowSizesInBytes, &RequiredSize);
     pDevice->Release();
 

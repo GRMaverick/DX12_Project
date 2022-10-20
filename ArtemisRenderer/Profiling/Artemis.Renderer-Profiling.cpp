@@ -1,13 +1,13 @@
 module;
 
-#include <Windows.h>
-#include <pix3.h>
-
-#include "ArtemisMarkerCPU.h"
-#include "ArtemisMarkerGPU.h"
-#include "..\Device\CommandList.h"
+//#include <pix3.h>
+//#include <Windows.h>
 
 module Artemis.Renderer:Profiling;
+
+import "ArtemisMarkerCPU.h";
+import "ArtemisMarkerGPU.h";
+import "Device/CommandList.h";
 
 import :Device;
 

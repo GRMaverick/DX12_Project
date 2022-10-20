@@ -2,7 +2,6 @@ module;
 
 export module Artemis.Renderer:Device;
 
-export namespace ArtemisRenderer::Device
-{
-	class CommandList;
-}
+export import "CommandList.h";
+export import "CommandQueue.h";
+export import "RenderDevice.h";

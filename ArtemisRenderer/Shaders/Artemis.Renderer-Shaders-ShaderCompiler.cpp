@@ -1,25 +1,23 @@
 module;
 
-#include "ShaderCompilerDXC.h"
-#include "ShaderCompilerFXC.h"
-
 #include <Windows.h>
-#include <assert.h>
-#include <stdlib.h>
 #include <dxcapi.h>
-#include <d3dcompiler.h>
-#include <vector>
+
+#include "ShaderCompilerFXC.h"
+#include "ShaderCompilerDXC.h"
 
 #include "Shader.h"
 
-#include "../Helpers/Defines.h"
+#include "Helpers/Defines.h"
 
-#include "../Resources/ConstantBufferParameters.h"
+#include "Resources/ConstantBufferParameters.h"
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxcompiler.lib")
 
 module Artemis.Renderer:Shaders;
+
+import :Resources;
 
 //#define DUMP_CONSTANTS
 //#define DUMP_BLOBS
@@ -32,10 +30,16 @@ namespace ArtemisRenderer::Shaders
 	{
 
 	}
-
 	ShaderCompilerFXC::~ShaderCompilerFXC(void)
 	{
 
+	}
+
+	ShaderCompilerDXC::ShaderCompilerDXC(void)
+	{
+	}
+	ShaderCompilerDXC::~ShaderCompilerDXC(void)
+	{
 	}
 
 	const char* GetTargetProfileA(const char* _pFilename)
@@ -233,7 +237,7 @@ namespace ArtemisRenderer::Shaders
 	void ShaderCompilerFXC::Reflect(IShaderStage* _pShader)
 	{
 		ID3D12ShaderReflection* pShaderReflection = nullptr;
-		VALIDATE_D3D(D3DReflect(_pShader->GetBytecode(), _pShader->GetBytecodeSize(), IID_ID3D12ShaderReflection, (void**)&pShaderReflection));
+		VALIDATE_D3D(D3DReflect(_pShader->GetBytecode(), _pShader->GetBytecodeSize(), IID_PPV_ARGS(&pShaderReflection)));
 
 		ReflectInternal(_pShader, pShaderReflection);
 	}

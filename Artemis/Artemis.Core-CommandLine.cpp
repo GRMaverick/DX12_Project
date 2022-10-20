@@ -1,9 +1,3 @@
-module;
-
-#include <stdio.h>
-#include <string.h>
-#include <Windows.h>
-
 module Artemis.Core:CommandLine;
 
 struct CLArgument

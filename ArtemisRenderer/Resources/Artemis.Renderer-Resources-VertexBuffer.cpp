@@ -1,8 +1,8 @@
 module;
 
-#include "../Resources/VertexBuffer.h"
-
 module Artemis.Renderer:Resources;
+
+import "Resources/VertexBuffer.h";
 
 namespace ArtemisRenderer::Resources
 {

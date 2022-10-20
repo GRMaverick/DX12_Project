@@ -125,11 +125,15 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)_Core;$(ProjectDir)_Interfaces;$(ProjectDir)_Renderer;$(ProjectDir)_Dependencies\include;$(ProjectDir)_Utilities;$(SolutionDir)DirectXTK12\Inc;$(SolutionDir)_Modules</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <DisableSpecificWarnings>4005;5106;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)_Dependencies\lib;$(SolutionDir)_Toolkits\DirectXTK12\Bin\Desktop_2019_Win10\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ImGUI.lib;runtimeobject.lib;Onecore.lib;d3d12.lib;dxcompiler.lib;dxgi.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /s /q $(SolutionDir)_Dependencies\dll\*.* $(SolutionDir)$(Platform)\$(Configuration)\
@@ -147,6 +151,7 @@ xcopy /y /s /q $(SolutionDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configurat
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)_Core;$(ProjectDir)_Interfaces;$(ProjectDir)_Renderer;$(ProjectDir)_Dependencies\include;$(ProjectDir)_Utilities;$(SolutionDir)DirectXTK12\Inc;$(SolutionDir)_Modules</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <DisableSpecificWarnings>4005;5106;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -154,6 +159,7 @@ xcopy /y /s /q $(SolutionDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configurat
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)_Dependencies\lib;$(SolutionDir)_Toolkits\DirectXTK12\Bin\Desktop_2019_Win10\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ImGUI.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /s /q $(SolutionDir)_Dependencies\dll\*.* $(SolutionDir)$(Platform)\$(Configuration)\</Command>
@@ -172,20 +178,14 @@ xcopy /y /s /q $(SolutionDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configurat
     <ClInclude Include="_Core\InputManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ArtemisRenderer\ArtemisRenderer.vcxproj">
+      <Project>{1fabcebb-5607-43d5-847d-0ddd018ae7f5}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Artemis\Artemis.vcxproj">
       <Project>{687aeb8d-e035-4653-8f54-0a7dcf3747fc}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\_Modules\SysCore\SysCore.vcxproj">
-      <Project>{4354c798-abed-408e-b5d0-d7a202e6eb59}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\_Modules\SysMemory\SysMemory.vcxproj">
       <Project>{1c9559d6-909b-4711-9a8e-850d83a33586}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\_Modules\SysRenderer\SysRenderer.vcxproj">
-      <Project>{02a065a8-0aa4-463a-b7c3-1246c412cb47}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\_Modules\SysUtilities\SysUtilities.vcxproj">
-      <Project>{958a836c-8ba2-4d4a-a313-c9da500c9e40}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

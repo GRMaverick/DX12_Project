@@ -2,14 +2,13 @@ module;
 
 #define NO_STDIO_REDIRECT
 
-#include "ArtemisLogger.h"
-
 #include <stdio.h>
 #include <cstdarg>
-
 #include <Windows.h>
 
 module Artemis.Core:Logging;
+
+import "ArtemisLogger.h";
 
 namespace ArtemisCore::Logging
 {

@@ -22,6 +22,24 @@
     <ClCompile Include="Artemis.Core-Logging.ixx">
       <Filter>Module Interfaces</Filter>
     </ClCompile>
+    <ClCompile Include="Artemis.Core-Window.cpp">
+      <Filter>Module Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="Artemis.Core-Window.ixx">
+      <Filter>Module Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="ArtemisHash.h">
+      <Filter>Module Headers</Filter>
+    </ClCompile>
+    <ClCompile Include="ArtemisLogger.h">
+      <Filter>Module Headers</Filter>
+    </ClCompile>
+    <ClCompile Include="ArtemisWindow.h">
+      <Filter>Module Headers</Filter>
+    </ClCompile>
+    <ClCompile Include="Defines.h">
+      <Filter>Module Headers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Module Interfaces">
@@ -33,13 +51,5 @@
     <Filter Include="Module Headers">
       <UniqueIdentifier>{dd8ac0b0-b311-4b86-a6e5-fd5158a89d50}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ArtemisLogger.h">
-      <Filter>Module Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="ArtemisHash.h">
-      <Filter>Module Headers</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

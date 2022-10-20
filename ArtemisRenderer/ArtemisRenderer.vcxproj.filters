@@ -63,104 +63,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Device\CommandList.h">
-      <Filter>Module Headers\Device</Filter>
-    </ClInclude>
-    <ClInclude Include="Profiling\ArtemisMarkerCPU.h">
-      <Filter>Module Headers\Profiling</Filter>
-    </ClInclude>
-    <ClInclude Include="Profiling\ArtemisMarkerGPU.h">
-      <Filter>Module Headers\Profiling</Filter>
-    </ClInclude>
-    <ClInclude Include="Device\CommandQueue.h">
-      <Filter>Module Headers\Device</Filter>
-    </ClInclude>
-    <ClInclude Include="Device\SwapChain.h">
-      <Filter>Module Headers\Device</Filter>
-    </ClInclude>
-    <ClInclude Include="Device\RenderDevice.h">
-      <Filter>Module Headers\Device</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\DescriptorHeap.h">
-      <Filter>Module Headers\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\ConstantBufferParameters.h">
-      <Filter>Module Headers\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\ConstantBuffer.h">
-      <Filter>Module Headers\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\IBufferResource.h">
-      <Filter>Module Headers\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\GpuResourceTable.h">
-      <Filter>Module Headers\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders\IShader.h">
-      <Filter>Module Headers\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders\IShaderCompiler.h">
-      <Filter>Module Headers\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders\ShaderCache.h">
-      <Filter>Module Headers\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders\ShaderCompilerDX.h">
-      <Filter>Module Headers\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders\ShaderCompilerDXC.h">
-      <Filter>Module Headers\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders\ShaderCompilerFXC.h">
-      <Filter>Module Headers\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders\Shader.h">
-      <Filter>Module Headers\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\IndexBuffer.h">
-      <Filter>Module Headers\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\Texture2D.h">
-      <Filter>Module Headers\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\UploadBuffer.h">
-      <Filter>Module Headers\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\VertexBuffer.h">
-      <Filter>Module Headers\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Helpers\Defines.h">
-      <Filter>Module Headers\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="Helpers\d3dx12.h">
-      <Filter>Module Headers\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\RendererForward.h">
-      <Filter>Module Headers\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\IRenderer.h">
-      <Filter>Module Headers\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\ConstantTable.h">
-      <Filter>Module Headers\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\CBStructures.h">
-      <Filter>Module Headers\Resources</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene\Camera.h">
-      <Filter>Module Headers\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene\RenderEntity.h">
-      <Filter>Module Headers\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="Helpers\AssimpLoader.h">
-      <Filter>Module Headers\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="Helpers\TextureLoader.h">
-      <Filter>Module Headers\Helpers</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Artemis.Renderer.ixx">
       <Filter>Module Interfaces</Filter>
     </ClCompile>
@@ -254,8 +156,112 @@
     <ClCompile Include="Scene\Artemis.Renderer-Scene-Camera.cpp">
       <Filter>Module Implementations\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Helpers\Artemis.Renderer-Helpers-ImGUIEngine.cpp">
+      <Filter>Module Implementations\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\IRenderer.h">
+      <Filter>Module Headers\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\RendererForward.h">
+      <Filter>Module Headers\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Device\CommandList.h">
+      <Filter>Module Headers\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="Device\CommandQueue.h">
+      <Filter>Module Headers\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="Device\SwapChain.h">
+      <Filter>Module Headers\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers\AssimpLoader.h">
+      <Filter>Module Headers\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers\d3dx12.h">
+      <Filter>Module Headers\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers\Defines.h">
+      <Filter>Module Headers\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers\ImGUIEngine.h">
+      <Filter>Module Headers\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="Helpers\TextureLoader.h">
+      <Filter>Module Headers\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="Profiling\ArtemisMarkerCPU.h">
+      <Filter>Module Headers\Profiling</Filter>
+    </ClCompile>
+    <ClCompile Include="Profiling\ArtemisMarkerGPU.h">
+      <Filter>Module Headers\Profiling</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\CBStructures.h">
+      <Filter>Module Headers\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\ConstantBuffer.h">
+      <Filter>Module Headers\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\ConstantBufferParameters.h">
+      <Filter>Module Headers\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\ConstantTable.h">
+      <Filter>Module Headers\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\DescriptorHeap.h">
+      <Filter>Module Headers\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\GpuResourceTable.h">
+      <Filter>Module Headers\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\IBufferResource.h">
+      <Filter>Module Headers\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\IndexBuffer.h">
+      <Filter>Module Headers\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\Texture2D.h">
+      <Filter>Module Headers\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\UploadBuffer.h">
+      <Filter>Module Headers\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\VertexBuffer.h">
+      <Filter>Module Headers\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\Camera.h">
+      <Filter>Module Headers\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\RenderEntity.h">
+      <Filter>Module Headers\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\IShader.h">
+      <Filter>Module Headers\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\IShaderCompiler.h">
+      <Filter>Module Headers\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\Shader.h">
+      <Filter>Module Headers\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\ShaderCache.h">
+      <Filter>Module Headers\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\ShaderCompilerDX.h">
+      <Filter>Module Headers\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\ShaderCompilerDXC.h">
+      <Filter>Module Headers\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="Shaders\ShaderCompilerFXC.h">
+      <Filter>Module Headers\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Device\RenderDevice.h">
+      <Filter>Module Headers\Device</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

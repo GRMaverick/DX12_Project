@@ -1,15 +1,15 @@
 module;
 
-#include "CommandQueue.h"
-
-#include "RenderDevice.h"
-#include "CommandList.h"
-
-#include "../Helpers/Defines.h"
-
 //#include "SysUtilities\_Profiling\PixScopedEvent.h"
 
 module Artemis.Renderer:Device;
+
+import "CommandQueue.h";
+
+import "RenderDevice.h";
+import "CommandList.h";
+
+import "Helpers/Defines.h";
 
 extern const char* g_TypeToString[];
 
@@ -29,7 +29,7 @@ namespace ArtemisRenderer::Device
 		if (m_pQueue) m_pQueue->Release();
 	}
 
-	static CommandQueue* Instance(D3D12_COMMAND_LIST_TYPE _type)
+	CommandQueue* CommandQueue::Instance(D3D12_COMMAND_LIST_TYPE _type)
 	{
 		switch (_type)
 		{

@@ -1,14 +1,14 @@
 module;
 
-#include "IBufferResource.h"
-
-#include "../Device/CommandList.h"
-
 //#include "SysMemory/include/MemoryGlobalTracking.h"
 
 #include <assert.h>
 
 module Artemis.Renderer:Resources;
+
+import "IBufferResource.h";
+
+import "Device/CommandList.h";
 
 //using namespace SysMemory;
 

@@ -2,9 +2,9 @@ module;
 
 #include <Windows.h>
 
-#include "ArtemisHash.h"
-
 module Artemis.Core:Hashing;
+
+import "ArtemisHash.h";
 
 namespace ArtemisCore::Hashing
 {
