@@ -7,8 +7,8 @@ namespace SysMemory
 {
 	struct MemoryAllocationHeader
 	{
-		std::size_t		Size = 0;
-		unsigned int	Category = 0;
+		std::size_t  Size     = 0;
+		unsigned int Category = 0;
 	};
 }
 

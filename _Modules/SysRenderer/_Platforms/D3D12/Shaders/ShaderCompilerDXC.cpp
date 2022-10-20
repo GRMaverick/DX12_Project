@@ -7,7 +7,7 @@
 #include <dxcapi.h>
 #include <d3dcompiler.h>
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <cstring>
 
 #pragma comment(lib, "dxcompiler.lib")

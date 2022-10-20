@@ -8,10 +8,10 @@ namespace SysMemory
 	class ScopedMemoryRecord
 	{
 	public:
-		ScopedMemoryRecord(MemoryContextCategory eCategory = MemoryContextCategory::eDefaultHeap);
-		~ScopedMemoryRecord(void);
+		ScopedMemoryRecord( MemoryContextCategory eCategory = MemoryContextCategory::EDefaultHeap );
+		~ScopedMemoryRecord( void );
 	private:
-		MemoryContextCategory m_ePreviousCategory = MemoryContextCategory::eDefaultHeap;
+		MemoryContextCategory m_ePreviousCategory = MemoryContextCategory::EDefaultHeap;
 	};
 }
 

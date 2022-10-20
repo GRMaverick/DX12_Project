@@ -3,13 +3,14 @@
 
 namespace SysMemory
 {
-	ScopedMemoryRecord::ScopedMemoryRecord(MemoryContextCategory eCategory)
+	ScopedMemoryRecord::ScopedMemoryRecord( MemoryContextCategory eCategory )
 	{
 		m_ePreviousCategory = MemoryGlobalTracking::GetCurrentContext();
-		MemoryGlobalTracking::SetContext(eCategory);
+		MemoryGlobalTracking::SetContext( eCategory );
 	}
-	ScopedMemoryRecord::~ScopedMemoryRecord(void)
+
+	ScopedMemoryRecord::~ScopedMemoryRecord( void )
 	{
-		MemoryGlobalTracking::SetContext(m_ePreviousCategory);
+		MemoryGlobalTracking::SetContext( m_ePreviousCategory );
 	}
 }

@@ -7,8 +7,8 @@ namespace SysMemory
 {
 	struct MemoryContextData
 	{
-		unsigned int Allocations = 0;
-		unsigned int Deallocations = 0;
+		unsigned int Allocations         = 0;
+		unsigned int Deallocations       = 0;
 		std::size_t  TotalAllocationSize = 0;
 	};
 }

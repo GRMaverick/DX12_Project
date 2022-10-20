@@ -5,15 +5,15 @@ namespace SysMemory
 {
 	enum class MemoryContextCategory : unsigned int
 	{
-		eDefaultHeap = 0,
-		eTextureCPU,
-		eTextureGPU,
-		eGeometryCPU,
-		eGeometryGPU,
-		eResourceGPU,
-		eRenderTarget,
-		eMemoryTracking,
-		eCategories,
+		EDefaultHeap = 0,
+		ETextureCpu,
+		ETextureGpu,
+		EGeometryCpu,
+		EGeometryGpu,
+		EResourceGpu,
+		ERenderTarget,
+		EMemoryTracking,
+		ECategories,
 	};
 }
 

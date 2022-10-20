@@ -1,129 +1,117 @@
 #include "MemoryGlobalTracking.h"
 
-#include <assert.h>
-#include <string.h>
+#include <cassert>
 
 #include "../include/ScopedMemoryRecord.h"
 #include "../include/MemoryAllocationHeader.h"
 
-void* ::operator new(std::size_t _size)
+auto ::operator new( std::size_t _size )->void*
 {
-	return SysMemory::MemoryGlobalTracking::Allocate(_size);
+	return SysMemory::MemoryGlobalTracking::Allocate( _size );
 }
 
-void* ::operator new[](std::size_t _size)
+auto ::operator new[]( std::size_t _size )->void*
 {
-	return SysMemory::MemoryGlobalTracking::Allocate(_size);
+	return SysMemory::MemoryGlobalTracking::Allocate( _size );
 }
 
-void ::operator delete(void* _pAddress)
+void ::operator delete( void* _pAddress )
 {
-	return SysMemory::MemoryGlobalTracking::Deallocate(_pAddress);
+	return SysMemory::MemoryGlobalTracking::Deallocate( _pAddress );
 }
 
-void ::operator delete[](void* _pAddress)
+void ::operator delete[]( void* _pAddress )
 {
-	return SysMemory::MemoryGlobalTracking::Deallocate(_pAddress);
+	return SysMemory::MemoryGlobalTracking::Deallocate( _pAddress );
 }
 
 namespace SysMemory
 {
-	const char* g_ContextName[] =
+	const char* g_ContextName[] = {"Default Heap", "CPU Textures", "GPU Textures", "CPU Geometry", "GPU Geometry", "GPU Resources", "Render Targets", "Memory Tracking",};
+
+	MemoryContextData g_AllocationData[static_cast<unsigned int>(MemoryContextCategory::ECategories)];
+
+	MemoryContextCategory                 MemoryGlobalTracking::m_eCategory        = MemoryContextCategory::EDefaultHeap;
+	MemoryGlobalTracking::ExplicitRecords MemoryGlobalTracking::m_vExplicitRecords = ExplicitRecords();
+
+	void* MemoryGlobalTracking::Allocate( const std::size_t _size )
 	{
-		"Default Heap",
-		"CPU Textures",
-		"GPU Textures",
-		"CPU Geometry",
-		"GPU Geometry",
-		"GPU Resources",
-		"Render Targets",
-		"Memory Tracking",
-	};
+		g_AllocationData[static_cast<unsigned int>(m_eCategory)].Allocations++;
+		g_AllocationData[static_cast<unsigned int>(m_eCategory)].TotalAllocationSize += _size;
 
-	MemoryContextData g_AllocationData[(unsigned int)MemoryContextCategory::eCategories];
+		g_AllocationData[static_cast<unsigned int>(MemoryContextCategory::EMemoryTracking)].Allocations++;
+		g_AllocationData[static_cast<unsigned int>(MemoryContextCategory::EMemoryTracking)].TotalAllocationSize += sizeof( MemoryAllocationHeader );
 
-	MemoryContextCategory					MemoryGlobalTracking::m_eCategory = MemoryContextCategory::eDefaultHeap;
-	MemoryGlobalTracking::ExplicitRecords	MemoryGlobalTracking::m_vExplicitRecords = MemoryGlobalTracking::ExplicitRecords();
+		const size_t szTotalAllocation = _size + sizeof( MemoryAllocationHeader );
+		void*        pAlloc            = malloc( szTotalAllocation );
+		memset( pAlloc, 0, szTotalAllocation );
 
-	void*			MemoryGlobalTracking::Allocate(std::size_t _size)
-	{
-		g_AllocationData[(unsigned int)m_eCategory].Allocations++;
-		g_AllocationData[(unsigned int)m_eCategory].TotalAllocationSize += _size;
+		const auto pHeader = static_cast<MemoryAllocationHeader*>(pAlloc);
+		pHeader->Size      = _size;
+		pHeader->Category  = static_cast<unsigned int>(m_eCategory);
 
-		g_AllocationData[(unsigned int)MemoryContextCategory::eMemoryTracking].Allocations++;
-		g_AllocationData[(unsigned int)MemoryContextCategory::eMemoryTracking].TotalAllocationSize += sizeof(MemoryAllocationHeader);
-
-		size_t szTotalAllocation = _size + sizeof(MemoryAllocationHeader);
-		void* pAlloc = malloc(szTotalAllocation);
-		memset(pAlloc, 0, szTotalAllocation);
-
-		MemoryAllocationHeader* pHeader = (MemoryAllocationHeader*)pAlloc;
-		pHeader->Size = _size;
-		pHeader->Category = (unsigned int)m_eCategory;
-
-		return ((char*)pAlloc) + sizeof(MemoryAllocationHeader);
+		return static_cast<char*>(pAlloc) + sizeof( MemoryAllocationHeader );
 	}
-	
-	void			MemoryGlobalTracking::Deallocate(void* _pAddress)
+
+	void MemoryGlobalTracking::Deallocate( void* _pAddress )
 	{
-		if (_pAddress == nullptr)
+		if ( _pAddress == nullptr )
 		{
 			return;
 		}
 
-		MemoryAllocationHeader* pHeader = (MemoryAllocationHeader*)(((char*)_pAddress)-sizeof(MemoryAllocationHeader));
+		const auto pHeader = (MemoryAllocationHeader*)(static_cast<char*>(_pAddress) - sizeof( MemoryAllocationHeader ));
 
 		g_AllocationData[pHeader->Category].Deallocations++;
 		g_AllocationData[pHeader->Category].TotalAllocationSize -= pHeader->Size;
 
-		g_AllocationData[(unsigned int)MemoryContextCategory::eMemoryTracking].Deallocations++;
-		g_AllocationData[(unsigned int)MemoryContextCategory::eMemoryTracking].TotalAllocationSize -= sizeof(MemoryAllocationHeader);
+		g_AllocationData[static_cast<unsigned int>(MemoryContextCategory::EMemoryTracking)].Deallocations++;
+		g_AllocationData[static_cast<unsigned int>(MemoryContextCategory::EMemoryTracking)].TotalAllocationSize -= sizeof( MemoryAllocationHeader );
 
-		return free(pHeader);
-	}
-	
-	void			MemoryGlobalTracking::RecordExplicitAllocation(MemoryContextCategory _eCategory, void* _pAddress, std::size_t _szAllocation)
-	{
-		ScopedMemoryRecord ctx(MemoryContextCategory::eMemoryTracking);
-		m_vExplicitRecords.push_back({ _pAddress, _szAllocation, _eCategory });
-		g_AllocationData[(unsigned int)_eCategory].Allocations++;
-		g_AllocationData[(unsigned int)_eCategory].TotalAllocationSize += _szAllocation;
+		return free( pHeader );
 	}
 
-	void			MemoryGlobalTracking::RecordExplicitDellocation(void* _pAddress)
+	void MemoryGlobalTracking::RecordExplicitAllocation( MemoryContextCategory _eCategory, void* _pAddress, std::size_t _szAllocation )
 	{
-		for (unsigned int i = 0; i < m_vExplicitRecords.size(); ++i)
+		ScopedMemoryRecord ctx( MemoryContextCategory::EMemoryTracking );
+		m_vExplicitRecords.push_back( {_pAddress, _szAllocation, _eCategory} );
+		g_AllocationData[static_cast<unsigned int>(_eCategory)].Allocations++;
+		g_AllocationData[static_cast<unsigned int>(_eCategory)].TotalAllocationSize += _szAllocation;
+	}
+
+	void MemoryGlobalTracking::RecordExplicitDellocation( const void* _pAddress )
+	{
+		for ( unsigned int i = 0; i < m_vExplicitRecords.size(); ++i )
 		{
-			if (_pAddress == m_vExplicitRecords[i].Address)
+			if ( _pAddress == m_vExplicitRecords[i].Address )
 			{
-				m_vExplicitRecords.erase(m_vExplicitRecords.begin() + i);
-				g_AllocationData[(unsigned int)m_vExplicitRecords[i].Category].Deallocations++;
-				g_AllocationData[(unsigned int)m_vExplicitRecords[i].Category].TotalAllocationSize -= m_vExplicitRecords[i].Size;
+				m_vExplicitRecords.erase( m_vExplicitRecords.begin() + i );
+				g_AllocationData[static_cast<unsigned int>(m_vExplicitRecords[i].Category)].Deallocations++;
+				g_AllocationData[static_cast<unsigned int>(m_vExplicitRecords[i].Category)].TotalAllocationSize -= m_vExplicitRecords[i].Size;
 				return;
 			}
 		}
 	}
 
-	void			MemoryGlobalTracking::SetContext(MemoryContextCategory _eCategory)
+	void MemoryGlobalTracking::SetContext( MemoryContextCategory _eCategory )
 	{
 		m_eCategory = _eCategory;
 	}
-	
-	MemoryContextCategory MemoryGlobalTracking::GetCurrentContext(void)
+
+	MemoryContextCategory MemoryGlobalTracking::GetCurrentContext( void )
 	{
 		return m_eCategory;
 	}
 
-	const char*		MemoryGlobalTracking::GetContextName(MemoryContextCategory _eCategory)
+	const char* MemoryGlobalTracking::GetContextName( MemoryContextCategory _eCategory )
 	{
-		assert( _eCategory < MemoryContextCategory::eCategories );
-		return g_ContextName[(unsigned int)_eCategory];
+		assert( _eCategory < MemoryContextCategory::ECategories );
+		return g_ContextName[static_cast<unsigned int>(_eCategory)];
 	}
 
-	MemoryContextData MemoryGlobalTracking::GetContextStats(MemoryContextCategory _eCategory)
+	MemoryContextData MemoryGlobalTracking::GetContextStats( MemoryContextCategory _eCategory )
 	{
-		assert(_eCategory < MemoryContextCategory::eCategories);
-		return g_AllocationData[(unsigned int)_eCategory];
+		assert( _eCategory < MemoryContextCategory::ECategories );
+		return g_AllocationData[static_cast<unsigned int>(_eCategory)];
 	}
 }
-
