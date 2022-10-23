@@ -37,9 +37,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <FxCompile Include="..\_Shaders\Albedo.fx">
       <Filter>Resource Files</Filter>
     </FxCompile>
@@ -52,5 +49,8 @@
     <FxCompile Include="..\_Shaders\AlbedoPhongNormalAO.fx">
       <Filter>Resource Files</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

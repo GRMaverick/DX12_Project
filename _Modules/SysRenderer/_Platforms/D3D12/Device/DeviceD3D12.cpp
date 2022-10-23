@@ -116,7 +116,7 @@ namespace SysRenderer
 			return &device;
 		}
 
-		DeviceD3D12::DeviceD3D12( void ):
+		DeviceD3D12::DeviceD3D12( void ) :
 			m_DeviceState(),
 			m_pDescHeapRtv( nullptr ),
 			m_pDescHeapDsv( nullptr ),
@@ -253,7 +253,7 @@ namespace SysRenderer
 			return true;
 		}
 
-		bool DeviceD3D12::InitialiseImGUI( const HWND _hWindow, const DescriptorHeap* _pSrvHeap ) const
+		bool DeviceD3D12::InitialiseImGui( const HWND _hWindow, const DescriptorHeap* _pSrvHeap ) const
 		{
 			ImGui_ImplWin32_Init( _hWindow );
 			ImGui_ImplDX12_Init( m_pDevice.Get(), 1, DXGI_FORMAT_R8G8B8A8_UNORM, _pSrvHeap->m_pDescriptorHeap.Get(), _pSrvHeap->GetCpuStartHandle(), _pSrvHeap->GetGpuStartHandle() );
@@ -343,8 +343,8 @@ namespace SysRenderer
 
 		bool DeviceD3D12::GetRootSignature( IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName )
 		{
-			GpuResourceTable&   resources = *m_DeviceState.Resources;
-			const unsigned long ulHash    = Hashing::SimpleHash( (const char*)resources.GetVShader()->GetShaderName(), strlen( resources.GetVShader()->GetShaderName() ) );
+			const GpuResourceTable& resources = *m_DeviceState.Resources;
+			const unsigned long     ulHash    = Hashing::SimpleHash( (const char*)resources.GetVShader()->GetShaderName(), strlen( resources.GetVShader()->GetShaderName() ) );
 			if ( m_mapRootSignatures.find( ulHash ) != m_mapRootSignatures.end() )
 			{
 				(*_ppRootSignature) = m_mapRootSignatures[ulHash];
@@ -398,9 +398,11 @@ namespace SysRenderer
 			ID3D12RootSignature* pRootSignature = nullptr;
 			if ( !GetRootSignature( m_DeviceState.Resources->GetVShader(), &pRootSignature ) )
 			{
-				assert( false && "Root Sig Creation Failure" );
+				LogError( "Root Signature Creation Failed." );
+				return false;
 			}
 
+			m_DeviceState.RootSignatureUpdates++;
 			GetImmediateContext()->SetGraphicsRootSignature( pRootSignature );
 
 			D3D12_GRAPHICS_PIPELINE_STATE_DESC stateDesc;
@@ -408,9 +410,10 @@ namespace SysRenderer
 
 			// Default
 			{
-				stateDesc.RasterizerState       = CD3DX12_RASTERIZER_DESC( D3D12_DEFAULT );
-				stateDesc.BlendState            = CD3DX12_BLEND_DESC( D3D12_DEFAULT );
-				stateDesc.DepthStencilState     = CD3DX12_DEPTH_STENCIL_DESC( D3D12_DEFAULT );
+				stateDesc.RasterizerState   = m_DeviceState.RasterizerState;
+				stateDesc.BlendState        = m_DeviceState.BlendState;
+				stateDesc.DepthStencilState = m_DeviceState.DepthStencilState;
+
 				stateDesc.DSVFormat             = DXGI_FORMAT_D32_FLOAT;
 				stateDesc.SampleMask            = UINT_MAX;
 				stateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -438,6 +441,9 @@ namespace SysRenderer
 				ulHash += Hashing::SimpleHash( reinterpret_cast<const char*>(&stateDesc.pRootSignature), sizeof( ID3D12RootSignature ) );
 				ulHash += Hashing::SimpleHash( m_DeviceState.Resources->GetVShader()->GetShaderName(), strlen( m_DeviceState.Resources->GetVShader()->GetShaderName() ) );
 				ulHash += Hashing::SimpleHash( m_DeviceState.Resources->GetPShader()->GetShaderName(), strlen( m_DeviceState.Resources->GetPShader()->GetShaderName() ) );
+				ulHash += Hashing::SimpleHash( reinterpret_cast<const char*>(&stateDesc.RasterizerState), sizeof( D3D12_RASTERIZER_DESC ) );
+				ulHash += Hashing::SimpleHash( reinterpret_cast<const char*>(&stateDesc.BlendState), sizeof( D3D12_BLEND_DESC ) );
+				ulHash += Hashing::SimpleHash( reinterpret_cast<const char*>(&stateDesc.DepthStencilState), sizeof( D3D12_DEPTH_STENCIL_DESC ) );
 			}
 
 			if ( m_mapPso.find( ulHash ) != m_mapPso.end() )
@@ -468,6 +474,9 @@ namespace SysRenderer
 		void DeviceD3D12::BeginFrame( void )
 		{
 			m_pImmediateContext = CommandList::Build( D3D12_COMMAND_LIST_TYPE_DIRECT, L"ImmediateContext" );
+			m_pImmediateContext->Reset();
+
+			m_DeviceState.SetDirty( kDirtyPipelineState );
 
 			constexpr unsigned int kElements = 2000;
 			if ( !CreateDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, &m_pActiveResourceHeap, kElements, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, L"Temp Texture Heap" ) )
@@ -481,29 +490,42 @@ namespace SysRenderer
 			}
 		}
 
-		void DeviceD3D12::EndFrame( void ) const
+		void DeviceD3D12::EndFrame( void )
 		{
+			m_DeviceState.ConstantBufferUpdates = 0;
+			m_DeviceState.SamplerStateUpdates   = 0;
+			m_DeviceState.TextureUpdates        = 0;
+			m_DeviceState.RenderTargetUpdates   = 0;
+			m_DeviceState.DepthBufferUpdates    = 0;
+			m_DeviceState.RootSignatureUpdates  = 0;
+			m_DeviceState.PipelineStateUpdates  = 0;
+			m_DeviceState.ShaderUpdates         = 0;
+
 			m_pActiveResourceHeap->~DescriptorHeap();
 			m_pActiveSamplerHeap->~DescriptorHeap();
 		}
 
 		bool DeviceD3D12::FlushState()
 		{
-			const CommandList* pGfxCmdList = GetImmediateContext();
-			GpuResourceTable&  resources   = *m_DeviceState.Resources;
+			const CommandList*      pGfxCmdList = GetImmediateContext();
+			const GpuResourceTable& resources   = *m_DeviceState.Resources;
 
 			LOW_LEVEL_PROFILE_MARKER( pGfxCmdList, "FlushState" );
 
-			ID3D12PipelineState* pPSO = nullptr;
-			if ( !GetPipelineState( &pPSO ) )
-				return false;
+			if ( m_DeviceState.IsDirty( kDirtyPipelineState ) )
+			{
+				ID3D12PipelineState* pPso = nullptr;
+				if ( !GetPipelineState( &pPso ) )
+					return false;
 
-			pGfxCmdList->SetPipelineState( pPSO );
+				pGfxCmdList->SetPipelineState( pPso );
+				m_DeviceState.PipelineStateUpdates++;
+			}
 
 			ID3D12DescriptorHeap* pHeaps[] = {m_pActiveResourceHeap->GetHeap(), m_pActiveSamplerHeap->GetHeap()};
 			pGfxCmdList->SetDescriptorHeaps( pHeaps, _countof( pHeaps ) );
 
-			unsigned int uiResourceStartIndex = m_pActiveResourceHeap->GetFreeIndex();
+			const unsigned int uiResourceStartIndex = m_pActiveResourceHeap->GetFreeIndex();
 
 			//
 			// Copy CBVs
@@ -531,7 +553,7 @@ namespace SysRenderer
 
 			// 
 			// Copy SRVs
-			// 
+			//
 			IGpuBufferResource** ppTextures = nullptr;
 			ulResources                     = resources.GetTextures( &ppTextures );
 			for ( unsigned int i = 0; i < ulResources; ++i )
@@ -565,10 +587,9 @@ namespace SysRenderer
 
 			//
 			// Copy Sampler
-			//
-			ISamplerState** pSamplers = nullptr;
-			ulResources               = resources.GetSamplers( &pSamplers );
-
+			//			
+			ISamplerState** pSamplers              = nullptr;
+			ulResources                            = resources.GetSamplers( &pSamplers );
 			const unsigned int uiSamplerStartIndex = m_pActiveSamplerHeap->GetFreeIndex();
 			for ( unsigned int i = 0; i < ulResources; ++i )
 			{
@@ -597,34 +618,47 @@ namespace SysRenderer
 			const unsigned long ulHash = Hashing::SimpleHash( _pName, strlen( _pName ) );
 			if ( m_mapGpuResourceTables.find( ulHash ) != m_mapGpuResourceTables.end() )
 			{
-				m_DeviceState.Resources = m_mapGpuResourceTables[ulHash];
+				if ( m_DeviceState.Resources != m_mapGpuResourceTables[ulHash] )
+				{
+					m_DeviceState.Resources = m_mapGpuResourceTables[ulHash];
+
+					m_DeviceState.ShaderUpdates++;
+					m_DeviceState.SetDirty( kDirtyShaders | kDirtyPipelineState );
+				}
 				return true;
 			}
 
-			Effect* set = ShaderCache::Instance()->GetEffect( _pName );
+			const Effect* set = ShaderCache::Instance()->GetEffect( _pName );
 			if ( !set )
 			{
 				return false;
 			}
 
 			GpuResourceTable* pGpuResourceTable = new GpuResourceTable( set->GetVertexShader(), set->GetPixelShader() );
-			m_DeviceState.Resources             = pGpuResourceTable;
 			m_mapGpuResourceTables[ulHash]      = pGpuResourceTable;
+			m_DeviceState.Resources             = pGpuResourceTable;
+
+			m_DeviceState.ShaderUpdates++;
+			m_DeviceState.SetDirty( kDirtyShaders | kDirtyPipelineState );
 
 			return true;
 		}
 
 		bool DeviceD3D12::SetRenderTarget( void )
 		{
+			m_DeviceState.RenderTargetUpdates++;
+			m_DeviceState.SetDirty( kDirtyRenderTarget );
 			return true;
 		}
 
 		bool DeviceD3D12::SetDepthBuffer( void )
 		{
+			m_DeviceState.DepthBufferUpdates++;
+			m_DeviceState.SetDirty( kDirtyDepthBuffer );
 			return true;
 		}
 
-		bool DeviceD3D12::SetTexture( const char* _pName, IGpuBufferResource* _pTexture ) const
+		bool DeviceD3D12::SetTexture( const char* _pName, IGpuBufferResource* _pTexture )
 		{
 			if ( !m_DeviceState.Resources )
 			{
@@ -632,10 +666,16 @@ namespace SysRenderer
 				return false;
 			}
 
-			return m_DeviceState.Resources->SetTexture( _pName, _pTexture );
+			if ( m_DeviceState.Resources->GetTexture( _pName ) != _pTexture )
+			{
+				m_DeviceState.SetDirty( kDirtyTexture );
+				return m_DeviceState.Resources->SetTexture( _pName, _pTexture );
+			}
+
+			return true;
 		}
 
-		bool DeviceD3D12::SetConstantBuffer( const char* _pName, IGpuBufferResource* _pCBuffer ) const
+		bool DeviceD3D12::SetConstantBuffer( const char* _pName, IGpuBufferResource* _pCBuffer )
 		{
 			if ( !m_DeviceState.Resources )
 			{
@@ -643,10 +683,16 @@ namespace SysRenderer
 				return false;
 			}
 
-			return m_DeviceState.Resources->SetConstantBuffer( _pName, _pCBuffer );
+			if ( m_DeviceState.Resources->GetConstantBuffer( _pName ) != _pCBuffer )
+			{
+				m_DeviceState.SetDirty( kDirtyConstantBuffer );
+				return m_DeviceState.Resources->SetConstantBuffer( _pName, _pCBuffer );
+			}
+
+			return true;
 		}
 
-		bool DeviceD3D12::SetSamplerState( const char* _pName, ISamplerState* _pSamplerState ) const
+		bool DeviceD3D12::SetSamplerState( const char* _pName, ISamplerState* _pSamplerState )
 		{
 			if ( !m_DeviceState.Resources )
 			{
@@ -654,7 +700,61 @@ namespace SysRenderer
 				return false;
 			}
 
-			return m_DeviceState.Resources->SetSamplerState( _pName, _pSamplerState );
+			if ( m_DeviceState.Resources->GetSampler( _pName ) != _pSamplerState )
+			{
+				m_DeviceState.SetDirty( kDirtySamplerState );
+				return m_DeviceState.Resources->SetSamplerState( _pName, _pSamplerState );
+			}
+
+			return true;
+		}
+
+		bool Matches( const D3D12_RASTERIZER_DESC _left, const D3D12_RASTERIZER_DESC _right )
+		{
+			return memcmp( &_left, &_right, sizeof( D3D12_RASTERIZER_DESC ) ) == 0;
+		}
+
+		bool Matches( const D3D12_BLEND_DESC _left, const D3D12_BLEND_DESC _right )
+		{
+			return memcmp( &_left, &_right, sizeof( D3D12_BLEND_DESC ) ) == 0;
+		}
+
+		bool Matches( const D3D12_DEPTH_STENCIL_DESC _left, const D3D12_DEPTH_STENCIL_DESC _right )
+		{
+			return memcmp( &_left, &_right, sizeof( D3D12_DEPTH_STENCIL_DESC ) ) == 0;
+		}
+
+		bool DeviceD3D12::SetRasterizerState( const D3D12_RASTERIZER_DESC _desc )
+		{
+			if ( !Matches( m_DeviceState.RasterizerState, _desc ) )
+			{
+				m_DeviceState.RasterizerState = _desc;
+				m_DeviceState.SetDirty( kDirtyPipelineState );
+			}
+
+			return true;
+		}
+
+		bool DeviceD3D12::SetBlendState( const D3D12_BLEND_DESC _desc )
+		{
+			if ( !Matches( m_DeviceState.BlendState, _desc ) )
+			{
+				m_DeviceState.BlendState = _desc;
+				m_DeviceState.SetDirty( kDirtyPipelineState );
+			}
+
+			return true;
+		}
+
+		bool DeviceD3D12::SetDepthStencilState( const D3D12_DEPTH_STENCIL_DESC _desc )
+		{
+			if ( !Matches( m_DeviceState.DepthStencilState, _desc ) )
+			{
+				m_DeviceState.DepthStencilState = _desc;
+				m_DeviceState.SetDirty( kDirtyPipelineState );
+			}
+
+			return true;
 		}
 	}
 }

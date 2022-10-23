@@ -54,12 +54,40 @@ namespace SysRenderer
 		{
 			friend class RendererD3D12;
 		public:
+			struct DeviceState
+			{
+				unsigned int             DirtyFlags = 0;
+				GpuResourceTable*        Resources;
+				D3D12_RASTERIZER_DESC    RasterizerState;
+				D3D12_BLEND_DESC         BlendState;
+				D3D12_DEPTH_STENCIL_DESC DepthStencilState;
+
+				unsigned int ConstantBufferUpdates = 0;
+				unsigned int SamplerStateUpdates   = 0;
+				unsigned int TextureUpdates        = 0;
+				unsigned int RenderTargetUpdates   = 0;
+				unsigned int DepthBufferUpdates    = 0;
+				unsigned int RootSignatureUpdates  = 0;
+				unsigned int PipelineStateUpdates  = 0;
+				unsigned int ShaderUpdates         = 0;
+
+				void SetDirty( const unsigned int _dirtyFlag )
+				{
+					DirtyFlags |= _dirtyFlag;
+				}
+
+				bool IsDirty( const unsigned int _dirtyFlags ) const
+				{
+					return (DirtyFlags & _dirtyFlags) == _dirtyFlags;
+				}
+			};
+
 			~DeviceD3D12( void );
 
 			static DeviceD3D12* Instance( void );
 
 			bool Initialise( bool _bDebugging );
-			bool InitialiseImGUI( HWND _hWindow, const DescriptorHeap* _pSrvHeap ) const;
+			bool InitialiseImGui( HWND _hWindow, const DescriptorHeap* _pSrvHeap ) const;
 
 			bool CreateCommandQueue( D3D12_COMMAND_LIST_TYPE _type, CommandQueue** _ppCommandQueue, const wchar_t* _pDebugName = L"" ) const;
 			bool CreateCommandList( D3D12_COMMAND_LIST_TYPE _type, CommandList** _ppCommandList, const wchar_t* _pDebugName = L"" ) const;
@@ -73,45 +101,38 @@ namespace SysRenderer
 			Interfaces::IBufferResource* CreateVertexBufferResource( CommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, D3D12_RESOURCE_FLAGS _flags, const void* _pData, const wchar_t* _pDebugName = L"" ) const;
 			ConstantBufferResource*      CreateConstantBufferResource( const ConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"" ) const;
 
-			bool GetRootSignature( Interfaces::IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName = L"" );
-			bool GetPipelineState( ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName = L"" );
-			bool CreateSamplerState( const D3D12_SAMPLER_DESC* _pSamplerDesc, D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const wchar_t* _pDebugName = L"" ) const;
+			DeviceState GetDeviceState( void ) const { return m_DeviceState; }
+			bool        GetRootSignature( Interfaces::IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName = L"" );
+			bool        GetPipelineState( ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName = L"" );
+			bool        CreateSamplerState( const D3D12_SAMPLER_DESC* _pSamplerDesc, D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const wchar_t* _pDebugName = L"" ) const;
 
-			bool        FlushState();
-			bool        SetMaterial( const char* _pName );
-			static bool SetRenderTarget( void );
-			static bool SetDepthBuffer( void );
-			bool        SetTexture( const char* _pName, Interfaces::IGpuBufferResource* _pTexture ) const;
-			bool        SetConstantBuffer( const char* _pName, Interfaces::IGpuBufferResource* _pCBuffer ) const;
-			bool        SetSamplerState( const char* _pName, Interfaces::ISamplerState* _pSamplerState ) const;
+			bool FlushState();
+			bool SetMaterial( const char* _pName );
+			bool SetRenderTarget( void );
+			bool SetDepthBuffer( void );
+			bool SetTexture( const char* _pName, Interfaces::IGpuBufferResource* _pTexture );
+			bool SetConstantBuffer( const char* _pName, Interfaces::IGpuBufferResource* _pCBuffer );
+			bool SetSamplerState( const char* _pName, Interfaces::ISamplerState* _pSamplerState );
+			bool SetRasterizerState( D3D12_RASTERIZER_DESC _desc );
+			bool SetBlendState( D3D12_BLEND_DESC _desc );
+			bool SetDepthStencilState( D3D12_DEPTH_STENCIL_DESC _desc );
 
 			DescriptorHeap* GetSrvCbvHeap( void ) const { return m_pDescHeapSrvCbv; }
 
 			void BeginFrame( void );
-			void EndFrame( void ) const;
+			void EndFrame( void );
 
 			CommandList*               GetImmediateContext( void ) const { return m_pImmediateContext; }
 			Interfaces::ISamplerState* GetDefaultSamplerState( void ) const { return m_pDefaultSampler; }
 
 		private:
-			struct DeviceState
-			{
-				unsigned int      DirtyFlags = 0;
-				GpuResourceTable* Resources;
-
-				bool IsDirty( const unsigned int _dirtyFlags ) const
-				{
-					return (DirtyFlags & _dirtyFlags) == _dirtyFlags;
-				}
-			};
-
 			constexpr static unsigned int kDirtyShaders        = 1 << 0;
 			constexpr static unsigned int kDirtySamplerState   = 1 << 1;
 			constexpr static unsigned int kDirtyRenderTarget   = 1 << 2;
 			constexpr static unsigned int kDirtyDepthBuffer    = 1 << 3;
 			constexpr static unsigned int kDirtyTexture        = 1 << 4;
 			constexpr static unsigned int kDirtyConstantBuffer = 1 << 5;
-			constexpr static unsigned int kDirtyRootSignature  = 1 << 6;
+			constexpr static unsigned int kDirtyPipelineState  = 1 << 6;
 
 			DeviceD3D12( void );
 

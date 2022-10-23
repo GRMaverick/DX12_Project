@@ -26,7 +26,7 @@ namespace SysRenderer
 
 			ImGui::StyleColorsDark();
 
-			D3D12::DeviceD3D12::Instance()->InitialiseImGUI( _hWindow, _pSRVHeap );
+			D3D12::DeviceD3D12::Instance()->InitialiseImGui( _hWindow, _pSRVHeap );
 
 			//
 			// Fonts (Optional)

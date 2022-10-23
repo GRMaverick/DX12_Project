@@ -10,6 +10,8 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "SysUtilities/_Loaders/CLParser.h"
+
 #pragma comment(lib, "dxcompiler.lib")
 
 //#define DUMP_BLOBS
@@ -83,8 +85,27 @@ namespace SysRenderer
 
 			const wchar_t* targetProfile = GetTargetProfile( _pFunctionName );
 
-			LPCWSTR args[] = {L"/Zi", L"/Od",};
+			std::vector<const wchar_t*> vArgs;
 
+			if ( CLParser::Instance()->HasArgument( "pdbFat" ) )
+			{
+				vArgs.push_back( L"/Zi" );
+			}
+			else if ( CLParser::Instance()->HasArgument( "pdbSlim" ) )
+			{
+				vArgs.push_back( L"/Zs" );
+			}
+
+			if ( CLParser::Instance()->HasArgument( "Od" ) )
+			{
+				vArgs.push_back( L"/Od" );
+			}
+			if ( CLParser::Instance()->HasArgument( "embed_symbols" ) )
+			{
+				vArgs.push_back( L"/Qembed_debug" );
+			}
+
+			LPCWSTR* args = vArgs.size() > 0 ? &vArgs[0] : nullptr;
 			if ( !pBlob )
 			{
 				LogError( "%s failed to load", _pFilename );
@@ -95,7 +116,7 @@ namespace SysRenderer
 			pLibrary->CreateIncludeHandler( &pIncludeHandler );
 
 			IDxcOperationResult* pOpsResult = nullptr;
-			VALIDATE_D3D( pCompiler->Compile(pBlob, pFilenameWstr, pFunctionNameWstr, targetProfile, args, _countof(args), nullptr, 0, pIncludeHandler, &pOpsResult) );
+			VALIDATE_D3D( pCompiler->Compile(pBlob, pFilenameWstr, pFunctionNameWstr, targetProfile, args, static_cast<UINT32>(vArgs.size()), nullptr, 0, pIncludeHandler, &pOpsResult) );
 
 			pIncludeHandler->Release();
 

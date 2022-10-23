@@ -168,26 +168,26 @@ namespace SysRenderer
 
 		bool GpuResourceTable::SetSamplerState( const char* _pName, ISamplerState* _state ) const
 		{
-			const ConstantBufferParameters cbParamsVS = m_pVertexShader->GetConstantParameters();
-			for ( unsigned int i = 0; i < cbParamsVS.NumberSamplers; ++i )
+			const ConstantBufferParameters cbParamsVs = m_pVertexShader->GetConstantParameters();
+			for ( unsigned int i = 0; i < cbParamsVs.NumberSamplers; ++i )
 			{
 				char targetName[32] = {0};
 				snprintf( targetName, ARRAYSIZE( targetName ), "%sSampler", _pName );
-				if ( strncmp( cbParamsVS.Samplers[i].Name, targetName, ARRAYSIZE( cbParamsVS.Samplers[i].Name ) ) == 0 )
+				if ( strncmp( cbParamsVs.Samplers[i].Name, targetName, ARRAYSIZE( cbParamsVs.Samplers[i].Name ) ) == 0 )
 				{
-					m_pSamplers[cbParamsVS.Samplers[i].BindPoint] = _state;
+					m_pSamplers[cbParamsVs.Samplers[i].BindPoint] = _state;
 					return true;
 				}
 			}
 
-			const ConstantBufferParameters cbParamsPS = m_pPixelShader->GetConstantParameters();
-			for ( unsigned int i = 0; i < cbParamsPS.NumberSamplers; ++i )
+			const ConstantBufferParameters cbParamsPs = m_pPixelShader->GetConstantParameters();
+			for ( unsigned int i = 0; i < cbParamsPs.NumberSamplers; ++i )
 			{
 				char targetName[32] = {0};
 				snprintf( targetName, ARRAYSIZE( targetName ), "%sSampler", _pName );
-				if ( strncmp( cbParamsPS.Samplers[i].Name, targetName, ARRAYSIZE( cbParamsPS.Samplers[i].Name ) ) == 0 )
+				if ( strncmp( cbParamsPs.Samplers[i].Name, targetName, ARRAYSIZE( cbParamsPs.Samplers[i].Name ) ) == 0 )
 				{
-					m_pSamplers[cbParamsPS.Samplers[i].BindPoint] = _state;
+					m_pSamplers[cbParamsPs.Samplers[i].BindPoint] = _state;
 					return true;
 				}
 			}
@@ -211,6 +211,78 @@ namespace SysRenderer
 		{
 			(*_ppResources) = m_pSamplers;
 			return m_uiNumberSamplers;
+		}
+
+		ISamplerState* GpuResourceTable::GetSampler( const char* _pName ) const
+		{
+			const ConstantBufferParameters cbParamsVs = m_pVertexShader->GetConstantParameters();
+			for ( unsigned int i = 0; i < cbParamsVs.NumberSamplers; ++i )
+			{
+				char targetName[32] = {0};
+				snprintf( targetName, ARRAYSIZE( targetName ), "%sSampler", _pName );
+				if ( strncmp( cbParamsVs.Samplers[i].Name, targetName, ARRAYSIZE( cbParamsVs.Samplers[i].Name ) ) == 0 )
+				{
+					return m_pSamplers[cbParamsVs.Samplers[i].BindPoint];
+				}
+			}
+
+			const ConstantBufferParameters cbParamsPs = m_pPixelShader->GetConstantParameters();
+			for ( unsigned int i = 0; i < cbParamsPs.NumberSamplers; ++i )
+			{
+				char targetName[32] = {0};
+				snprintf( targetName, ARRAYSIZE( targetName ), "%sSampler", _pName );
+				if ( strncmp( cbParamsPs.Samplers[i].Name, targetName, ARRAYSIZE( cbParamsPs.Samplers[i].Name ) ) == 0 )
+				{
+					return m_pSamplers[cbParamsPs.Samplers[i].BindPoint];
+				}
+			}
+			return nullptr;
+		}
+
+		Interfaces::IGpuBufferResource* GpuResourceTable::GetTexture( const char* _pName ) const
+		{
+			const ConstantBufferParameters cbParamsVs = m_pVertexShader->GetConstantParameters();
+			for ( unsigned int i = 0; i < cbParamsVs.NumberTextures; ++i )
+			{
+				if ( strncmp( cbParamsVs.Textures[i].Name, _pName, ARRAYSIZE( cbParamsVs.Textures[i].Name ) ) == 0 )
+				{
+					return m_pTextures[cbParamsVs.Textures[i].BindPoint];
+				}
+			}
+
+			const ConstantBufferParameters cbParamsPs = m_pPixelShader->GetConstantParameters();
+			for ( unsigned int i = 0; i < cbParamsPs.NumberTextures; ++i )
+			{
+				if ( strncmp( cbParamsPs.Textures[i].Name, _pName, ARRAYSIZE( cbParamsPs.Textures[i].Name ) ) == 0 )
+				{
+					return m_pTextures[cbParamsPs.Textures[i].BindPoint];
+				}
+			}
+
+			return nullptr;
+		}
+
+		Interfaces::IGpuBufferResource* GpuResourceTable::GetConstantBuffer( const char* _pName ) const
+		{
+			const ConstantBufferParameters cbParamsVs = m_pVertexShader->GetConstantParameters();
+			for ( unsigned int i = 0; i < cbParamsVs.NumberBuffers; ++i )
+			{
+				if ( strncmp( cbParamsVs.Buffers[i].Name, _pName, ARRAYSIZE( cbParamsVs.Buffers[i].Name ) ) == 0 )
+				{
+					return m_pConstantBuffers[cbParamsVs.Buffers[i].BindPoint];
+				}
+			}
+
+			const ConstantBufferParameters cbParamsPs = m_pPixelShader->GetConstantParameters();
+			for ( unsigned int i = 0; i < cbParamsPs.NumberBuffers; ++i )
+			{
+				if ( strncmp( cbParamsPs.Buffers[i].Name, _pName, ARRAYSIZE( cbParamsPs.Buffers[i].Name ) ) == 0 )
+				{
+					return m_pConstantBuffers[cbParamsPs.Buffers[i].BindPoint];
+				}
+			}
+
+			return nullptr;
 		}
 	}
 }

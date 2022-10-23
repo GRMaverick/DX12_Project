@@ -1,7 +1,10 @@
 #include <iostream>
 
-#include <Windows.h>
 #include <chrono>
+#include <Windows.h>
+
+#include <filesystem>
+#include <shlobj.h>
 
 #include "Defines.h"
 
@@ -30,6 +33,35 @@ using namespace SysRenderer::Interfaces;
 
 static GameWindow* g_pWindow   = nullptr;
 static IRenderer*  g_pRenderer = nullptr;
+
+static std::wstring GetLatestWinPixGpuCapturerPathCpp17()
+{
+	LPWSTR programFilesPath = nullptr;
+	SHGetKnownFolderPath( FOLDERID_ProgramFiles, KF_FLAG_DEFAULT, nullptr, &programFilesPath );
+
+	std::filesystem::path pixInstallationPath = programFilesPath;
+	pixInstallationPath /= "Microsoft PIX";
+
+	std::wstring newestVersionFound;
+
+	for ( auto const& directory_entry : std::filesystem::directory_iterator( pixInstallationPath ) )
+	{
+		if ( directory_entry.is_directory() )
+		{
+			if ( newestVersionFound.empty() || newestVersionFound < directory_entry.path().filename().c_str() )
+			{
+				newestVersionFound = directory_entry.path().filename().c_str();
+			}
+		}
+	}
+
+	if ( newestVersionFound.empty() )
+	{
+		// TODO: Error, no PIX installation found
+	}
+
+	return pixInstallationPath / newestVersionFound / L"WinPixGpuCapturer.dll";
+}
 
 bool GameLoop()
 {
@@ -104,6 +136,15 @@ int __stdcall WinMain( const HINSTANCE _hInstance, const HINSTANCE _hPreviousIns
 
 	Logger::SetSeverity( uiLogSeverity );
 	Logger::SetCategory( uiLogCategory );
+
+#if defined(_DEBUG)
+	// Check to see if a copy of WinPixGpuCapturer.dll has already been injected into the application.
+	// This may happen if the application is launched through the PIX UI. 
+	if ( GetModuleHandle( L"WinPixGpuCapturer.dll" ) == nullptr )
+	{
+		LoadLibrary( GetLatestWinPixGpuCapturerPathCpp17().c_str() );
+	}
+#endif
 
 	g_pWindow   = new GameWindow( _hInstance, L"MainWindow", L"DX12 Project" );
 	g_pRenderer = new SysRenderer::Renderer();

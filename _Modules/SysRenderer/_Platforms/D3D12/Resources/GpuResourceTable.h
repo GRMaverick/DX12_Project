@@ -41,6 +41,10 @@ namespace SysRenderer
 			unsigned long GetConstantBuffers( Interfaces::IGpuBufferResource*** _ppResources ) const;
 			unsigned long GetSamplers( Interfaces::ISamplerState*** _ppResources ) const;
 
+			Interfaces::ISamplerState*      GetSampler( const char* _pName ) const;
+			Interfaces::IGpuBufferResource* GetTexture( const char* _pName ) const;
+			Interfaces::IGpuBufferResource* GetConstantBuffer( const char* _pName ) const;
+
 		private:
 			bool                      m_bIsInitialised = false;
 			Interfaces::IShaderStage* m_pVertexShader  = nullptr;

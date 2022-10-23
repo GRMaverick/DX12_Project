@@ -177,8 +177,8 @@ namespace SysRenderer
 
 		bool SwapChain::Present() const
 		{
-			const UINT syncInterval = 0; // TODO: Support VSync
-			const UINT presentFlags = m_bAllowTearing ? DXGI_PRESENT_ALLOW_TEARING : 0;
+			constexpr UINT syncInterval = 0; // TODO: Support VSync
+			const UINT     presentFlags = m_bAllowTearing ? DXGI_PRESENT_ALLOW_TEARING : 0;
 
 			return SUCCEEDED( m_pSwapChain->Present(syncInterval, presentFlags) );
 		}

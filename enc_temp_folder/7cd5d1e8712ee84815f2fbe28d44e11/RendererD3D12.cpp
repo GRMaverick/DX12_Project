@@ -462,7 +462,7 @@ namespace SysRenderer
 			pDevice->SetConstantBuffer( "ObjectCB", pModelCb );
 			pDevice->SetConstantBuffer( "PassCB", m_pMainPassCb );
 			pDevice->SetConstantBuffer( "LightCB", m_pLightsCb );
-			pDevice->SetConstantBuffer( "SpotlightCB", m_pSpotlightCb );
+			//pDevice->SetConstantBuffer( "SpotlightCB", m_pSpotlightCb );
 
 			for ( UINT j = 0; j < pModel->GetModel()->MeshCount; ++j )
 			{
