@@ -28,13 +28,13 @@ namespace SysRenderer
 			static ShaderCache* Instance( void );
 
 			void InitCompiler( void );
-			bool Load( const char* _pCachePath );
+			bool Load( const std::string& _pCachePath );
 
 			Effect* GetEffect( const char* _pName );
 
 		private:
 			ShaderCache( void );
-			explicit ShaderCache( const char* _pShadersPath );
+			explicit ShaderCache( const std::string& _pShadersPath );
 
 			Interfaces::IShaderCompiler* m_pShaderCompiler;
 			std::vector<Effect>          m_vLoadedEffect;

@@ -35,24 +35,24 @@ namespace SysRenderer
 		virtual bool Render( void ) override final;
 
 	private:
-		UINT m_uiModelCount;
 		bool m_bNewModelsLoaded;
 
 		D3D12::SwapChain* m_pSwapChain;
 
-		Light*     m_light;
-		Spotlight* m_spotlight;
-
-		Scene::Camera*        m_pCamera;
-		Scene::RenderEntity** m_pRenderEntity;
+		//Spotlight* m_spotlight;
 
 		D3D12::DescriptorHeap* m_pImGuiSrvHeap;
 
 		D3D12::ConstantBufferResource* m_pLightsCb;
 		D3D12::ConstantBufferResource* m_pMainPassCb;
-		D3D12::ConstantBufferResource* m_pSpotlightCb;
+		//D3D12::ConstantBufferResource* m_pSpotlightCb;
+
+		std::vector<Light*>               m_vpLights;
+		std::vector<Scene::Camera*>       m_vpCameras;
+		std::vector<Scene::RenderEntity*> m_vpRenderEntities;
 
 		bool LoadContent();
+		bool LoadScene( const std::string& _sceneFile );
 
 		void UpdatePassConstants() const;
 

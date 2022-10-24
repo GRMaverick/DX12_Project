@@ -33,9 +33,10 @@ namespace SysRenderer
 			void SetPosition( const float _x, const float _y, const float _z ) { m_xm3Position = DirectX::XMFLOAT3( _x, _y, _z ); }
 			void SetRotation( const float _x, const float _y, const float _z ) { m_xm3Rotation = DirectX::XMFLOAT3( _x, _y, _z ); }
 			void SetScale( const float _xyz ) { m_fScale = _xyz; }
-			void SetMaterial( const char* _pMaterialName ) { m_pMaterialName = _pMaterialName; }
+			void SetMaterial( const char* _pMaterialName ) { _snprintf_s( m_pMaterialName, ARRAYSIZE( m_pMaterialName ), "%s", _pMaterialName ); }
 			void SetConstantBuffer( D3D12::ConstantBufferResource* _pBuffer ) { m_pConstantBuffer = _pBuffer; }
 			void SetMaterialData( const Material& _material ) { m_material = _material; }
+			void SetModelName( const char* _pName ) { _snprintf_s( m_pModelName, ARRAYSIZE( m_pModelName ), "%s", _pName ); }
 
 			Loading::RenderModel* GetModel( void ) const { return m_pModel; }
 			DirectX::XMFLOAT3     GetPosition( void ) const { return m_xm3Position; }
@@ -43,6 +44,7 @@ namespace SysRenderer
 			float                 GetScale( void ) const { return m_fScale; }
 			DirectX::XMMATRIX     GetWorld( void ) const { return m_matWorld; }
 			const char*           GetMaterialName( void ) const { return m_pMaterialName; }
+			const char*           GetModelName( void ) const { return m_pModelName; }
 
 			Material                       GetMaterialData( void ) const { return m_material; }
 			D3D12::ConstantBufferResource* GetConstantBuffer( void ) const { return m_pConstantBuffer; }
@@ -58,8 +60,9 @@ namespace SysRenderer
 			Loading::RenderModel* m_pModel;
 			DirectX::XMMATRIX     m_matWorld;
 
-			D3D12::ConstantBufferResource* m_pConstantBuffer;
-			const char*                    m_pMaterialName = nullptr;
+			D3D12::ConstantBufferResource* m_pConstantBuffer   = nullptr;
+			char                           m_pMaterialName[32] = {};
+			char                           m_pModelName[32]    = {};
 		};
 	}
 }

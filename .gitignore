@@ -5,7 +5,10 @@
 *.slo
 *.lo
 *.o
-*.obj
+x64/**/*.obj
+DX12_Project/x64/**/*.obj
+_Modules/**/*.obj
+_Toolkits/**/*.obj
 
 # Precompiled Headers
 *.gch

@@ -3,8 +3,12 @@
 
 #include <assert.h>
 #include <DirectXMath.h>
+#include <fstream>
 
 #include "d3dx12.h"
+
+#include <rapidxml/rapidxml_print.hpp>
+#include <rapidxml/rapidxml_utils.hpp>
 
 #include "AssimpLoader.h"
 #include <WICTextureLoader.h>
@@ -41,13 +45,10 @@ using namespace SysCore;
 using namespace SysMemory;
 using namespace SysUtilities;
 
-#if defined(_DEBUG)
-#	define SHADER_CACHE_LOCATION "Shaders\\*"
-#	define CONTENT_LOCATION "Content\\"
-#else
-#	define SHADER_CACHE_LOCATION "Shaders\\*"
-#	define CONTENT_LOCATION "Content\\"
-#endif
+#define CONTENT_PATH std::string("Content\\")
+#define SHADERS_PATH CONTENT_PATH + std::string("Shaders\\*")
+#define MODELS_PATH	CONTENT_PATH + std::string("Models\\")
+#define SCENES_PATH CONTENT_PATH + std::string("Scenes\\")
 
 namespace SysRenderer
 {
@@ -57,16 +58,12 @@ namespace SysRenderer
 	using namespace Loading;
 
 	Renderer::Renderer( void ):
-		m_uiModelCount( 0 ),
 		m_bNewModelsLoaded( false ),
-		m_light( nullptr ),
-		m_spotlight( nullptr ),
-		m_pCamera( nullptr ),
-		m_pRenderEntity( nullptr ),
+		//m_spotlight( nullptr ),
 		m_pImGuiSrvHeap( nullptr ),
 		m_pLightsCb( nullptr ),
-		m_pMainPassCb( nullptr ),
-		m_pSpotlightCb( nullptr )
+		m_pMainPassCb( nullptr )
+	//m_pSpotlightCb( nullptr )
 	{
 		m_pSwapChain = nullptr;
 	}
@@ -83,7 +80,7 @@ namespace SysRenderer
 		if ( !DeviceD3D12::Instance()->Initialise( CLParser::Instance()->HasArgument( "d3ddebug" ) ) )
 			return false;
 
-		ShaderCache::Instance()->Load( SHADER_CACHE_LOCATION );
+		ShaderCache::Instance()->Load( SHADERS_PATH );
 
 		CommandQueue::Instance( D3D12_COMMAND_LIST_TYPE_DIRECT );
 		CommandQueue::Instance( D3D12_COMMAND_LIST_TYPE_COPY );
@@ -111,77 +108,135 @@ namespace SysRenderer
 		float       Scale        = 1.0f;
 	};
 
-#define SPONZA
-	//#define CUBES
+	bool Renderer::LoadScene( const std::string& _sceneFile )
+	{
+		const std::string        pScenePath = std::string( "Content\\Scenes\\" ) + _sceneFile;
+		rapidxml::file<>         xmlFile( pScenePath.c_str() );
+		rapidxml::xml_document<> doc;
+		doc.parse<0>( xmlFile.data() );
 
-	ModelDefinition g_ModelList[] = {
-#if defined(SPONZA)
-		{"Sponza\\Sponza.fbx", "Scene", "AlbedoPhongNormal", {0.0f, 0.0f, 0.0f}, 1.0f}
-#endif
-#if defined(CUBES)
-		{ "Cube\\Cube.obj", "Cube_Albedo", "Albedo", {0.0f, 0.0f, -1.25f}, 1.0f },
-		{ "StorageContainer\\Cube.obj", "Storage_Phong", "AlbedoPhong", {1.25f, 0.0f, 0.0f}, 1.0f },
-		{ "StorageContainer\\Cube.obj", "Storage_Normal", "AlbedoPhongNormal", {-1.25f, 0.0f, 0.0f}, 1.0f },
-#endif
-	};
+		const rapidxml::xml_node<>* root    = doc.first_node( "Root" );
+		const rapidxml::xml_node<>* cameras = root->first_node( "Cameras" );
+		const rapidxml::xml_node<>* camera  = cameras->first_node( "Camera" );
+		while ( camera != nullptr )
+		{
+			Scene::Camera*              pCamera = new Scene::Camera();
+			const rapidxml::xml_node<>* posNode = camera->first_node( "Position" );
+			const rapidxml::xml_node<>* tarNode = camera->first_node( "Target" );
+			const rapidxml::xml_node<>* upNode  = camera->first_node( "Up" );
+			const rapidxml::xml_node<>* fovNode = camera->first_node( "FOV" );
+
+			float x = static_cast<float>(atof( posNode->first_attribute( "X" )->value() ));
+			float y = static_cast<float>(atof( posNode->first_attribute( "Y" )->value() ));
+			float z = static_cast<float>(atof( posNode->first_attribute( "Z" )->value() ));
+			pCamera->SetPosition( x, y, z );
+
+			x = static_cast<float>(atof( tarNode->first_attribute( "X" )->value() ));
+			y = static_cast<float>(atof( tarNode->first_attribute( "Y" )->value() ));
+			z = static_cast<float>(atof( tarNode->first_attribute( "Z" )->value() ));
+			pCamera->SetTarget( x, y, z );
+
+			x = static_cast<float>(atof( upNode->first_attribute( "X" )->value() ));
+			y = static_cast<float>(atof( upNode->first_attribute( "Y" )->value() ));
+			z = static_cast<float>(atof( upNode->first_attribute( "Z" )->value() ));
+			pCamera->SetUp( x, y, z );
+
+			x = static_cast<float>(atof( fovNode->first_attribute( "Value" )->value() ));
+			y = static_cast<float>(atof( CLParser::Instance()->GetArgument( "Width" ) ));
+			z = static_cast<float>(atof( CLParser::Instance()->GetArgument( "Height" ) ));
+			pCamera->SetFieldOfView( x );
+			pCamera->SetAspectRatio( y / z );
+
+			m_vpCameras.push_back( pCamera );
+
+			camera = camera->next_sibling( "Camera" );
+		}
+
+		const rapidxml::xml_node<>* lights = root->first_node( "Lights" );
+		const rapidxml::xml_node<>* light  = lights->first_node( "Light" );
+		while ( light != nullptr )
+		{
+			Light*                      pLight   = new Light();
+			const rapidxml::xml_node<>* posNode  = light->first_node( "Position" );
+			const rapidxml::xml_node<>* diffuse  = light->first_node( "Diffuse" );
+			const rapidxml::xml_node<>* ambient  = light->first_node( "Ambient" );
+			const rapidxml::xml_node<>* specular = light->first_node( "Specular" );
+
+			const float x    = static_cast<float>(atof( posNode->first_attribute( "X" )->value() ));
+			const float y    = static_cast<float>(atof( posNode->first_attribute( "Y" )->value() ));
+			const float z    = static_cast<float>(atof( posNode->first_attribute( "Z" )->value() ));
+			pLight->Position = XMFLOAT3( x, y, z );
+
+			float r         = static_cast<float>(atof( diffuse->first_attribute( "R" )->value() ));
+			float g         = static_cast<float>(atof( diffuse->first_attribute( "G" )->value() ));
+			float b         = static_cast<float>(atof( diffuse->first_attribute( "B" )->value() ));
+			float a         = static_cast<float>(atof( diffuse->first_attribute( "A" )->value() ));
+			pLight->Diffuse = XMFLOAT4( r, g, b, a );
+
+			r               = static_cast<float>(atof( ambient->first_attribute( "R" )->value() ));
+			g               = static_cast<float>(atof( ambient->first_attribute( "G" )->value() ));
+			b               = static_cast<float>(atof( ambient->first_attribute( "B" )->value() ));
+			a               = static_cast<float>(atof( ambient->first_attribute( "A" )->value() ));
+			pLight->Ambient = XMFLOAT4( r, g, b, a );
+
+			r                = static_cast<float>(atof( specular->first_attribute( "R" )->value() ));
+			g                = static_cast<float>(atof( specular->first_attribute( "G" )->value() ));
+			b                = static_cast<float>(atof( specular->first_attribute( "B" )->value() ));
+			a                = static_cast<float>(atof( specular->first_attribute( "A" )->value() ));
+			pLight->Specular = XMFLOAT4( r, g, b, a );
+
+			const float power     = static_cast<float>(atof( specular->first_attribute( "Power" )->value() ));
+			pLight->SpecularPower = power;
+
+			m_vpLights.push_back( pLight );
+
+			light = light->next_sibling( "Light" );
+		}
+
+		const rapidxml::xml_node<>* instances = root->first_node( "ModelInstances" );
+		const rapidxml::xml_node<>* instance  = instances->first_node( "Instance" );
+		while ( instance != nullptr )
+		{
+			RenderEntity* pInstance = new RenderEntity();
+
+			const std::string pModelPath = std::string( "Content\\Models\\" ) + std::string( instance->first_attribute( "ModelPath" )->value() );
+			pInstance->SetModelName( instance->first_attribute( "ModelName" )->value() );
+			pInstance->LoadModelFromFile( pModelPath.c_str() );
+			pInstance->SetMaterial( instance->first_attribute( "Material" )->value() );
+			pInstance->SetConstantBuffer( ConstantTable::Instance()->CreateConstantBuffer( "ObjectCB" ) );
+			pInstance->SetRotation( 0.0f, 0.0f, 0.0f );
+
+			const rapidxml::xml_node<>* transform = instance->first_node( "Transform" );
+			const float                 x         = static_cast<float>(atof( transform->first_attribute( "PosX" )->value() ));
+			const float                 y         = static_cast<float>(atof( transform->first_attribute( "PosY" )->value() ));
+			const float                 z         = static_cast<float>(atof( transform->first_attribute( "PosZ" )->value() ));
+			const float                 scale     = static_cast<float>(atof( transform->first_attribute( "Scale" )->value() ));
+			pInstance->SetScale( scale );
+			pInstance->SetPosition( x, y, z );
+
+			m_vpRenderEntities.push_back( pInstance );
+
+			instance = instance->next_sibling( "Instance" );
+		}
+
+		return true;
+	}
 
 	bool Renderer::LoadContent( void )
 	{
 		m_bNewModelsLoaded = true;
 
-		m_pMainPassCb  = ConstantTable::Instance()->CreateConstantBuffer( "PassCB" );
-		m_pLightsCb    = ConstantTable::Instance()->CreateConstantBuffer( "LightCB" );
-		m_pSpotlightCb = ConstantTable::Instance()->CreateConstantBuffer( "SpotlightCB" );
-
-		Material material;
-		material.Diffuse  = XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f );
-		material.Ambient  = XMFLOAT4( 0.25f, 0.25f, 0.25f, 1.0f );
-		material.Specular = XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
+		m_pMainPassCb = ConstantTable::Instance()->CreateConstantBuffer( "PassCB" );
+		m_pLightsCb   = ConstantTable::Instance()->CreateConstantBuffer( "LightCB" );
+		//m_pSpotlightCb = ConstantTable::Instance()->CreateConstantBuffer( "SpotlightCB" );
 
 		LogInfo( "Loading Models:" );
-		m_pRenderEntity = new RenderEntity*[_countof( g_ModelList )];
-		for ( UINT i = 0; i < _countof( g_ModelList ); ++i )
+
+		if ( !LoadScene( "SponzaScene.xml" ) )
 		{
-			LogInfo( "\t%s", g_ModelList[i].MeshFilename );
-
-			char pModelPath[128];
-			snprintf( pModelPath, ARRAYSIZE( pModelPath ), "%s\\%s", CONTENT_LOCATION, g_ModelList[i].MeshFilename );
-
-			m_pRenderEntity[i] = new RenderEntity();
-			m_pRenderEntity[i]->LoadModelFromFile( pModelPath );
-			m_pRenderEntity[i]->SetScale( g_ModelList[i].Scale );
-			m_pRenderEntity[i]->SetRotation( 0.0f, 0.0f, 0.0f );
-			m_pRenderEntity[i]->SetPosition( g_ModelList[i].Position[0], g_ModelList[i].Position[1], g_ModelList[i].Position[2] );
-			m_pRenderEntity[i]->SetMaterial( g_ModelList[i].MaterialName );
-			m_pRenderEntity[i]->SetMaterialData( material );
-			m_pRenderEntity[i]->SetConstantBuffer( ConstantTable::Instance()->CreateConstantBuffer( "ObjectCB" ) );
-			m_uiModelCount++;
+			LogError( "Scene Loading Failed" );
+			return false;
 		}
-
-		m_pCamera = new Camera();
-		m_light   = new Light();
-
-#if defined(SPONZA)
-		m_pCamera->SetPosition( 180.0f, 180.0f, 0.0f );
-		m_pCamera->SetTarget( 0.0f, 180.0f, 0.0f );
-		m_light->Position = XMFLOAT3( 78.0f, 43.0f, 0.0f );
-#endif
-
-#if defined(CUBES)
-		m_pCamera->SetPosition(0.0f, 5.0f, 5.0f);
-		m_pCamera->SetTarget(0.0f, 0.0f, 0.0f);
-
-		m_Light->Position = XMFLOAT3(-0.265f, 0.265f, -1.053f);
-#endif
-
-		m_pCamera->SetUp( 0.0f, 1.0f, 0.0f );
-		m_pCamera->SetFieldOfView( 45.0f );
-		m_pCamera->SetAspectRatio( 1920.0f / 1080.0f );
-
-		m_light->Diffuse       = XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f );
-		m_light->Ambient       = XMFLOAT4( 1.0f, 1.0f, 1.0f, 1.0f );
-		m_light->Specular      = XMFLOAT4( 0.0f, 0.0f, 0.0f, 1.0f );
-		m_light->SpecularPower = 0.0f;
 
 		CommandQueue::Instance( D3D12_COMMAND_LIST_TYPE_COPY )->ExecuteCommandLists();
 		CommandQueue::Instance( D3D12_COMMAND_LIST_TYPE_COPY )->Flush();
@@ -193,35 +248,36 @@ namespace SysRenderer
 	{
 		UpdatePassConstants();
 
-		for ( UINT i = 0; i < m_uiModelCount; ++i )
+		for ( UINT i = 0; i < m_vpRenderEntities.size(); ++i )
 		{
-			m_pRenderEntity[i]->Update();
+			m_vpRenderEntities[i]->Update();
 
 			Object obj;
-			obj.World    = m_pRenderEntity[i]->GetWorld();
-			obj.Material = m_pRenderEntity[i]->GetMaterialData();
+			obj.World    = m_vpRenderEntities[i]->GetWorld();
+			obj.Material = m_vpRenderEntities[i]->GetMaterialData();
 
-			if ( m_pRenderEntity[i]->GetConstantBuffer() )
-				m_pRenderEntity[i]->GetConstantBuffer()->UpdateValue( "World", &obj, sizeof( Object ) );
+			if ( m_vpRenderEntities[i]->GetConstantBuffer() )
+				bool bRet = m_vpRenderEntities[i]->GetConstantBuffer()->UpdateValue( "World", &obj, sizeof( Object ) );
 		}
 	}
 
 	void Renderer::UpdatePassConstants() const
 	{
-		m_pCamera->Update();
+		m_vpCameras[0]->Update();
 
 		Pass cbPass           = Pass();
-		cbPass.EyePosition    = m_pCamera->GetPosition();
-		cbPass.ViewProjection = m_pCamera->GetView() * m_pCamera->GetProjection();
+		cbPass.EyePosition    = m_vpCameras[0]->GetPosition();
+		cbPass.ViewProjection = m_vpCameras[0]->GetView() * m_vpCameras[0]->GetProjection();
 
+		bool bRet = false;
 		if ( m_pMainPassCb )
-			m_pMainPassCb->UpdateValue( nullptr, &cbPass, sizeof( Pass ) );
+			bRet = m_pMainPassCb->UpdateValue( nullptr, &cbPass, sizeof( Pass ) );
 
 		if ( m_pLightsCb )
-			m_pLightsCb->UpdateValue( nullptr, m_light, sizeof( Light ) );
+			bRet = m_pLightsCb->UpdateValue( nullptr, m_vpLights[0], sizeof( Light ) );
 
-		if ( m_pSpotlightCb )
-			m_pSpotlightCb->UpdateValue( nullptr, m_spotlight, sizeof( Spotlight ) );
+		//if ( m_pSpotlightCb )
+		//	m_pSpotlightCb->UpdateValue( nullptr, m_spotlight, sizeof( Spotlight ) );
 	}
 
 	bool Renderer::Render( void )
@@ -249,7 +305,7 @@ namespace SysRenderer
 			m_pSwapChain->PrepareForPresentation( pGfxCmdList );
 			pGfxCmdQueue->SubmitToQueue( pGfxCmdList );
 			pGfxCmdQueue->ExecuteCommandLists();
-			m_pSwapChain->Present();
+			bool bRet = m_pSwapChain->Present();
 			pGfxCmdQueue->Signal();
 			m_pSwapChain->Swap();
 			pGfxCmdQueue->Wait();
@@ -272,30 +328,33 @@ namespace SysRenderer
 
 		if ( ImGui::Begin( "Main Camera" ) )
 		{
-			float v[3];
-			v[0] = m_pCamera->GetPosition().x;
-			v[1] = m_pCamera->GetPosition().y;
-			v[2] = m_pCamera->GetPosition().z;
-
-			if ( ImGui::SliderFloat3( "Position:", v, -1000.0f, 1000.0f ) )
+			for ( unsigned int i = 0; i < m_vpCameras.size(); ++i )
 			{
-				m_pCamera->SetPosition( v[0], v[1], v[2] );
-			}
+				float v[3];
+				v[0] = m_vpCameras[i]->GetPosition().x;
+				v[1] = m_vpCameras[i]->GetPosition().y;
+				v[2] = m_vpCameras[i]->GetPosition().z;
 
-			v[0] = m_pCamera->GetTarget().x;
-			v[1] = m_pCamera->GetTarget().y;
-			v[2] = m_pCamera->GetTarget().z;
-			if ( ImGui::SliderFloat3( "Target:", v, -1000.0f, 1000.0f ) )
-			{
-				m_pCamera->SetTarget( v[0], v[1], v[2] );
-			}
+				if ( ImGui::SliderFloat3( "Position:", v, -1000.0f, 1000.0f ) )
+				{
+					m_vpCameras[i]->SetPosition( v[0], v[1], v[2] );
+				}
 
-			v[0] = m_pCamera->GetUp().x;
-			v[1] = m_pCamera->GetUp().y;
-			v[2] = m_pCamera->GetUp().z;
-			if ( ImGui::SliderFloat3( "Up:", v, -1000.0f, 1000.0f ) )
-			{
-				m_pCamera->SetUp( v[0], v[1], v[2] );
+				v[0] = m_vpCameras[i]->GetTarget().x;
+				v[1] = m_vpCameras[i]->GetTarget().y;
+				v[2] = m_vpCameras[i]->GetTarget().z;
+				if ( ImGui::SliderFloat3( "Target:", v, -1000.0f, 1000.0f ) )
+				{
+					m_vpCameras[i]->SetTarget( v[0], v[1], v[2] );
+				}
+
+				v[0] = m_vpCameras[i]->GetUp().x;
+				v[1] = m_vpCameras[i]->GetUp().y;
+				v[2] = m_vpCameras[i]->GetUp().z;
+				if ( ImGui::SliderFloat3( "Up:", v, -1000.0f, 1000.0f ) )
+				{
+					m_vpCameras[i]->SetUp( v[0], v[1], v[2] );
+				}
 			}
 			ImGui::End();
 		}
@@ -326,51 +385,54 @@ namespace SysRenderer
 
 		if ( ImGui::Begin( "Lights" ) )
 		{
-			float v[3];
-			v[0] = m_light->Position.x;
-			v[1] = m_light->Position.y;
-			v[2] = m_light->Position.z;
-			if ( ImGui::SliderFloat3( "Position:", v, -180.0f, 180.0f ) )
+			for ( unsigned int i = 0; i < m_vpLights.size(); ++i )
 			{
-				m_light->Position.x = v[0];
-				m_light->Position.y = v[1];
-				m_light->Position.z = v[2];
-			}
+				float v[3];
+				v[0] = m_vpLights[i]->Position.x;
+				v[1] = m_vpLights[i]->Position.y;
+				v[2] = m_vpLights[i]->Position.z;
+				if ( ImGui::SliderFloat3( "Position:", v, -180.0f, 180.0f ) )
+				{
+					m_vpLights[i]->Position.x = v[0];
+					m_vpLights[i]->Position.y = v[1];
+					m_vpLights[i]->Position.z = v[2];
+				}
 
-			v[0] = m_light->Diffuse.x;
-			v[1] = m_light->Diffuse.y;
-			v[2] = m_light->Diffuse.z;
-			if ( ImGui::SliderFloat3( "Diffuse:", v, 0.0f, 1.0f ) )
-			{
-				m_light->Diffuse.x = v[0];
-				m_light->Diffuse.y = v[1];
-				m_light->Diffuse.z = v[2];
-			}
+				v[0] = m_vpLights[i]->Diffuse.x;
+				v[1] = m_vpLights[i]->Diffuse.y;
+				v[2] = m_vpLights[i]->Diffuse.z;
+				if ( ImGui::SliderFloat3( "Diffuse:", v, 0.0f, 1.0f ) )
+				{
+					m_vpLights[i]->Diffuse.x = v[0];
+					m_vpLights[i]->Diffuse.y = v[1];
+					m_vpLights[i]->Diffuse.z = v[2];
+				}
 
-			v[0] = m_light->Ambient.x;
-			v[1] = m_light->Ambient.y;
-			v[2] = m_light->Ambient.z;
-			if ( ImGui::SliderFloat3( "Ambient:", v, 0.0f, 1.0f ) )
-			{
-				m_light->Ambient.x = v[0];
-				m_light->Ambient.y = v[1];
-				m_light->Ambient.z = v[2];
-			}
+				v[0] = m_vpLights[i]->Ambient.x;
+				v[1] = m_vpLights[i]->Ambient.y;
+				v[2] = m_vpLights[i]->Ambient.z;
+				if ( ImGui::SliderFloat3( "Ambient:", v, 0.0f, 1.0f ) )
+				{
+					m_vpLights[i]->Ambient.x = v[0];
+					m_vpLights[i]->Ambient.y = v[1];
+					m_vpLights[i]->Ambient.z = v[2];
+				}
 
-			v[0] = m_light->Specular.x;
-			v[1] = m_light->Specular.y;
-			v[2] = m_light->Specular.z;
-			if ( ImGui::SliderFloat3( "Specular:", v, 0.0f, 1.0f ) )
-			{
-				m_light->Specular.x = v[0];
-				m_light->Specular.y = v[1];
-				m_light->Specular.z = v[2];
-			}
+				v[0] = m_vpLights[i]->Specular.x;
+				v[1] = m_vpLights[i]->Specular.y;
+				v[2] = m_vpLights[i]->Specular.z;
+				if ( ImGui::SliderFloat3( "Specular:", v, 0.0f, 1.0f ) )
+				{
+					m_vpLights[i]->Specular.x = v[0];
+					m_vpLights[i]->Specular.y = v[1];
+					m_vpLights[i]->Specular.z = v[2];
+				}
 
-			float nS = m_light->SpecularPower;
-			if ( ImGui::SliderFloat( "Specular Power:", &nS, 0.0f, 10.0f ) )
-			{
-				m_light->SpecularPower = nS;
+				float nS = m_vpLights[i]->SpecularPower;
+				if ( ImGui::SliderFloat( "Specular Power:", &nS, 0.0f, 10.0f ) )
+				{
+					m_vpLights[i]->SpecularPower = nS;
+				}
 			}
 
 			ImGui::End();
@@ -392,11 +454,11 @@ namespace SysRenderer
 		if ( ImGui::Begin( "Objects:" ) )
 		{
 			float v[3];
-			for ( unsigned int i = 0; i < m_uiModelCount; ++i )
+			for ( unsigned int i = 0; i < m_vpRenderEntities.size(); ++i )
 			{
-				if ( ImGui::CollapsingHeader( g_ModelList[i].ObjectName ) )
+				if ( ImGui::CollapsingHeader( m_vpRenderEntities[i]->GetModelName() ) )
 				{
-					Material material = m_pRenderEntity[i]->GetMaterialData();
+					Material material = m_vpRenderEntities[i]->GetMaterialData();
 
 					v[0] = material.Diffuse.x;
 					v[1] = material.Diffuse.y;
@@ -428,7 +490,7 @@ namespace SysRenderer
 						material.Specular.z = v[2];
 					}
 
-					m_pRenderEntity[i]->SetMaterialData( material );
+					m_vpRenderEntities[i]->SetMaterialData( material );
 				}
 			}
 			ImGui::End();
@@ -450,9 +512,14 @@ namespace SysRenderer
 		pDevice->SetDepthStencilState( CD3DX12_DEPTH_STENCIL_DESC( D3D12_DEFAULT ) );
 
 		// Per Object Draws
-		for ( UINT i = 0; i < m_uiModelCount; ++i )
+		for ( UINT i = 0; i < m_vpRenderEntities.size(); ++i )
 		{
-			const RenderEntity*     pModel   = m_pRenderEntity[i];
+			const RenderEntity* pModel = m_vpRenderEntities[i];
+			if ( !pModel->GetModel() )
+			{
+				continue;
+			}
+
 			ConstantBufferResource* pModelCb = pModel->GetConstantBuffer();
 
 			pDevice->SetMaterial( pModel->GetMaterialName() );
@@ -462,7 +529,7 @@ namespace SysRenderer
 			pDevice->SetConstantBuffer( "ObjectCB", pModelCb );
 			pDevice->SetConstantBuffer( "PassCB", m_pMainPassCb );
 			pDevice->SetConstantBuffer( "LightCB", m_pLightsCb );
-			pDevice->SetConstantBuffer( "SpotlightCB", m_pSpotlightCb );
+			//pDevice->SetConstantBuffer( "SpotlightCB", m_pSpotlightCb );
 
 			for ( UINT j = 0; j < pModel->GetModel()->MeshCount; ++j )
 			{

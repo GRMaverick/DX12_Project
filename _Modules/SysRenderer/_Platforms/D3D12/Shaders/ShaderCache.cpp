@@ -19,17 +19,18 @@ namespace SysRenderer
 
 	namespace D3D12
 	{
-		ShaderCache::ShaderCache( void )
+		ShaderCache::ShaderCache( void ):
+			m_pShaderCompiler( nullptr )
 		{
 		}
 
-		ShaderCache::ShaderCache( const char* _pShaderPaths )
+		ShaderCache::ShaderCache( const std::string& _pShaderPaths )
 		{
 			LogInfo( "Loading ShaderCache:" );
 
 			InitCompiler();
 
-			Load( _pShaderPaths );
+			Load( _pShaderPaths.c_str() );
 		}
 
 		ShaderCache::~ShaderCache( void )
@@ -58,7 +59,7 @@ namespace SysRenderer
 			}
 		}
 
-		bool ShaderCache::Load( const char* _pShadersPath )
+		bool ShaderCache::Load( const std::string& _strShadersPath )
 		{
 			if ( !m_pShaderCompiler )
 			{
@@ -73,11 +74,12 @@ namespace SysRenderer
 			WIN32_FIND_DATAA data = {};
 			ZeroMemory( &data, sizeof(WIN32_FIND_DATAA) );
 
-			HANDLE hFind = FindFirstFileA( _pShadersPath, &data );
+			const char*  pShaderPath = _strShadersPath.c_str();
+			const HANDLE hFind       = FindFirstFileA( pShaderPath, &data );
 			if ( hFind != INVALID_HANDLE_VALUE )
 			{
-				char* pDirectoryNoWildcard = new char[strlen( _pShadersPath )];
-				strncpy_s( pDirectoryNoWildcard, strlen( _pShadersPath ), _pShadersPath, strlen( _pShadersPath ) - 1 );
+				char* pDirectoryNoWildcard = new char[strlen( pShaderPath )];
+				strncpy_s( pDirectoryNoWildcard, strlen( pShaderPath ), pShaderPath, strlen( pShaderPath ) - 1 );
 
 				do
 				{
@@ -91,8 +93,8 @@ namespace SysRenderer
 
 						LogInfo( "\t- %s", pFullFullFileString );
 
-						size_t namelength = strlen( data.cFileName ) - 2;
-						char*  pFilename  = new char[namelength];
+						const size_t namelength = strlen( data.cFileName ) - 2;
+						char*        pFilename  = new char[namelength];
 						snprintf( pFilename, namelength, "%s", data.cFileName );
 
 						char*         aError        = nullptr;

@@ -134,7 +134,7 @@
     <PostBuildEvent>
       <Command>xcopy /y /s /q $(SolutionDir)_Dependencies\dll\*.* $(SolutionDir)$(Platform)\$(Configuration)\
 xcopy /y /s /q $(SolutionDir)_Content\*.* $(SolutionDir)$(Platform)\$(Configuration)\Content\
-xcopy /y /s /q $(SolutionDir)_Shaders\*.* $(SolutionDir)$(Platform)\$(Configuration)\Shaders\</Command>
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
