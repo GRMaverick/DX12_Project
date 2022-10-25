@@ -13,6 +13,7 @@ namespace SysMemory
 		EResourceGpu,
 		ERenderTarget,
 		EMemoryTracking,
+		EShader,
 		ECategories,
 	};
 }

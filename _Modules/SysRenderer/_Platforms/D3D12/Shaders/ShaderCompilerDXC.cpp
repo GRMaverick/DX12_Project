@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "SysMemory/include/MemoryGlobalTracking.h"
 #include "SysUtilities/_Loaders/CLParser.h"
 
 #pragma comment(lib, "dxcompiler.lib")
@@ -100,6 +101,11 @@ namespace SysRenderer
 			{
 				vArgs.push_back( L"/Od" );
 			}
+			else if ( CLParser::Instance()->HasArgument( "O3" ) )
+			{
+				vArgs.push_back( L"-O3" );
+			}
+
 			if ( CLParser::Instance()->HasArgument( "embed_symbols" ) )
 			{
 				vArgs.push_back( L"/Qembed_debug" );

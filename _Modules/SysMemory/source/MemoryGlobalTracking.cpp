@@ -27,7 +27,7 @@ void ::operator delete[]( void* _pAddress )
 
 namespace SysMemory
 {
-	const char* g_ContextName[] = {"Default Heap", "CPU Textures", "GPU Textures", "CPU Geometry", "GPU Geometry", "GPU Resources", "Render Targets", "Memory Tracking",};
+	const char* g_ContextName[] = {"Default Heap", "CPU Textures", "GPU Textures", "CPU Geometry", "GPU Geometry", "GPU Resources", "Render Targets", "Memory Tracking", "Shaders",};
 
 	MemoryContextData g_AllocationData[static_cast<unsigned int>(MemoryContextCategory::ECategories)];
 
@@ -60,7 +60,7 @@ namespace SysMemory
 			return;
 		}
 
-		const auto pHeader = (MemoryAllocationHeader*)(static_cast<char*>(_pAddress) - sizeof( MemoryAllocationHeader ));
+		const auto pHeader = reinterpret_cast<MemoryAllocationHeader*>(static_cast<char*>(_pAddress) - sizeof( MemoryAllocationHeader ));
 
 		g_AllocationData[pHeader->Category].Deallocations++;
 		g_AllocationData[pHeader->Category].TotalAllocationSize -= pHeader->Size;
