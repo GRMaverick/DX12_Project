@@ -123,7 +123,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)_Core;$(ProjectDir)_Interfaces;$(ProjectDir)_Renderer;$(ProjectDir)_Dependencies\include;$(ProjectDir)_Utilities;$(SolutionDir)DirectXTK12\Inc;$(SolutionDir)_Modules</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)Artemis\Artemis.Utilities;$(SolutionDir)DirectXTK12\Inc</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
@@ -145,7 +145,7 @@ xcopy /y /s /q $(SolutionDir)_Content\*.* $(SolutionDir)$(Platform)\$(Configurat
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)\_Core;$(ProjectDir)\_Interfaces;$(ProjectDir)\_Renderer</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)Artemis\Artemis.Utilities;$(SolutionDir)DirectXTK12\Inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -162,22 +162,8 @@ xcopy /y /s /q $(SolutionDir)_Content\*.* $(SolutionDir)$(Platform)\$(Configurat
     <ClCompile Include="_Core\InputManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="_Core\Defines.h" />
+    <ClInclude Include="_Core\SandboxDefines.h" />
     <ClInclude Include="_Core\InputManager.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\_Modules\SysCore\SysCore.vcxproj">
-      <Project>{4354c798-abed-408e-b5d0-d7a202e6eb59}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\_Modules\SysMemory\SysMemory.vcxproj">
-      <Project>{1c9559d6-909b-4711-9a8e-850d83a33586}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\_Modules\SysRenderer\SysRenderer.vcxproj">
-      <Project>{02a065a8-0aa4-463a-b7c3-1246c412cb47}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\_Modules\SysUtilities\SysUtilities.vcxproj">
-      <Project>{958a836c-8ba2-4d4a-a313-c9da500c9e40}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\_Shaders\Albedo.fx">
@@ -207,6 +193,17 @@ xcopy /y /s /q $(SolutionDir)_Content\*.* $(SolutionDir)$(Platform)\$(Configurat
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Artemis\Artemis.Core\Artemis.Core.vcxproj">
+      <Project>{ad5c575b-f7ed-48fc-8912-b0284cafebd3}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Artemis\Artemis.Renderer.Interfaces\Artemis.Renderer.Interfaces.vcxproj">
+      <Project>{fee2b61d-f6a5-4532-ad38-93f278430bae}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Artemis\Artemis.Utilities\Artemis.Utilities.vcxproj">
+      <Project>{15f52f98-af29-44e9-9707-8d126651c3df}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

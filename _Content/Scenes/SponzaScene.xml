@@ -1,0 +1,23 @@
+<Root>
+    <Cameras>
+        <Camera Name="Main">
+            <Position X="180.0" Y="180.0" Z="0.0" />
+            <Target X="0.0" Y="180.0" Z="0.0" />
+            <Up X="0.0" Y="1.0" Z="0.0" />
+            <FOV Value="45" />
+        </Camera>
+    </Cameras>
+    <Lights>
+        <Light Name="Main">
+            <Diffuse R="1.0" G="1.0" B="1.0" A="1.0" />
+            <Ambient R="1.0" G="1.0" B="1.0" A="1.0"/>
+            <Specular R="1.0" G="1.0" B="1.0" A="1.0" Power="0.0"/>
+            <Position X="78.0" Y="43.0" Z="0.0" />
+        </Light>
+    </Lights>
+    <ModelInstances>
+        <Instance ModelPath="Sponza\Sponza.fbx" ModelName="SponzaScene" Material="AlbedoPhongNormal" WorldPosition="0.0, 0.0, 0.25">
+            <Transform PosX="0.0" PosY="0.0" PosZ="0.0" Scale="1.0" />
+        </Instance>
+    </ModelInstances>
+</Root>

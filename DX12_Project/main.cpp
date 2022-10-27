@@ -8,12 +8,14 @@
 
 #include "Defines.h"
 
-#include "SysCore\_Window\GameWindow.h"
-#include "SysUtilities\_Loaders\CLParser.h"
+#include "Window/GameWindow.h"
+#include "Loaders/CLParser.h"
+#include "Logging/Logger.h"
+#include "Interfaces/IRenderer.h"
 
-#include "SysRenderer\_Platforms\D3D12\RendererD3D12.h"
+//#include "Artemis.Rendering\_Platforms\D3D12\RendererD3D12.h"
 
-#include "InputManager.h"
+//#include "InputManager.h"
 
 PRAGMA_TODO( "Data Driven Pipelines" )
 PRAGMA_TODO( "\tSamplerState Table" )
@@ -27,9 +29,9 @@ PRAGMA_TODO( "\tResize Handling" )
 PRAGMA_TODO( "MT Command Buffers" )
 PRAGMA_TODO( "\t - Submission / Execution needs proper synchronisation" )
 
-using namespace SysCore;
-using namespace SysUtilities;
-using namespace SysRenderer::Interfaces;
+using namespace Artemis::Core;
+using namespace Artemis::Utilities;
+using namespace Artemis::Renderer::Interfaces;
 
 static GameWindow* g_pWindow   = nullptr;
 static IRenderer*  g_pRenderer = nullptr;
@@ -87,7 +89,7 @@ bool GameLoop()
 		elapsedSeconds = 0.0;
 	}
 
-	InputManager::Instance()->Update();
+	//InputManager::Instance()->Update();
 
 	g_pRenderer->Update( deltaTime );
 	g_pRenderer->Render();
@@ -115,6 +117,10 @@ int __stdcall WinMain( const HINSTANCE _hInstance, const HINSTANCE _hPreviousIns
 	{
 		uiLogCategory |= CATEGORY_UTILITIES;
 	}
+	if ( CLParser::Instance()->HasArgument( "LogCat_Shaders" ) )
+	{
+		uiLogCategory |= CATEGORY_SHADERS;
+	}
 
 	unsigned int uiLogSeverity = SEVERITY_NONE;
 	if ( CLParser::Instance()->HasArgument( "LogSev_Info" ) )
@@ -138,16 +144,14 @@ int __stdcall WinMain( const HINSTANCE _hInstance, const HINSTANCE _hPreviousIns
 	Logger::SetCategory( uiLogCategory );
 
 #if defined(_DEBUG)
-	// Check to see if a copy of WinPixGpuCapturer.dll has already been injected into the application.
-	// This may happen if the application is launched through the PIX UI. 
 	if ( GetModuleHandle( L"WinPixGpuCapturer.dll" ) == nullptr )
 	{
 		LoadLibrary( GetLatestWinPixGpuCapturerPathCpp17().c_str() );
 	}
 #endif
 
-	g_pWindow   = new GameWindow( _hInstance, L"MainWindow", L"DX12 Project" );
-	g_pRenderer = new SysRenderer::Renderer();
+	g_pWindow = new GameWindow( _hInstance, L"MainWindow", L"DX12 Project" );
+	//g_pRenderer = new SysRenderer::Renderer();
 
 	if ( !g_pRenderer->Initialise( g_pWindow ) )
 	{

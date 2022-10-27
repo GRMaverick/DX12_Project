@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Defines.h" />
+    <ClInclude Include="_ImGUI\ImGUIEngine.h" />
+    <ClInclude Include="_Interfaces\IRenderer.h" />
+    <ClInclude Include="_Interfaces\ISamplerState.h" />
+    <ClInclude Include="_Interfaces\IShader.h" />
+    <ClInclude Include="_Interfaces\IShaderCompiler.h" />
+    <ClInclude Include="_Loading\AssimpLoader.h" />
+    <ClInclude Include="_Loading\TextureLoader.h" />
+    <ClInclude Include="_Platforms\D3D12\Device\CommandList.h" />
+    <ClInclude Include="_Platforms\D3D12\Device\CommandQueue.h" />
+    <ClInclude Include="_Platforms\D3D12\Device\DeviceD3D12.h" />
+    <ClInclude Include="_Platforms\D3D12\Device\SwapChain.h" />
+    <ClInclude Include="_Platforms\D3D12\RendererD3D12.h" />
+    <ClInclude Include="_Platforms\D3D12\Resources\ConstantBufferParameters.h" />
+    <ClInclude Include="_Platforms\D3D12\Resources\ConstantBufferResource.h" />
+    <ClInclude Include="_Platforms\D3D12\Resources\ConstantTable.h" />
+    <ClInclude Include="_Platforms\D3D12\Resources\DescriptorHeap.h" />
+    <ClInclude Include="_Platforms\D3D12\Resources\GpuResourceTable.h" />
+    <ClInclude Include="_Platforms\D3D12\Resources\IBufferResource.h" />
+    <ClInclude Include="_Platforms\D3D12\Resources\IndexBufferResource.h" />
+    <ClInclude Include="_Platforms\D3D12\Resources\Texture2DResource.h" />
+    <ClInclude Include="_Platforms\D3D12\Resources\UploadBuffer.h" />
+    <ClInclude Include="_Platforms\D3D12\Resources\VertexBufferResource.h" />
+    <ClInclude Include="_Platforms\D3D12\Shaders\ShaderCache.h" />
+    <ClInclude Include="_Platforms\D3D12\Shaders\ShaderCompilerDX.h" />
+    <ClInclude Include="_Platforms\D3D12\Shaders\ShaderCompilerDXC.h" />
+    <ClInclude Include="_Platforms\D3D12\Shaders\ShaderCompilerFXC.h" />
+    <ClInclude Include="_Platforms\D3D12\Shaders\ShaderD3D12.h" />
+    <ClInclude Include="_Platforms\D3D12\States\SamplerStateD3D12.h" />
+    <ClInclude Include="_Scene\Camera.h" />
+    <ClInclude Include="_Scene\RenderEntity.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="_ImGUI\ImGUIEngine.cpp" />
+    <ClCompile Include="_Loading\AssimpLoader.cpp" />
+    <ClCompile Include="_Loading\TextureLoader.cpp" />
+    <ClCompile Include="_Platforms\D3D12\Device\CommandList.cpp" />
+    <ClCompile Include="_Platforms\D3D12\Device\CommandQueue.cpp" />
+    <ClCompile Include="_Platforms\D3D12\Device\DeviceD3D12.cpp" />
+    <ClCompile Include="_Platforms\D3D12\Device\SwapChain.cpp" />
+    <ClCompile Include="_Platforms\D3D12\RendererD3D12.cpp" />
+    <ClCompile Include="_Platforms\D3D12\Resources\ConstantBufferResource.cpp" />
+    <ClCompile Include="_Platforms\D3D12\Resources\ConstantTable.cpp" />
+    <ClCompile Include="_Platforms\D3D12\Resources\DescriptorHeap.cpp" />
+    <ClCompile Include="_Platforms\D3D12\Resources\GpuResourceTable.cpp" />
+    <ClCompile Include="_Platforms\D3D12\Resources\IBufferResource.cpp" />
+    <ClCompile Include="_Platforms\D3D12\Resources\IndexBufferResource.cpp" />
+    <ClCompile Include="_Platforms\D3D12\Resources\Texture2DResource.cpp" />
+    <ClCompile Include="_Platforms\D3D12\Resources\VertexBufferResource.cpp" />
+    <ClCompile Include="_Platforms\D3D12\Shaders\ShaderCache.cpp" />
+    <ClCompile Include="_Platforms\D3D12\Shaders\ShaderCompilerDX.cpp" />
+    <ClCompile Include="_Platforms\D3D12\Shaders\ShaderCompilerDXC.cpp" />
+    <ClCompile Include="_Platforms\D3D12\Shaders\ShaderCompilerFXC.cpp" />
+    <ClCompile Include="_Platforms\D3D12\States\SamplerStateD3D12.cpp" />
+    <ClCompile Include="_Scene\Camera.cpp" />
+    <ClCompile Include="_Scene\RenderEntity.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SysCore\SysCore.vcxproj">
+      <Project>{4354c798-abed-408e-b5d0-d7a202e6eb59}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\SysMemory\SysMemory.vcxproj">
+      <Project>{1c9559d6-909b-4711-9a8e-850d83a33586}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\SysUtilities\SysUtilities.vcxproj">
+      <Project>{958a836c-8ba2-4d4a-a313-c9da500c9e40}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{02a065a8-0aa4-463a-b7c3-1246c412cb47}</ProjectGuid>
+    <RootNamespace>SysRenderer</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Artemis.Rendering</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)_Toolkits\DirectXTK12\Inc;$(SolutionDir)_Dependencies\include;$(ProjectDir);$(SolutionDir)_Modules;$(ProjectDir)_Interfaces;$(ProjectDir)_Platforms;$(ProjectDir)_ImGUI;$(ProjectDir)_Factories;$(ProjectDir)_Scene;$(ProjectDir)_Loading;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\..\packages\WinPixEventRuntime.1.0.210209001\build\WinPixEventRuntime.targets" Condition="Exists('..\..\packages\WinPixEventRuntime.1.0.210209001\build\WinPixEventRuntime.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\packages\WinPixEventRuntime.1.0.210209001\build\WinPixEventRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\WinPixEventRuntime.1.0.210209001\build\WinPixEventRuntime.targets'))" />
+  </Target>
+</Project>

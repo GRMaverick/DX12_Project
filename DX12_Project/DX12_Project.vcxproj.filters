@@ -29,7 +29,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="_Core\Defines.h">
+    <ClInclude Include="_Core\SandboxDefines.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
     <ClInclude Include="_Core\InputManager.h">
