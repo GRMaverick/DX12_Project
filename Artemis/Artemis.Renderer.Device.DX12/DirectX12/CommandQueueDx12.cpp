@@ -32,7 +32,7 @@ namespace Artemis::Renderer::Device::Dx12
 			m_pQueue.Reset();
 	}
 
-	bool CommandQueueDx12::Initialise( Interfaces::IGraphicsDevice* _pDevice, Interfaces::ECommandListType _type, const wchar_t* _pDebugName )
+	bool CommandQueueDx12::Initialise( const Interfaces::IGraphicsDevice* _pDevice, Interfaces::ECommandListType _type, const wchar_t* _pDebugName )
 	{
 		HRESULT hr = S_OK;
 

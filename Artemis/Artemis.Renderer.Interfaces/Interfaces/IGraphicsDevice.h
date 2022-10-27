@@ -1,6 +1,11 @@
 #pragma once
 #include "IDescriptorHeap.h"
 
+namespace Artemis::Core
+{
+	class GameWindow;
+}
+
 namespace Artemis::Renderer::Interfaces
 {
 	class IGpuResource;
@@ -204,7 +209,7 @@ namespace Artemis::Renderer::Interfaces
 		};
 
 		virtual const void* GetDeviceObject( void ) const = 0;
-		virtual bool        CreateSwapChain( ISwapChain** _ppSwapChain, ICommandQueue* _pCmdQueue, Core::GameWindow* _pWindow, unsigned int _numBackBuffers, const wchar_t* _pDebugName = L"" ) = 0;
+		virtual bool        CreateSwapChain( ISwapChain** _ppSwapChain, ICommandQueue* _pCmdQueue, Artemis::Core::GameWindow* _pWindow, unsigned int _numBackBuffers, const wchar_t* _pDebugName = L"" ) = 0;
 		virtual bool        CreateCommandList( ECommandListType _type, ICommandList** _ppCommandList, const wchar_t* _pDebugName = L"" ) const = 0;
 		virtual bool        CreateCommandQueue( Interfaces::ECommandListType _type, ICommandQueue** _ppCommandQueue, const wchar_t* _pDebugName = L"" ) const =0;
 		virtual bool        CreateDescriptorHeap( Interfaces::DescriptorHeapType _type, IDescriptorHeap** _pDescriptorHeap, Interfaces::DescriptorHeapFlags _flags, unsigned int _numBuffers, const wchar_t* _pDebugName = L"" ) const = 0;

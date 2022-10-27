@@ -24,6 +24,7 @@
     <ClCompile Include="DirectX12\ConstantBufferResourceDx12.cpp" />
     <ClCompile Include="DirectX12\DescriptorHeapDx12.cpp" />
     <ClCompile Include="DirectX12\DeviceDx12.cpp" />
+    <ClCompile Include="DirectX12\GpuResourceDx12.cpp" />
     <ClCompile Include="DirectX12\SwapChainDx12.cpp" />
   </ItemGroup>
   <ItemGroup>

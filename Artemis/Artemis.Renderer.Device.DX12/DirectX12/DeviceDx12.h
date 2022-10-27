@@ -21,7 +21,7 @@
 #include "Interfaces/ICommandList.h"
 
 using IACommandList = Artemis::Renderer::Interfaces::ICommandList;
-using IABufferResource = Artemis::Renderer::Interfaces::IBufferResource;
+using IAGpuResource = Artemis::Renderer::Interfaces::IGpuResource;
 using EAResourceFlags = Artemis::Renderer::Interfaces::ResourceFlags;
 
 namespace Artemis
@@ -110,17 +110,17 @@ namespace Artemis::Renderer::Device::Dx12
 		bool CreateCommandQueue( Interfaces::ECommandListType _type, Interfaces::ICommandQueue** _ppCommandQueue, const wchar_t* _pDebugName = L"" ) const override;
 		bool CreateDescriptorHeap( Interfaces::DescriptorHeapType _type, Interfaces::IDescriptorHeap** _pDescriptorHeap, Interfaces::DescriptorHeapFlags _flags, unsigned int _numBuffers, const wchar_t* _pDebugName = L"" ) const override;
 
-		IABufferResource* CreateVertexBufferResource( IACommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, EAResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName = L"" ) const override;
-		IABufferResource* CreateIndexBufferResource( IACommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, EAResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName = L"" ) const override;
-		IABufferResource* CreateTexture2D( const wchar_t* _pWstrFilename, IACommandList* _pCommandList, const wchar_t* _pDebugName = L"" ) const override;
-		IABufferResource* CreateWicTexture2D( const wchar_t* _pWstrFilename, IACommandList* _pCommandList, const wchar_t* _pDebugName = L"" ) const override;
+		IAGpuResource* CreateVertexBufferResource( IACommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, EAResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName = L"" ) const override;
+		IAGpuResource* CreateIndexBufferResource( IACommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, EAResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName = L"" ) const override;
+		IAGpuResource* CreateTexture2D( const wchar_t* _pWstrFilename, IACommandList* _pCommandList, const wchar_t* _pDebugName = L"" ) const override;
+		IAGpuResource* CreateWicTexture2D( const wchar_t* _pWstrFilename, IACommandList* _pCommandList, const wchar_t* _pDebugName = L"" ) const override;
 
 		bool FlushState() override;
 		bool SetMaterial( const char* _pName ) override;
 		bool SetRenderTarget( void ) override;
 		bool SetDepthBuffer( void ) override;
-		bool SetTexture( const char* _pName, Interfaces::IGpuBufferResource* _pTexture ) override;
-		bool SetConstantBuffer( const char* _pName, Interfaces::IGpuBufferResource* _pCBuffer ) override;
+		bool SetTexture( const char* _pName, IAGpuResource* _pTexture ) override;
+		bool SetConstantBuffer( const char* _pName, IAGpuResource* _pCBuffer ) override;
 		bool SetSamplerState( const char* _pName, Interfaces::ISamplerState* _pSamplerState ) override;
 		bool SetRasterizerState( const Interfaces::RasteriserStateDesc& _desc ) override;
 		bool SetBlendState( const Interfaces::BlendDesc& _desc ) override;

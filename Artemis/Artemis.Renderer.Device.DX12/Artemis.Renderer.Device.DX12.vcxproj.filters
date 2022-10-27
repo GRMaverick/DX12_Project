@@ -45,6 +45,9 @@
     <ClCompile Include="DirectX12\ConstantBufferResourceDx12.cpp">
       <Filter>Source Files\Resources</Filter>
     </ClCompile>
+    <ClCompile Include="DirectX12\GpuResourceDx12.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirectX12\CommandListDx12.h">

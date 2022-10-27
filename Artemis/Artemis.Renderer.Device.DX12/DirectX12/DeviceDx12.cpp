@@ -17,8 +17,8 @@
 
 //#include "States\SamplerStateD3D12.h"
 
-#include "Cache/ShaderCache.h"
-#include "Cache/Effect.h"
+//#include "Cache/ShaderCache.h"
+//#include "Cache/Effect.h"
 
 #include <assert.h>
 #include <DirectXMath.h>
