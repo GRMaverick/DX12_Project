@@ -53,7 +53,6 @@ namespace Artemis::Renderer::Interfaces
 		void SetConstantParameters( IConstantBufferParameters* _params )
 		{
 			m_cbpConstantParameters = _params;
-			//D3D12::ConstantTable::Instance()->CreateConstantBuffersEntries( _params );
 		}
 
 		ShaderIoParameters         GetShaderParameters( void ) const { return m_sipShaderParameters; }

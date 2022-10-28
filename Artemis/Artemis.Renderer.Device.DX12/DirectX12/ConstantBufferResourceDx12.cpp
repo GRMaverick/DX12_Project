@@ -8,7 +8,7 @@
 
 namespace Artemis::Renderer::Device::Dx12
 {
-	ConstantBufferResourceDx12::ConstantBufferResourceDx12( Interfaces::IGraphicsDevice* _pDevice, Interfaces::IDescriptorHeap* _pDescHeapCbv, const Artemis::Renderer::Interfaces::IConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pName )
+	ConstantBufferResourceDx12::ConstantBufferResourceDx12( const Interfaces::IGraphicsDevice* _pDevice, Interfaces::IDescriptorHeap* _pDescHeapCbv, const Artemis::Renderer::Interfaces::IConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pName )
 	{
 		// Constant buffer elements need to be multiples of 256 bytes.
 		// This is because the hardware can only view constant data 

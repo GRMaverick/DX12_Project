@@ -10,9 +10,9 @@
 #include "Loaders/CLParser.h"
 
 #include "Interfaces/IShader.h"
+#include "Factories/ShaderCompilerFactory.h"
 
-#include "Compiler/ShaderCompilerDXC.h"
-#include "Compiler/ShaderCompilerFXC.h"
+#include "Constants/ConstantTable.h"
 
 //#define DUMP_SHADERS
 
@@ -48,18 +48,7 @@ namespace Artemis::Renderer::Shaders
 
 	void ShaderCache::InitCompiler( void )
 	{
-		m_pShaderCompiler = nullptr;
-
-		if ( Utilities::CLParser::Instance()->HasArgument( "dxc" ) )
-		{
-			LogInfo( "Compiling using: DXCompiler" );
-			m_pShaderCompiler = new ShaderCompilerDxc();
-		}
-		else
-		{
-			LogInfo( "Compiling using: D3DCompiler" );
-			m_pShaderCompiler = new ShaderCompilerFxc();
-		}
+		m_pShaderCompiler = Artemis::Renderer::Device::Factories::ShaderCompilerFactory::Construct(Artemis::Utilities::CLParser::Instance()->HasArgument("dxc"));
 	}
 
 	bool ShaderCache::Load( const std::string& _strShadersPath )
@@ -126,6 +115,9 @@ namespace Artemis::Renderer::Shaders
 					pPixelShader->SetName( pPShaderName );
 					m_pShaderCompiler->Reflect( pPixelShader );
 					DumpShader( pPixelShader );
+
+                    ConstantTable::Instance()->CreateConstantBuffersEntries(pVertexShader->GetConstantParameters());
+                    ConstantTable::Instance()->CreateConstantBuffersEntries(pPixelShader->GetConstantParameters());
 
 					Effect effect = Effect( pVertexShader, pPixelShader );
 					effect.SetName( pFilename );

@@ -2,19 +2,15 @@
 #define __RenderEntity_h__
 
 #include <stdio.h>
-#include <winnt.h>
+#include <Windows.h>
 
 #include "CBStructures.h"
 
-namespace Artemis
+namespace Artemis::Renderer::Interfaces
 {
-	namespace Renderer
-	{
-		namespace Interfaces
-		{
-			class IGpuResource;
-		}
-	}
+    class IGpuResource;
+    class IGraphicsDevice;
+    class ICommandList;
 }
 
 namespace Artemis::Renderer::Assets
@@ -30,7 +26,7 @@ namespace Artemis::Renderer::Assets
 		{
 		}
 
-		bool LoadModelFromFile( const char* _pFilename );
+		bool LoadModelFromFile( const char* _pFilename, Interfaces::IGraphicsDevice* _pDevice, Interfaces::ICommandList* _pCmdList);
 
 		void Update( void );
 

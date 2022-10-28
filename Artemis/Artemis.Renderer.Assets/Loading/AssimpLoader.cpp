@@ -25,7 +25,7 @@ using namespace Artemis::Renderer::Interfaces;
 namespace Artemis::Renderer::Assets
 {
 	std::map<std::string, RenderModel*>     AssimpLoader::m_mapLoadedModels   = std::map<std::string, RenderModel*>();
-	std::map<std::string, IBufferResource*> AssimpLoader::m_mapLoadedTextures = std::map<std::string, IBufferResource*>();
+	std::map<std::string, IGpuResource*> AssimpLoader::m_mapLoadedTextures = std::map<std::string, IGpuResource*>();
 
 	struct Vertex
 	{
@@ -275,8 +275,8 @@ namespace Artemis::Renderer::Assets
 		// Upload GPU resources
 		//
 		mesh.Indices       = iIndices;
-		mesh.pVertexBuffer = _pDevice->CreateVertexBufferResource( _pCommandList, uiFullBufferLength * sizeof( float ), stride, ResourceFlag_None, (void*)pFullBuffer );
-		mesh.pIndexBuffer  = _pDevice->CreateIndexBufferResource( _pCommandList, iIndices * sizeof( unsigned long ), sizeof( unsigned long ), ResourceFlag_None, pIndices );
+		mesh.pVertexBuffer = _pDevice->CreateVertexBufferResource( _pCommandList, uiFullBufferLength * sizeof( float ), stride, Interfaces::ResourceFlags::ResourceFlag_None, (void*)pFullBuffer );
+		mesh.pIndexBuffer  = _pDevice->CreateIndexBufferResource( _pCommandList, iIndices * sizeof( unsigned long ), sizeof( unsigned long ), Interfaces::ResourceFlags::ResourceFlag_None, pIndices );
 
 		if ( pTangents )
 			delete[] pTangents;
@@ -325,7 +325,7 @@ namespace Artemis::Renderer::Assets
 		return stoi( tistr );
 	}
 
-	IBufferResource* GetTextureFromModel( IGraphicsDevice* _pDevice, const aiScene* scene, int textureindex )
+	IGpuResource* GetTextureFromModel( IGraphicsDevice* _pDevice, const aiScene* scene, int textureindex )
 	{
 		//PRAGMA_TODO( "AssimpLoader WICTexturesFromMemory" );
 
@@ -350,7 +350,7 @@ namespace Artemis::Renderer::Assets
 		return ext;
 	}
 
-	IBufferResource* AssimpLoader::ProcessMaterial( Interfaces::IGraphicsDevice* _pDevice, Interfaces::ICommandList* _pCommandList, const aiMaterial* _pMaterial, const aiTextureType _type, const aiScene* _pScene )
+	IGpuResource* AssimpLoader::ProcessMaterial( Interfaces::IGraphicsDevice* _pDevice, Interfaces::ICommandList* _pCommandList, const aiMaterial* _pMaterial, const aiTextureType _type, const aiScene* _pScene )
 	{
 		//assert((_pMaterial->GetTextureCount(_type) == 1) && "More than one textures of this type");
 
@@ -361,7 +361,7 @@ namespace Artemis::Renderer::Assets
 
 			if ( const bool bSkip = m_mapLoadedTextures.contains( str.C_Str() ); !bSkip )
 			{
-				IBufferResource* pTexture = nullptr;
+				IGpuResource* pTexture = nullptr;
 				if ( const std::string textype = DetermineTextureType( _pScene, _pMaterial ); textype == "embedded compressed texture" )
 				{
 					//pTexture = GetTextureFromModel(_pDevice, _pScene, GetTextureIndex(&str));

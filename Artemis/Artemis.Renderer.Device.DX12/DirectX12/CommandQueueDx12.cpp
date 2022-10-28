@@ -80,7 +80,7 @@ namespace Artemis::Renderer::Device::Dx12
 		Wait();
 	}
 
-	UINT64 CommandQueueDx12::Signal()
+	unsigned long CommandQueueDx12::Signal()
 	{
 		Helpers::PixScopedEvent rEvent( m_pQueue.Get(), "%s: %s", g_TypeToString[m_eType], "Signal" );
 		m_pQueue->Signal( m_pFence.Get(), ++m_uiFenceValue );

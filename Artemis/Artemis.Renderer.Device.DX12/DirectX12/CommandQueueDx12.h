@@ -1,8 +1,6 @@
 #ifndef __CommandQueue_h__
 #define __CommandQueue_h__
 
-#include "Dx12Defines.h"
-
 #include <d3d12.h>
 #include <wrl.h>
 
@@ -28,14 +26,14 @@ namespace Artemis::Renderer::Device::Dx12
 
 		void* GetDeviceObject() override { return m_pQueue.Get(); }
 
-		UINT64 Signal() override;
+		unsigned long Signal() override;
 		void   Wait() const override;
-		void   Flush();
+		void   Flush() override;
 
 	private:
 		D3D12_COMMAND_LIST_TYPE             m_eType;
 		Microsoft::WRL::ComPtr<ID3D12Fence> m_pFence;
-		UINT64                              m_uiFenceValue;
+		unsigned long                              m_uiFenceValue;
 		HANDLE                              m_hFenceEvent;
 
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_pQueue;

@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "Effect.h"
+
 namespace Artemis::Renderer::Interfaces
 {
 	class IShaderStage;
@@ -12,7 +14,6 @@ namespace Artemis::Renderer::Interfaces
 
 namespace Artemis::Renderer::Shaders
 {
-	class Effect;
 	class IShaderCompiler;
 
 	struct ShaderSet

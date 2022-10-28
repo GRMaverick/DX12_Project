@@ -20,24 +20,21 @@
 #include "Interfaces/ISamplerState.h"
 #include "Interfaces/ICommandList.h"
 
+#include "DeviceState.h"
+
 using IACommandList = Artemis::Renderer::Interfaces::ICommandList;
 using IAGpuResource = Artemis::Renderer::Interfaces::IGpuResource;
 using EAResourceFlags = Artemis::Renderer::Interfaces::ResourceFlags;
 
-namespace Artemis
+namespace Artemis::Renderer::Interfaces
 {
-	namespace Renderer
-	{
-		namespace Interfaces
-		{
-			class IBufferResource;
-			class ISamplerState;
-			class IShaderStage;
-			class IBufferResource;
-			class IGpuBufferResource;
-			class IConstantBufferParameters;
-		}
-	}
+    class IBufferResource;
+    class ISamplerState;
+    class IShaderStage;
+    class IBufferResource;
+    class IGpuResource;
+    class IConstantBufferParameters;
+	struct IMaterial;
 }
 
 namespace Artemis::Core
@@ -48,14 +45,7 @@ namespace Artemis::Core
 namespace Artemis::Renderer::Device::Dx12
 {
 	class DescriptorHeapDx12;
-	class CommandQueueDx12;
-	class CommandList;
-	class SwapChain;
-	class GpuResourceTable;
-	class Texture2DResource;
-	class VertexBufferResource;
-	class IndexBufferResource;
-	class ConstantBufferResourceDx12;
+	class GpuResourceDx12;
 
 	struct SamplerStateEntry;
 
@@ -71,33 +61,11 @@ namespace Artemis::Renderer::Device::Dx12
 	{
 		friend class RendererD3D12;
 	public:
-		struct DeviceState
-		{
-			unsigned int             DirtyFlags = 0;
-			GpuResourceTable*        Resources;
-			D3D12_RASTERIZER_DESC    RasterizerState;
-			D3D12_BLEND_DESC         BlendState;
-			D3D12_DEPTH_STENCIL_DESC DepthStencilState;
-
-			unsigned int ConstantBufferUpdates = 0;
-			unsigned int SamplerStateUpdates   = 0;
-			unsigned int TextureUpdates        = 0;
-			unsigned int RenderTargetUpdates   = 0;
-			unsigned int DepthBufferUpdates    = 0;
-			unsigned int RootSignatureUpdates  = 0;
-			unsigned int PipelineStateUpdates  = 0;
-			unsigned int ShaderUpdates         = 0;
-
-			void SetDirty( const unsigned int _dirtyFlag )
-			{
-				DirtyFlags |= _dirtyFlag;
-			}
-
-			bool IsDirty( const unsigned int _dirtyFlags ) const
-			{
-				return (DirtyFlags & _dirtyFlags) == _dirtyFlags;
-			}
-		};
+        struct SamplerStateEntry
+        {
+            unsigned int Hash = 0;
+            unsigned int HeapIndex = 0;
+        };
 
 		// IGraphicsDevice Implementation
 #pragma region IGraphicsDevice_Implementation
@@ -110,13 +78,14 @@ namespace Artemis::Renderer::Device::Dx12
 		bool CreateCommandQueue( Interfaces::ECommandListType _type, Interfaces::ICommandQueue** _ppCommandQueue, const wchar_t* _pDebugName = L"" ) const override;
 		bool CreateDescriptorHeap( Interfaces::DescriptorHeapType _type, Interfaces::IDescriptorHeap** _pDescriptorHeap, Interfaces::DescriptorHeapFlags _flags, unsigned int _numBuffers, const wchar_t* _pDebugName = L"" ) const override;
 
-		IAGpuResource* CreateVertexBufferResource( IACommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, EAResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName = L"" ) const override;
-		IAGpuResource* CreateIndexBufferResource( IACommandList* _pCommandList, UINT _sizeInBytes, UINT _strideInBytes, EAResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName = L"" ) const override;
+		IAGpuResource* CreateVertexBufferResource( IACommandList* _pCommandList, unsigned int _sizeInBytes, unsigned int _strideInBytes, EAResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName = L"" ) const override;
+		IAGpuResource* CreateIndexBufferResource( IACommandList* _pCommandList, unsigned int _sizeInBytes, unsigned int _strideInBytes, EAResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName = L"" ) const override;
+        IAGpuResource* CreateConstantBufferResource(const Renderer::Interfaces::IConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"") const override;
 		IAGpuResource* CreateTexture2D( const wchar_t* _pWstrFilename, IACommandList* _pCommandList, const wchar_t* _pDebugName = L"" ) const override;
 		IAGpuResource* CreateWicTexture2D( const wchar_t* _pWstrFilename, IACommandList* _pCommandList, const wchar_t* _pDebugName = L"" ) const override;
 
 		bool FlushState() override;
-		bool SetMaterial( const char* _pName ) override;
+		bool SetMaterial(Interfaces::IMaterial* _pMaterial ) override;
 		bool SetRenderTarget( void ) override;
 		bool SetDepthBuffer( void ) override;
 		bool SetTexture( const char* _pName, IAGpuResource* _pTexture ) override;
@@ -137,9 +106,8 @@ namespace Artemis::Renderer::Device::Dx12
 		bool InitialiseImGui( HWND _hWindow, const DescriptorHeapDx12* _pSrvHeap ) const;
 
 		Renderer::Interfaces::ISamplerState* CreateSamplerState( Renderer::Interfaces::SamplerStateFilter _eFilter, Renderer::Interfaces::SamplerStateWrapMode _eWrap, Renderer::Interfaces::SamplerStateComparisonFunction _eCompFunc ) const;
-		ConstantBufferResourceDx12*          CreateConstantBufferResource( const Renderer::Interfaces::IConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"" ) const;
 
-		DeviceState GetDeviceState( void ) const { return m_DeviceState; }
+		//DeviceState GetDeviceState( void ) const { return m_DeviceState; }
 		bool        GetRootSignature( Interfaces::IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName = L"" );
 		bool        GetPipelineState( ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName = L"" );
 		bool        CreateSamplerState( const D3D12_SAMPLER_DESC* _pSamplerDesc, D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const wchar_t* _pDebugName = L"" ) const;
@@ -147,14 +115,6 @@ namespace Artemis::Renderer::Device::Dx12
 		Interfaces::IDescriptorHeap* GetSrvCbvHeap( void ) const { return m_pDescHeapSrvCbv; }
 
 	private:
-		constexpr static unsigned int kDirtyShaders        = 1 << 0;
-		constexpr static unsigned int kDirtySamplerState   = 1 << 1;
-		constexpr static unsigned int kDirtyRenderTarget   = 1 << 2;
-		constexpr static unsigned int kDirtyDepthBuffer    = 1 << 3;
-		constexpr static unsigned int kDirtyTexture        = 1 << 4;
-		constexpr static unsigned int kDirtyConstantBuffer = 1 << 5;
-		constexpr static unsigned int kDirtyPipelineState  = 1 << 6;
-
 		DeviceDx12( void );
 
 		DeviceState m_DeviceState;
@@ -176,8 +136,6 @@ namespace Artemis::Renderer::Device::Dx12
 
 		Microsoft::WRL::ComPtr<IDXGIFactory5> m_pDxgiFactory = nullptr;
 		Microsoft::WRL::ComPtr<IDXGIAdapter4> m_pDxgiAdapter = nullptr;
-
-		std::map<unsigned long, GpuResourceTable*> m_mapGpuResourceTables;
 
 		std::map<unsigned int, SamplerStateEntry*>   m_mapSamplers;
 		std::map<unsigned int, ID3D12RootSignature*> m_mapRootSignatures;

@@ -22,7 +22,7 @@ namespace Artemis::Renderer::Device::Dx12
 		}
 	}
 
-	bool GpuResourceDx12::UploadResource( Interfaces::IGraphicsDevice* _pDevice, const Interfaces::ICommandList* _pCommandList, unsigned int _sizeInBytes, unsigned int _strideInBytes, Interfaces::ResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName )
+	bool GpuResourceDx12::UploadResource( const Interfaces::IGraphicsDevice* _pDevice, const Interfaces::ICommandList* _pCommandList, unsigned int _sizeInBytes, unsigned int _strideInBytes, Interfaces::ResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName )
 	{
 		HRESULT hr = S_OK;
 

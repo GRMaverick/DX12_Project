@@ -63,6 +63,9 @@
     <ClInclude Include="Interfaces\ISwapChain.h">
       <Filter>Header Files\Device</Filter>
     </ClInclude>
+    <ClInclude Include="Interfaces\IMaterial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Interfaces\InterfaceImpl.cpp">

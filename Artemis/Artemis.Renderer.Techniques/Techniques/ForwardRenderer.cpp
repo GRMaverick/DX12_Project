@@ -5,14 +5,14 @@
 #include <DirectXMath.h>
 #include <fstream>
 
-#include "Helpers/d3dx12.h"
-
 #include "Factories/CommandQueueFactory.h"
 #include "Factories/GraphicsDeviceFactory.h"
+#include "Factories/CommandListFactory.h"
 
 #include "Interfaces/ISwapChain.h"
 #include "Interfaces/ICommandList.h"
 #include "Interfaces/IBufferResource.h"
+#include "Interfaces/IMaterial.h"
 
 #include "Loaders/CLParser.h"
 
@@ -33,15 +33,11 @@
 #include "Scene/Camera.h"
 #include "Scene/RenderEntity.h"
 
+#include "Cache/ShaderCache.h"
+#include "Constants/ConstantTable.h"
+
 ////#include "_ImGUI/ImGUIEngine.h"
 
-//#include "Device/SwapChain.h"
-//#include "Device/CommandQueue.h"
-//#include "Shaders/ShaderCache.h"
-
-//#include "Resources/ConstantTable.h"
-//#include "Resources/Texture2DResource.h"
-//#include "Resources/ConstantBufferResource.h"
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d12.lib")
@@ -81,13 +77,15 @@ namespace Artemis::Renderer::Techniques
 		m_pDevice = Artemis::Renderer::Device::Factories::GraphicsDeviceFactory::Construct( CLParser::Instance()->HasArgument( "d3ddebug" ) );
 
 		m_pGfxCmdQueue = Artemis::Renderer::Device::Factories::CommandQueueFactory::Construct();
-		m_pDevice->CreateCommandQueue( Interfaces::CommandListType_Direct, &m_pGfxCmdQueue, L"Gfx" );
-		m_pDevice->CreateCommandQueue( Interfaces::CommandListType_Copy, &m_pCpyCmdQueue, L"CPY" );
+        m_pDevice->CreateCommandQueue(Interfaces::CommandListType_Direct, &m_pGfxCmdQueue, L"Gfx");
+
+        m_pCpyCmdQueue = Artemis::Renderer::Device::Factories::CommandQueueFactory::Construct();
+		m_pDevice->CreateCommandQueue( Interfaces::CommandListType_Copy, &m_pCpyCmdQueue, L"Cpy" );
 
 		if ( !m_pDevice->CreateSwapChain( &m_pSwapChain, m_pGfxCmdQueue, _pWindow, BACK_BUFFERS, L"Swap Chain" ) )
 			return false;
 
-		//ShaderCache::Instance()->Load( SHADERS_PATH );
+		Artemis::Renderer::Shaders::ShaderCache::Instance()->Load( SHADERS_PATH );
 
 		if ( !m_pDevice->CreateDescriptorHeap( Interfaces::DescriptorHeapType_CbvSrvUav, &m_pImGuiSrvHeap, Interfaces::DescriptorHeapFlags_ShaderVisible, 1, L"ImGUI SRV" ) )
 			return false;
@@ -194,6 +192,10 @@ namespace Artemis::Renderer::Techniques
 			light = light->next_sibling( "Light" );
 		}
 
+		Interfaces::ICommandList* pList = Artemis::Renderer::Device::Factories::CommandListFactory::Construct();
+		m_pDevice->CreateCommandList(Interfaces::ECommandListType::CommandListType_Copy, &pList, L"CpyList");
+		pList->Reset();
+
 		const rapidxml::xml_node<>* instances = root->first_node( "ModelInstances" );
 		const rapidxml::xml_node<>* instance  = instances->first_node( "Instance" );
 		while ( instance != nullptr )
@@ -202,9 +204,9 @@ namespace Artemis::Renderer::Techniques
 
 			const std::string pModelPath = std::string( "Content\\Models\\" ) + std::string( instance->first_attribute( "ModelPath" )->value() );
 			pInstance->SetModelName( instance->first_attribute( "ModelName" )->value() );
-			pInstance->LoadModelFromFile( pModelPath.c_str() );
+			pInstance->LoadModelFromFile( pModelPath.c_str(), m_pDevice, pList);
 			pInstance->SetMaterial( instance->first_attribute( "Material" )->value() );
-			pInstance->SetConstantBuffer( ConstantTable::Instance()->CreateConstantBuffer( "ObjectCB" ) );
+			pInstance->SetConstantBuffer(Artemis::Renderer::Shaders::ConstantTable::Instance()->CreateConstantBuffer( "ObjectCB" , m_pDevice) );
 			pInstance->SetRotation( 0.0f, 0.0f, 0.0f );
 
 			const rapidxml::xml_node<>* transform = instance->first_node( "Transform" );
@@ -220,16 +222,18 @@ namespace Artemis::Renderer::Techniques
 			instance = instance->next_sibling( "Instance" );
 		}
 
+		m_pCpyCmdQueue->SubmitToQueue(pList);
+
 		return true;
 	}
 
 	bool ForwardRenderer::LoadContent( void )
 	{
-		//m_bNewModelsLoaded = true;
+		m_bNewModelsLoaded = true;
 
-		m_pMainPassCb  = ConstantTable::Instance()->CreateConstantBuffer( "PassCB" );
-		m_pLightsCb    = ConstantTable::Instance()->CreateConstantBuffer( "LightCB" );
-		m_pSpotlightCb = ConstantTable::Instance()->CreateConstantBuffer( "SpotlightCB" );
+		m_pMainPassCb  = Artemis::Renderer::Shaders::ConstantTable::Instance()->CreateConstantBuffer( "PassCB", m_pDevice);
+		m_pLightsCb    = Artemis::Renderer::Shaders::ConstantTable::Instance()->CreateConstantBuffer( "LightCB", m_pDevice);
+		m_pSpotlightCb = Artemis::Renderer::Shaders::ConstantTable::Instance()->CreateConstantBuffer( "SpotlightCB", m_pDevice);
 
 		//LogInfo( "Loading Models:" );
 
@@ -239,8 +243,8 @@ namespace Artemis::Renderer::Techniques
 			return false;
 		}
 
-		//CommandQueue::Instance( D3D12_COMMAND_LIST_TYPE_COPY )->ExecuteCommandLists();
-		//CommandQueue::Instance( D3D12_COMMAND_LIST_TYPE_COPY )->Flush();
+		m_pCpyCmdQueue->ExecuteCommandLists();
+		m_pCpyCmdQueue->Flush();
 
 		return true;
 	}
@@ -566,30 +570,31 @@ namespace Artemis::Renderer::Techniques
 
 			Interfaces::IGpuResource* pModelCb = pModel->GetConstantBuffer();
 
-			m_pDevice->SetMaterial( pModel->GetMaterialName() );
+			Artemis::Renderer::Shaders::Effect* effect = Artemis::Renderer::Shaders::ShaderCache::Instance()->GetEffect(pModel->GetMaterialName());
+
+			Artemis::Renderer::Interfaces::IMaterial* mat = new Artemis::Renderer::Interfaces::IMaterial();
+			mat->m_pVertexShader = effect->GetVertexShader();
+			mat->m_pPixelShader = effect->GetPixelShader();
+
+			m_pDevice->SetMaterial(mat);
 			m_pDevice->SetSamplerState( "Albedo", m_pDevice->GetDefaultSamplerState() );
 			m_pDevice->SetSamplerState( "Normal", m_pDevice->GetDefaultSamplerState() );
 
 			m_pDevice->SetConstantBuffer( "ObjectCB", pModelCb );
 			m_pDevice->SetConstantBuffer( "PassCB", m_pMainPassCb );
 			m_pDevice->SetConstantBuffer( "LightCB", m_pLightsCb );
-			//m_pDevice->SetConstantBuffer( "SpotlightCB", m_pSpotlightCb );
+			//m_pDevice->SetConstantBuffer( "SpotlightCB", m_pSpotlightCb );s
 
 			for ( UINT j = 0; j < pModel->GetModel()->MeshCount; ++j )
 			{
 				const Artemis::Renderer::Assets::Mesh& rMesh = pModel->GetModel()->pMeshList[j];
 
-				//m_pDevice->SetTexture( "Albedo", static_cast<Texture2DResource*>(rMesh.pTexture[ALBEDO]) );
-				//m_pDevice->SetTexture( "Normal", static_cast<Texture2DResource*>(rMesh.pTexture[NORMAL]) );
+				m_pDevice->SetTexture( "Albedo", rMesh.pTexture[ALBEDO] );
+				m_pDevice->SetTexture( "Normal", rMesh.pTexture[NORMAL] );
 
 				if ( m_pDevice->FlushState() )
 				{
-					auto vbView = static_cast<VertexBufferResource*>(rMesh.pVertexBuffer)->GetView();
-					auto ibView = static_cast<IndexBufferResource*>(rMesh.pIndexBuffer)->GetView();
-
-					_pGfxCmdList->SetIaVertexBuffers( 0, 1, &vbView );
-					_pGfxCmdList->SetIaIndexBuffer( &ibView );
-					_pGfxCmdList->DrawIndexedInstanced( rMesh.Indices, 1, 0, 0, 0 );
+					_pGfxCmdList->DrawIndexedInstanced( rMesh.pVertexBuffer, rMesh.pIndexBuffer, rMesh.Indices );
 				}
 			}
 		}

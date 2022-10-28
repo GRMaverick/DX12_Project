@@ -12,7 +12,7 @@ namespace Artemis::Renderer::Device::Dx12
 	class ConstantBufferResourceDx12 final : public GpuResourceDx12
 	{
 	public:
-		ConstantBufferResourceDx12( Interfaces::IGraphicsDevice* _pDevice, Interfaces::IDescriptorHeap* _pDescHeapCbv, const Interfaces::IConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pName );
+		ConstantBufferResourceDx12( const Interfaces::IGraphicsDevice* _pDevice, Interfaces::IDescriptorHeap* _pDescHeapCbv, const Interfaces::IConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pName );
 		~ConstantBufferResourceDx12( void ) override;
 
 		virtual bool UpdateValue( const char* _pValueName, const void* _pValue, unsigned int _szValue ) const override final;

@@ -35,8 +35,4 @@ namespace Artemis::Renderer::Interfaces
 	ICommandList::~ICommandList( void )
 	{
 	}
-
-	IDescriptorHeap::~IDescriptorHeap( void )
-	{
-	}
 }

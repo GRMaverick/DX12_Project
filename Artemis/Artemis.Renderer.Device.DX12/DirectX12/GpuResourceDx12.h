@@ -8,7 +8,6 @@ namespace Artemis::Renderer::Device::Dx12
 	public:
 		~GpuResourceDx12( void ) override;
 
-		bool UploadResource( Interfaces::IGraphicsDevice* _pDevice, const Interfaces::ICommandList* _pCommandList, unsigned int _sizeInBytes, unsigned int _strideInBytes, Interfaces::ResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName = nullptr );
 
 		bool UpdateValue( const char* _pValueName, const void* _pValue, const unsigned int _szValue ) const override
 		{
@@ -22,7 +21,9 @@ namespace Artemis::Renderer::Device::Dx12
 		ID3D12Resource*               GetGpuBuffer( void ) const;
 		CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuHandle( void ) const { return m_hCpuHandle; }
 
-	protected:
+    protected:		
+		bool UploadResource(const Interfaces::IGraphicsDevice* _pDevice, const Interfaces::ICommandList* _pCommandList, unsigned int _sizeInBytes, unsigned int _strideInBytes, Interfaces::ResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName = nullptr);
+
 		ID3D12Resource*               m_cpuBuffer  = nullptr;
 		ID3D12Resource*               m_gpuBuffer  = nullptr;
 		CD3DX12_CPU_DESCRIPTOR_HANDLE m_hCpuHandle = {};

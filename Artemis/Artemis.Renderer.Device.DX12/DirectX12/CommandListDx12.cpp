@@ -2,6 +2,9 @@
 
 #include "CommandListDx12.h"
 
+#include "VertexBufferResourceDx12.h"
+#include "IndexBufferResourceDx12.h"
+
 #include <assert.h>
 
 //#include <ImGUI\imgui_impl_dx12.h>
@@ -218,6 +221,15 @@ namespace Artemis::Renderer::Device::Dx12
 	{
 		//ImGui::Render();
 		//ImGui_ImplDX12_RenderDrawData( ImGui::GetDrawData(), m_pList.Get() );
+	}
+	void CommandListDx12::DrawIndexedInstanced(Interfaces::IGpuResource* _pVertexBuffer, Interfaces::IGpuResource* _pIndexBuffer, unsigned int _indices) const
+	{
+		D3D12_VERTEX_BUFFER_VIEW vbv = static_cast<VertexBufferResourceDx12*>(_pVertexBuffer)->GetView();
+		D3D12_INDEX_BUFFER_VIEW ibv = static_cast<IndexBufferResourceDx12*>(_pIndexBuffer)->GetView();
+
+		SetIaVertexBuffers(0, 1, &vbv);
+		SetIaIndexBuffer(&ibv);
+		DrawIndexedInstanced(_indices, 1, 0, 0, 0);
 	}
 
 	void CommandListDx12::DrawIndexedInstanced( const unsigned int _indicesPerInstance, const unsigned int _instanceCount, const unsigned int _startIndexLocation, const unsigned int _baseVertexLocation, const unsigned int _startInstanceLocation ) const

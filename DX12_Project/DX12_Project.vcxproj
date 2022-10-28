@@ -23,7 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{acfae0bc-b3b1-447b-9948-3044f2898eea}</ProjectGuid>
     <RootNamespace>DX12Project</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -42,13 +42,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -123,8 +123,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)Artemis\Artemis.Utilities;$(SolutionDir)DirectXTK12\Inc</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)Artemis\Artemis.Renderer.Techniques;$(SolutionDir)Artemis\Artemis.Utilities;$(SolutionDir)DirectXTK12\Inc</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -145,7 +145,8 @@ xcopy /y /s /q $(SolutionDir)_Content\*.* $(SolutionDir)$(Platform)\$(Configurat
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)Artemis\Artemis.Utilities;$(SolutionDir)DirectXTK12\Inc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)Artemis\Artemis.Renderer.Techniques;$(SolutionDir)Artemis\Artemis.Utilities;$(SolutionDir)DirectXTK12\Inc</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -200,6 +201,9 @@ xcopy /y /s /q $(SolutionDir)_Content\*.* $(SolutionDir)$(Platform)\$(Configurat
     </ProjectReference>
     <ProjectReference Include="..\Artemis\Artemis.Renderer.Interfaces\Artemis.Renderer.Interfaces.vcxproj">
       <Project>{fee2b61d-f6a5-4532-ad38-93f278430bae}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Artemis\Artemis.Renderer.Techniques\Artemis.Renderer.Techniques.vcxproj">
+      <Project>{9cfc97d2-1f2e-4012-9d08-dccd5e68c69f}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Artemis\Artemis.Utilities\Artemis.Utilities.vcxproj">
       <Project>{15f52f98-af29-44e9-9707-8d126651c3df}</Project>

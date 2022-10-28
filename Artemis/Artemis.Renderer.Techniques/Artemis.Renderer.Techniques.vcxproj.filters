@@ -18,9 +18,15 @@
     <ClCompile Include="Techniques\ForwardRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Factory\RendererFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Techniques\ForwardRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Factory\RendererFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

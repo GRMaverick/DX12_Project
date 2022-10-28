@@ -23,8 +23,8 @@ struct aiMaterial;
 namespace Artemis::Renderer::Interfaces
 {
 	class IGraphicsDevice;
-	class IBufferResource;
 	class ICommandList;
+	class IGpuResource;
 }
 
 namespace Artemis::Renderer::Assets
@@ -32,9 +32,9 @@ namespace Artemis::Renderer::Assets
 	struct Mesh
 	{
 		unsigned int                           Indices = 0;
-		Renderer::Interfaces::IBufferResource* pTexture[2];
-		Renderer::Interfaces::IBufferResource* pIndexBuffer  = nullptr;
-		Renderer::Interfaces::IBufferResource* pVertexBuffer = nullptr;
+		Renderer::Interfaces::IGpuResource* pTexture[2];
+		Renderer::Interfaces::IGpuResource* pIndexBuffer  = nullptr;
+		Renderer::Interfaces::IGpuResource* pVertexBuffer = nullptr;
 	};
 
 	struct RenderModel
@@ -63,10 +63,10 @@ namespace Artemis::Renderer::Assets
 		static bool                         LoadModel( Interfaces::IGraphicsDevice* _pDevice, Interfaces::ICommandList* _pCommandList, const char* _pFilename, RenderModel** _pModelOut );
 		static void                         ProcessNode( Interfaces::IGraphicsDevice* _pDevice, Interfaces::ICommandList* _pCommandList, const aiNode* _pNode, const aiScene* _pScene, RenderModel** _pModelOut );
 		static Mesh                         ProcessMesh( Interfaces::IGraphicsDevice* _pDevice, Interfaces::ICommandList* _pCommandList, const aiMesh* _pMesh, const aiScene* _pScene );
-		static Interfaces::IBufferResource* ProcessMaterial( Interfaces::IGraphicsDevice* _pDevice, Interfaces::ICommandList* _pCommandList, const aiMaterial* _pMaterial, const aiTextureType _type, const aiScene* _pScene );
+		static Interfaces::IGpuResource* ProcessMaterial( Interfaces::IGraphicsDevice* _pDevice, Interfaces::ICommandList* _pCommandList, const aiMaterial* _pMaterial, const aiTextureType _type, const aiScene* _pScene );
 	private:
 		static std::map<std::string, RenderModel*>                 m_mapLoadedModels;
-		static std::map<std::string, Interfaces::IBufferResource*> m_mapLoadedTextures;
+		static std::map<std::string, Interfaces::IGpuResource*> m_mapLoadedTextures;
 
 		static AssimpPreprocessResult Preprocess( const aiScene* _pScene );
 	};

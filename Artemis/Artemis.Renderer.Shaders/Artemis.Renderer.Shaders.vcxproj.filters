@@ -15,32 +15,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Compiler\ShaderCompilerDX.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Compiler\ShaderCompilerDXC.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Compiler\ShaderCompilerFXC.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Cache\ShaderCache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Constants\ConstantTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Compiler\ShaderCompilerDX.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Compiler\ShaderCompilerDXC.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Compiler\ShaderCompilerFXC.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Compiler\ShaderD3D12.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Cache\ShaderCache.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -51,6 +33,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Cache\ConstantBufferParameters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants\ConstantTable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

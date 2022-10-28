@@ -1,5 +1,6 @@
 #pragma once
 #include "IDescriptorHeap.h"
+#include "IConstantBufferParameters.h"
 
 namespace Artemis::Core
 {
@@ -13,8 +14,9 @@ namespace Artemis::Renderer::Interfaces
 	class ICommandQueue;
 	class ISamplerState;
 	class ICommandList;
+	struct IMaterial;
 
-	enum ResourceFlags
+	enum class ResourceFlags
 	{
 		ResourceFlag_None = 0,
 		ResourceFlag_AllowRenderTarget = 0x1,
@@ -155,8 +157,8 @@ namespace Artemis::Renderer::Interfaces
 
 	struct RenderTargetBlendDesc
 	{
-		bool           BlendEnable;
-		bool           LogicOpEnable;
+		int           BlendEnable;
+		int           LogicOpEnable;
 		EBlend         SrcBlend;
 		EBlend         DestBlend;
 		EBlendOp       BlendOp;
@@ -169,10 +171,10 @@ namespace Artemis::Renderer::Interfaces
 
 	struct DepthStencilDesc
 	{
-		bool               DepthEnable;
+		int               DepthEnable;
 		EDepthWriteMask    DepthWriteMask;
 		EComparisonFunc    DepthFunc;
-		bool               StencilEnable;
+		int               StencilEnable;
 		unsigned short     StencilReadMask;
 		unsigned short     StencilWriteMask;
 		DepthStencilOpDesc FrontFace;
@@ -183,21 +185,21 @@ namespace Artemis::Renderer::Interfaces
 	{
 		EFillMode                      FillMode;
 		ECullMode                      CullMode;
-		bool                           FrontCounterClockwise;
+		int                           FrontCounterClockwise;
 		int                            DepthBias;
 		float                          DepthBiasClamp;
 		float                          SlopeScaledDepthBias;
-		bool                           DepthClipEnable;
-		bool                           MultisampleEnable;
-		bool                           AntialiasedLineEnable;
+		int                           DepthClipEnable;
+		int                           MultisampleEnable;
+		int                           AntialiasedLineEnable;
 		unsigned int                   ForcedSampleCount;
 		EConservativeRasterisationMode ConservativeRaster;
 	};
 
 	struct BlendDesc
 	{
-		bool                  AlphaToCoverageEnable;
-		bool                  IndependentBlendEnable;
+		int                  AlphaToCoverageEnable;
+		int                  IndependentBlendEnable;
 		RenderTargetBlendDesc RenderTarget[8];
 	};
 
@@ -216,6 +218,7 @@ namespace Artemis::Renderer::Interfaces
 
 		virtual IGpuResource* CreateVertexBufferResource( ICommandList* _pCommandList, unsigned int _sizeInBytes, unsigned int _strideInBytes, ResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName = L"" ) const = 0;
 		virtual IGpuResource* CreateIndexBufferResource( ICommandList* _pCommandList, unsigned int _sizeInBytes, unsigned int _strideInBytes, ResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName = L"" ) const = 0;
+		virtual IGpuResource* CreateConstantBufferResource(const IConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"") const = 0;
 		virtual IGpuResource* CreateTexture2D( const wchar_t* _pWstrFilename, ICommandList* _pCommandList, const wchar_t* _pDebugName = L"" ) const = 0;
 		virtual IGpuResource* CreateWicTexture2D( const wchar_t* _pWstrFilename, ICommandList* _pCommandList, const wchar_t* _pDebugName = L"" ) const = 0;
 
@@ -223,7 +226,7 @@ namespace Artemis::Renderer::Interfaces
 		virtual void EndFrame( void ) = 0;
 		virtual bool FlushState( void ) = 0;
 
-		virtual bool SetMaterial( const char* _pName ) = 0;
+		virtual bool SetMaterial(IMaterial* _pMaterial ) = 0;
 		virtual bool SetRenderTarget( void ) = 0;
 		virtual bool SetDepthBuffer( void ) = 0;
 		virtual bool SetTexture( const char* _pName, IGpuResource* _pTexture ) = 0;

@@ -21,12 +21,24 @@
     <ClCompile Include="Factories\CommandQueueFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Factories\ShaderCompilerFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Factories\CommandListFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Factories\GraphicsDeviceFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Factories\CommandQueueFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Factories\ShaderCompilerFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Factories\CommandListFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -27,10 +27,12 @@ namespace Artemis::Renderer::Interfaces
 		virtual void EndMarker( void ) const = 0;
 		virtual void Reset( void ) const = 0;
 
-		virtual void SetIaPrimitiveTopology( Interfaces::PrimitiveTopology _topology ) const = 0;
-		virtual void SetIaVertexBuffers( const unsigned int StartSlot, const unsigned int NumViews, void* _pViews ) const = 0;
-		virtual void SetIaIndexBuffer( void* pView ) const = 0;
-		virtual void DrawIndexedInstanced( unsigned int _indicesPerInstance, unsigned int _instanceCount, unsigned int _startIndexLocation, unsigned int _baseVertexLocation, unsigned int _startInstanceLocation ) const = 0;
+		virtual void SetIaPrimitiveTopology(PrimitiveTopology _topology ) const = 0;
+		virtual void DrawIndexedInstanced(IGpuResource* _pVertexBuffer, IGpuResource* _pIndexBuffer, unsigned int _indices) const = 0;
+
+		//virtual void SetIaVertexBuffers( const unsigned int StartSlot, const unsigned int NumViews, void* _pViews ) const = 0;
+		//virtual void SetIaIndexBuffer( void* pView ) const = 0;
+		//virtual void DrawIndexedInstanced( unsigned int _indicesPerInstance, unsigned int _instanceCount, unsigned int _startIndexLocation, unsigned int _baseVertexLocation, unsigned int _startInstanceLocation ) const = 0;
 
 		virtual void ResourceBarrier( const unsigned int _numBarriers, const CD3DX12_RESOURCE_BARRIER* _pBarrier ) const = 0;
 		virtual void UpdateSubresource( ID3D12Resource* _pGpu, ID3D12Resource* _pCpu, const unsigned int _intermediateOffset, const unsigned int _firstSubresource, const unsigned int _numSubresources, D3D12_SUBRESOURCE_DATA* _pSubresourceData ) const = 0;

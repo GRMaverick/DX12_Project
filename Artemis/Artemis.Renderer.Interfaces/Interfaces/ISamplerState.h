@@ -2,6 +2,9 @@
 
 namespace Artemis::Renderer::Interfaces
 {
+    class IGraphicsDevice;
+    class IDescriptorHeap;
+
 	enum class SamplerStateFilter : unsigned int
 	{
 		EPoint,
@@ -36,6 +39,7 @@ namespace Artemis::Renderer::Interfaces
 	class ISamplerState
 	{
 	public:
-		virtual ~ISamplerState( void );
+        virtual ~ISamplerState(void);		
+		virtual bool Initialise(const IGraphicsDevice* _pDevice, IDescriptorHeap* _pDescHeap, SamplerStateFilter _eFilter, SamplerStateWrapMode _eWrap, SamplerStateComparisonFunction _eCompFunc) = 0;
 	};
 }

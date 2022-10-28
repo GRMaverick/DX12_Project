@@ -22,7 +22,7 @@ namespace Artemis::Renderer::Interfaces
 	class IDescriptorHeap
 	{
 	public:
-		virtual ~IDescriptorHeap( void );
+		virtual ~IDescriptorHeap(void) { }
 
 		virtual bool Initialise( const IGraphicsDevice* _pDevice, DescriptorHeapType _type, unsigned int _numDescriptors, DescriptorHeapFlags _flags, const wchar_t* _pDebugName ) = 0;
 
