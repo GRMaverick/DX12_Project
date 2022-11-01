@@ -22,11 +22,13 @@
     <ClCompile Include="DirectX12\CommandListDx12.cpp" />
     <ClCompile Include="DirectX12\CommandQueueDx12.cpp" />
     <ClCompile Include="DirectX12\ConstantBufferResourceDx12.cpp" />
+    <ClCompile Include="DirectX12\DepthBufferResourceDx12.cpp" />
     <ClCompile Include="DirectX12\DescriptorHeapDx12.cpp" />
     <ClCompile Include="DirectX12\DeviceDx12.cpp" />
     <ClCompile Include="DirectX12\DeviceState.cpp" />
     <ClCompile Include="DirectX12\GpuResourceDx12.cpp" />
     <ClCompile Include="DirectX12\IndexBufferResourceDx12.cpp" />
+    <ClCompile Include="DirectX12\RenderTargetResourceDx12.cpp" />
     <ClCompile Include="DirectX12\SamplerStateDx12.cpp" />
     <ClCompile Include="DirectX12\ShaderCompilerDX.cpp" />
     <ClCompile Include="DirectX12\ShaderCompilerDXC.cpp" />
@@ -43,12 +45,14 @@
     <ClInclude Include="DirectX12\CommandListDx12.h" />
     <ClInclude Include="DirectX12\CommandQueueDx12.h" />
     <ClInclude Include="DirectX12\ConstantBufferResourceDx12.h" />
+    <ClInclude Include="DirectX12\DepthBufferResourceDx12.h" />
     <ClInclude Include="DirectX12\DescriptorHeapDx12.h" />
     <ClInclude Include="DirectX12\DeviceDx12.h" />
     <ClInclude Include="DirectX12\DeviceState.h" />
     <ClInclude Include="DirectX12\Dx12Defines.h" />
     <ClInclude Include="DirectX12\GpuResourceDx12.h" />
     <ClInclude Include="DirectX12\IndexBufferResourceDx12.h" />
+    <ClInclude Include="DirectX12\RenderTargetResourceDx12.h" />
     <ClInclude Include="DirectX12\SamplerStateDx12.h" />
     <ClInclude Include="DirectX12\ShaderCompilerDX.h" />
     <ClInclude Include="DirectX12\ShaderCompilerDXC.h" />
@@ -98,13 +102,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -161,7 +165,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)Artemis\Artemis.Utilities;$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)_Toolkits\DirectXTK12\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)Artemis\Artemis.Utilities;$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)_Toolkits\DirectXTK12\inc;$(SolutionDir)_Dependencies\include;$(SolutionDir)Artemis\Artemis.Memory;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -177,7 +181,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)Artemis\Artemis.Utilities;$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)_Toolkits\DirectXTK12\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)Artemis\Artemis.Utilities;$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)_Toolkits\DirectXTK12\inc;$(SolutionDir)_Dependencies\include;$(SolutionDir)Artemis\Artemis.Memory;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
