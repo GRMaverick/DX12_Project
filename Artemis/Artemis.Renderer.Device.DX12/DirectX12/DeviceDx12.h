@@ -28,12 +28,12 @@ using EAResourceFlags = Artemis::Renderer::Interfaces::ResourceFlags;
 
 namespace Artemis::Renderer::Interfaces
 {
-    class IBufferResource;
-    class ISamplerState;
-    class IShaderStage;
-    class IBufferResource;
-    class IGpuResource;
-    class IConstantBufferParameters;
+	class IBufferResource;
+	class ISamplerState;
+	class IShaderStage;
+	class IBufferResource;
+	class IGpuResource;
+	class IConstantBufferParameters;
 	struct IMaterial;
 }
 
@@ -61,14 +61,16 @@ namespace Artemis::Renderer::Device::Dx12
 	{
 		friend class RendererD3D12;
 	public:
-        struct SamplerStateEntry
-        {
-            unsigned int Hash = 0;
-            unsigned int HeapIndex = 0;
-        };
+		struct SamplerStateEntry
+		{
+			unsigned int Hash      = 0;
+			unsigned int HeapIndex = 0;
+		};
 
 		// IGraphicsDevice Implementation
 #pragma region IGraphicsDevice_Implementation
+		bool InitialiseImGui( Artemis::Core::GameWindow* _pWindow, const Interfaces::IDescriptorHeap* _pSrvHeap ) const override;
+
 		const void* GetDeviceObject() const override { return m_pDevice.Get(); }
 		void        BeginFrame( void ) override;
 		void        EndFrame( void ) override;
@@ -80,12 +82,12 @@ namespace Artemis::Renderer::Device::Dx12
 
 		IAGpuResource* CreateVertexBufferResource( IACommandList* _pCommandList, unsigned int _sizeInBytes, unsigned int _strideInBytes, EAResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName = L"" ) const override;
 		IAGpuResource* CreateIndexBufferResource( IACommandList* _pCommandList, unsigned int _sizeInBytes, unsigned int _strideInBytes, EAResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName = L"" ) const override;
-        IAGpuResource* CreateConstantBufferResource(const Renderer::Interfaces::IConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"") const override;
+		IAGpuResource* CreateConstantBufferResource( const Renderer::Interfaces::IConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"" ) const override;
 		IAGpuResource* CreateTexture2D( const wchar_t* _pWstrFilename, IACommandList* _pCommandList, const wchar_t* _pDebugName = L"" ) const override;
 		IAGpuResource* CreateWicTexture2D( const wchar_t* _pWstrFilename, IACommandList* _pCommandList, const wchar_t* _pDebugName = L"" ) const override;
 
 		bool FlushState() override;
-		bool SetMaterial(Interfaces::IMaterial* _pMaterial ) override;
+		bool SetMaterial( Interfaces::IMaterial* _pMaterial ) override;
 		bool SetRenderTarget( void ) override;
 		bool SetDepthBuffer( void ) override;
 		bool SetTexture( const char* _pName, IAGpuResource* _pTexture ) override;
@@ -97,6 +99,11 @@ namespace Artemis::Renderer::Device::Dx12
 
 		Interfaces::ICommandList*  GetImmediateContext( void ) const override { return m_pImmediateContext; }
 		Interfaces::ISamplerState* GetDefaultSamplerState( void ) const override { return m_pDefaultSampler; }
+
+		Interfaces::DeviceStateStats GetDeviceStats( void ) const override
+		{
+			return m_DeviceState.m_stats;
+		}
 #pragma endregion
 
 		DeviceDx12( const bool _bDebugging ) { Initialise( _bDebugging ); }
@@ -108,9 +115,9 @@ namespace Artemis::Renderer::Device::Dx12
 		Renderer::Interfaces::ISamplerState* CreateSamplerState( Renderer::Interfaces::SamplerStateFilter _eFilter, Renderer::Interfaces::SamplerStateWrapMode _eWrap, Renderer::Interfaces::SamplerStateComparisonFunction _eCompFunc ) const;
 
 		//DeviceState GetDeviceState( void ) const { return m_DeviceState; }
-		bool        GetRootSignature( Interfaces::IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName = L"" );
-		bool        GetPipelineState( ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName = L"" );
-		bool        CreateSamplerState( const D3D12_SAMPLER_DESC* _pSamplerDesc, D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const wchar_t* _pDebugName = L"" ) const;
+		bool GetRootSignature( Interfaces::IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName = L"" );
+		bool GetPipelineState( ID3D12PipelineState** _ppPipelineState, const wchar_t* _pDebugName = L"" );
+		bool CreateSamplerState( const D3D12_SAMPLER_DESC* _pSamplerDesc, D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const wchar_t* _pDebugName = L"" ) const;
 
 		Interfaces::IDescriptorHeap* GetSrvCbvHeap( void ) const { return m_pDescHeapSrvCbv; }
 

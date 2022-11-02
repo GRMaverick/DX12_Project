@@ -24,7 +24,7 @@
 
 //#include "Window/GameWindow.h"
 
-//#include "Memory/MemoryGlobalTracking.h"
+#include "Memory/MemoryGlobalTracking.h"
 
 //#include "Loaders/CLParser.h"
 //#include "Profiling/ProfileMarker.h"
@@ -36,8 +36,7 @@
 #include "Cache/ShaderCache.h"
 #include "Constants/ConstantTable.h"
 
-////#include "_ImGUI/ImGUIEngine.h"
-
+#include "Debug/ImGUIEngine.h"
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d12.lib")
@@ -47,7 +46,7 @@ using namespace DirectX;
 using namespace Microsoft::WRL;
 
 using namespace Artemis::Core;
-//using namespace Artemis::Memory;
+using namespace Artemis::Memory;
 using namespace Artemis::Utilities;
 
 #define CONTENT_PATH std::string("Content\\")
@@ -77,9 +76,9 @@ namespace Artemis::Renderer::Techniques
 		m_pDevice = Artemis::Renderer::Device::Factories::GraphicsDeviceFactory::Construct( CLParser::Instance()->HasArgument( "d3ddebug" ) );
 
 		m_pGfxCmdQueue = Artemis::Renderer::Device::Factories::CommandQueueFactory::Construct();
-        m_pDevice->CreateCommandQueue(Interfaces::CommandListType_Direct, &m_pGfxCmdQueue, L"Gfx");
+		m_pDevice->CreateCommandQueue( Interfaces::CommandListType_Direct, &m_pGfxCmdQueue, L"Gfx" );
 
-        m_pCpyCmdQueue = Artemis::Renderer::Device::Factories::CommandQueueFactory::Construct();
+		m_pCpyCmdQueue = Artemis::Renderer::Device::Factories::CommandQueueFactory::Construct();
 		m_pDevice->CreateCommandQueue( Interfaces::CommandListType_Copy, &m_pCpyCmdQueue, L"Cpy" );
 
 		if ( !m_pDevice->CreateSwapChain( &m_pSwapChain, m_pGfxCmdQueue, _pWindow, BACK_BUFFERS, L"Swap Chain" ) )
@@ -90,7 +89,7 @@ namespace Artemis::Renderer::Techniques
 		if ( !m_pDevice->CreateDescriptorHeap( Interfaces::DescriptorHeapType_CbvSrvUav, &m_pImGuiSrvHeap, Interfaces::DescriptorHeapFlags_ShaderVisible, 1, L"ImGUI SRV" ) )
 			return false;
 
-		//ImGUIEngine::Initialise( _pWindow->GetWindowHandle(), m_pImGuiSrvHeap );
+		ImGUIEngine::Initialise( _pWindow, m_pDevice, m_pImGuiSrvHeap );
 
 		if ( !LoadContent() )
 			return false;
@@ -193,7 +192,7 @@ namespace Artemis::Renderer::Techniques
 		}
 
 		Interfaces::ICommandList* pList = Artemis::Renderer::Device::Factories::CommandListFactory::Construct();
-		m_pDevice->CreateCommandList(Interfaces::ECommandListType::CommandListType_Copy, &pList, L"CpyList");
+		m_pDevice->CreateCommandList( Interfaces::ECommandListType::CommandListType_Copy, &pList, L"CpyList" );
 		pList->Reset();
 
 		const rapidxml::xml_node<>* instances = root->first_node( "ModelInstances" );
@@ -204,9 +203,9 @@ namespace Artemis::Renderer::Techniques
 
 			const std::string pModelPath = std::string( "Content\\Models\\" ) + std::string( instance->first_attribute( "ModelPath" )->value() );
 			pInstance->SetModelName( instance->first_attribute( "ModelName" )->value() );
-			pInstance->LoadModelFromFile( pModelPath.c_str(), m_pDevice, pList);
+			pInstance->LoadModelFromFile( pModelPath.c_str(), m_pDevice, pList );
 			pInstance->SetMaterial( instance->first_attribute( "Material" )->value() );
-			pInstance->SetConstantBuffer(Artemis::Renderer::Shaders::ConstantTable::Instance()->CreateConstantBuffer( "ObjectCB" , m_pDevice) );
+			pInstance->SetConstantBuffer( Artemis::Renderer::Shaders::ConstantTable::Instance()->CreateConstantBuffer( "ObjectCB", m_pDevice ) );
 			pInstance->SetRotation( 0.0f, 0.0f, 0.0f );
 
 			const rapidxml::xml_node<>* transform = instance->first_node( "Transform" );
@@ -222,7 +221,7 @@ namespace Artemis::Renderer::Techniques
 			instance = instance->next_sibling( "Instance" );
 		}
 
-		m_pCpyCmdQueue->SubmitToQueue(pList);
+		m_pCpyCmdQueue->SubmitToQueue( pList );
 
 		return true;
 	}
@@ -231,9 +230,9 @@ namespace Artemis::Renderer::Techniques
 	{
 		m_bNewModelsLoaded = true;
 
-		m_pMainPassCb  = Artemis::Renderer::Shaders::ConstantTable::Instance()->CreateConstantBuffer( "PassCB", m_pDevice);
-		m_pLightsCb    = Artemis::Renderer::Shaders::ConstantTable::Instance()->CreateConstantBuffer( "LightCB", m_pDevice);
-		m_pSpotlightCb = Artemis::Renderer::Shaders::ConstantTable::Instance()->CreateConstantBuffer( "SpotlightCB", m_pDevice);
+		m_pMainPassCb  = Artemis::Renderer::Shaders::ConstantTable::Instance()->CreateConstantBuffer( "PassCB", m_pDevice );
+		m_pLightsCb    = Artemis::Renderer::Shaders::ConstantTable::Instance()->CreateConstantBuffer( "LightCB", m_pDevice );
+		m_pSpotlightCb = Artemis::Renderer::Shaders::ConstantTable::Instance()->CreateConstantBuffer( "SpotlightCB", m_pDevice );
 
 		//LogInfo( "Loading Models:" );
 
@@ -321,10 +320,13 @@ namespace Artemis::Renderer::Techniques
 
 	void ForwardRenderer::ImGuiPass( Interfaces::ICommandList* _pGfxCmdList ) const
 	{
-#if  0 //defined(_DEBUG)
-		RenderMarker profile( _pGfxCmdList, "%s", "ImGUI" );
+#if defined(_DEBUG)
+		//RenderMarker profile( _pGfxCmdList, "%s", "ImGUI" );
 
-		ID3D12DescriptorHeap* pHeaps[] = {m_pImGuiSrvHeap->GetHeap()};
+		//ID3D12DescriptorHeap* pHeaps[] = {m_pImGuiSrvHeap->GetHeap()};
+		//_pGfxCmdList->SetDescriptorHeaps( pHeaps, _countof( pHeaps ) );
+
+		Artemis::Renderer::Interfaces::IDescriptorHeap* pHeaps[] = {m_pImGuiSrvHeap};
 		_pGfxCmdList->SetDescriptorHeaps( pHeaps, _countof( pHeaps ) );
 
 		ImGUIEngine::Begin();
@@ -443,14 +445,14 @@ namespace Artemis::Renderer::Techniques
 
 		if ( ImGui::Begin( "Device Flush State Stats:" ) )
 		{
-			const DeviceD3D12::DeviceState state = DeviceD3D12::Instance()->GetDeviceState();
-			ImGui::Text( "Texture Updates: %lu", state.TextureUpdates );
-			ImGui::Text( "Shader Updates: %lu", state.ShaderUpdates );
-			ImGui::Text( "Render Target Updates: %lu", state.RenderTargetUpdates );
-			ImGui::Text( "Depth Buffer Updates: %lu", state.DepthBufferUpdates );
-			ImGui::Text( "Constant Buffer Updates: %lu", state.ConstantBufferUpdates );
-			ImGui::Text( "Pipeline State Updates: %lu", state.PipelineStateUpdates );
-			ImGui::Text( "Root Signature Updates: %lu", state.RootSignatureUpdates );
+			const Artemis::Renderer::Interfaces::DeviceStateStats stats = m_pDevice->GetDeviceStats();
+			ImGui::Text( "Texture Updates: %lu", stats.TextureUpdates );
+			ImGui::Text( "Shader Updates: %lu", stats.ShaderUpdates );
+			ImGui::Text( "Render Target Updates: %lu", stats.RenderTargetUpdates );
+			ImGui::Text( "Depth Buffer Updates: %lu", stats.DepthBufferUpdates );
+			ImGui::Text( "Constant Buffer Updates: %lu", stats.ConstantBufferUpdates );
+			ImGui::Text( "Pipeline State Updates: %lu", stats.PipelineStateUpdates );
+			ImGui::Text( "Root Signature Updates: %lu", stats.RootSignatureUpdates );
 			ImGui::End();
 		}
 
@@ -570,13 +572,13 @@ namespace Artemis::Renderer::Techniques
 
 			Interfaces::IGpuResource* pModelCb = pModel->GetConstantBuffer();
 
-			Artemis::Renderer::Shaders::Effect* effect = Artemis::Renderer::Shaders::ShaderCache::Instance()->GetEffect(pModel->GetMaterialName());
+			Artemis::Renderer::Shaders::Effect* effect = Artemis::Renderer::Shaders::ShaderCache::Instance()->GetEffect( pModel->GetMaterialName() );
 
 			Artemis::Renderer::Interfaces::IMaterial* mat = new Artemis::Renderer::Interfaces::IMaterial();
-			mat->m_pVertexShader = effect->GetVertexShader();
-			mat->m_pPixelShader = effect->GetPixelShader();
+			mat->m_pVertexShader                          = effect->GetVertexShader();
+			mat->m_pPixelShader                           = effect->GetPixelShader();
 
-			m_pDevice->SetMaterial(mat);
+			m_pDevice->SetMaterial( mat );
 			m_pDevice->SetSamplerState( "Albedo", m_pDevice->GetDefaultSamplerState() );
 			m_pDevice->SetSamplerState( "Normal", m_pDevice->GetDefaultSamplerState() );
 

@@ -1,6 +1,6 @@
 #include "Dx12Defines.h"
 
-#include "CoreWindow.h"
+#include "Window/GameWindow.h"
 
 #include "DeviceDx12.h"
 #include "CommandListDx12.h"
@@ -12,8 +12,6 @@
 #include "VertexBufferResourceDx12.h"
 #include "IndexBufferResourceDx12.h"
 #include "ConstantBufferResourceDx12.h"
-#include "UploadBuffer.h"
-//#include "GpuResourceTable.h"
 
 #include "Interfaces/IShader.h"
 #include "Interfaces/IMaterial.h"
@@ -21,30 +19,22 @@
 #include "SamplerStateDx12.h"
 #include "ShaderDx12.h"
 
-//#include "Cache/ShaderCache.h"
-//#include "Cache/Effect.h"
-
 #include <assert.h>
 #include <DirectXMath.h>
 
-//#include <ImGUI\imgui_impl_win32.h>
-//#include <ImGUI\imgui_impl_dx12.h>
+#include <ImGUI\imgui_impl_win32.h>
+#include <ImGUI\imgui_impl_dx12.h>
 
-//#include "TextureLoader.h"
-//#include <WICTextureLoader.h>
-
-//#include "Hashing/Hashing.h"
 #include "Hashing/Hashing.h"
-#include "Helpers/ProfileMarker.h"
+//#include "Helpers/ProfileMarker.h"
 
-//#include "Memory/ScopedMemoryRecord.h"
+#include "Memory/ScopedMemoryRecord.h"
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
 using namespace Artemis::Core;
-//using namespace Artemis::Memory;
-//using namespace Artemis::Utilities;
+using namespace Artemis::Memory;
 using namespace Artemis::Renderer::Interfaces;
 
 namespace Artemis::Renderer::Device::Dx12
@@ -254,10 +244,11 @@ namespace Artemis::Renderer::Device::Dx12
 		return true;
 	}
 
-	bool DeviceDx12::InitialiseImGui( const HWND _hWindow, const DescriptorHeapDx12* _pSrvHeap ) const
+	bool DeviceDx12::InitialiseImGui( Artemis::Core::GameWindow* _pWindow, const Interfaces::IDescriptorHeap* _pSrvHeap ) const
 	{
-		//ImGui_ImplWin32_Init( _hWindow );
-		//ImGui_ImplDX12_Init( m_pDevice.Get(), 1, DXGI_FORMAT_R8G8B8A8_UNORM, _pSrvHeap->m_pDescriptorHeap.Get(), _pSrvHeap->GetCpuStartHandle(), _pSrvHeap->GetGpuStartHandle() );
+		ImGui_ImplWin32_Init( _pWindow->GetWindowHandle() );
+		ID3D12DescriptorHeap* pHeap = static_cast<ID3D12DescriptorHeap*>(_pSrvHeap->GetDeviceObject());
+		ImGui_ImplDX12_Init( m_pDevice.Get(), 1, DXGI_FORMAT_R8G8B8A8_UNORM, pHeap, pHeap->GetCPUDescriptorHandleForHeapStart(), pHeap->GetGPUDescriptorHandleForHeapStart() );
 		return true;
 	}
 
@@ -346,7 +337,7 @@ namespace Artemis::Renderer::Device::Dx12
 
 	bool DeviceDx12::GetRootSignature( IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName )
 	{
-		if ( const unsigned long ulHash = SimpleHash( static_cast<const char*>(m_DeviceState.GetShader(Interfaces::IShaderStage::ShaderType::EVertexShader)->GetShaderName()), strlen(m_DeviceState.GetShader(Interfaces::IShaderStage::ShaderType::EVertexShader)->GetShaderName() ) ); m_mapRootSignatures.contains( ulHash ) )
+		if ( const unsigned long ulHash = SimpleHash( static_cast<const char*>(m_DeviceState.GetShader( Interfaces::IShaderStage::ShaderType::EVertexShader )->GetShaderName()), strlen( m_DeviceState.GetShader( Interfaces::IShaderStage::ShaderType::EVertexShader )->GetShaderName() ) ); m_mapRootSignatures.contains( ulHash ) )
 		{
 			(*_ppRootSignature) = m_mapRootSignatures[ulHash];
 		}
@@ -355,9 +346,9 @@ namespace Artemis::Renderer::Device::Dx12
 			//Helpers::RenderMarker profile( GetImmediateContext(), "ID3D12Device::CreateRootSignature" );
 
 			ISamplerState**     pSamplers  = nullptr;
-			IGpuResource**ppBuffers  = nullptr, **ppTextures = nullptr;
-			const unsigned long ulSamplers = m_DeviceState.m_uiNumberSamplers; //resources.GetSamplers( &pSamplers );
-			const unsigned long ulTextures = m_DeviceState.m_uiNumberTextures; //resources.GetTextures( &ppTextures );
+			IGpuResource**      ppBuffers  = nullptr,**ppTextures = nullptr;
+			const unsigned long ulSamplers = m_DeviceState.m_uiNumberSamplers;        //resources.GetSamplers( &pSamplers );
+			const unsigned long ulTextures = m_DeviceState.m_uiNumberTextures;        //resources.GetTextures( &ppTextures );
 			const unsigned long ulCBuffers = m_DeviceState.m_uiNumberConstantBuffers; //resources.GetConstantBuffers( &ppBuffers );
 
 			CD3DX12_DESCRIPTOR_RANGE1 table1[2];
@@ -397,7 +388,7 @@ namespace Artemis::Renderer::Device::Dx12
 			return false;
 		}
 
-		m_DeviceState.RootSignatureUpdates++;
+		m_DeviceState.m_stats.RootSignatureUpdates++;
 		const CommandListDx12* pImmediateContext = static_cast<CommandListDx12*>(GetImmediateContext());
 		pImmediateContext->SetGraphicsRootSignature( pRootSignature );
 
@@ -430,8 +421,8 @@ namespace Artemis::Renderer::Device::Dx12
 
 			stateDesc.InputLayout    = {&inputLayout[0], static_cast<UINT>(inputLayout.size())};
 			stateDesc.pRootSignature = pRootSignature;
-            stateDesc.VS = { m_DeviceState.m_pVertexShader->GetBytecode(), m_DeviceState.m_pVertexShader->GetBytecodeSize() };
-            stateDesc.PS = { m_DeviceState.m_pPixelShader->GetBytecode(), m_DeviceState.m_pPixelShader->GetBytecodeSize() };
+			stateDesc.VS             = {m_DeviceState.m_pVertexShader->GetBytecode(), m_DeviceState.m_pVertexShader->GetBytecodeSize()};
+			stateDesc.PS             = {m_DeviceState.m_pPixelShader->GetBytecode(), m_DeviceState.m_pPixelShader->GetBytecodeSize()};
 
 			ulHash += SimpleHash( reinterpret_cast<const char*>(&inputLayout[0]), sizeof( D3D12_INPUT_ELEMENT_DESC ) * inputLayout.size() );
 			ulHash += SimpleHash( reinterpret_cast<const char*>(&stateDesc.pRootSignature), sizeof( ID3D12RootSignature ) );
@@ -493,14 +484,14 @@ namespace Artemis::Renderer::Device::Dx12
 
 	void DeviceDx12::EndFrame( void )
 	{
-		m_DeviceState.ConstantBufferUpdates = 0;
-		m_DeviceState.SamplerStateUpdates   = 0;
-		m_DeviceState.TextureUpdates        = 0;
-		m_DeviceState.RenderTargetUpdates   = 0;
-		m_DeviceState.DepthBufferUpdates    = 0;
-		m_DeviceState.RootSignatureUpdates  = 0;
-		m_DeviceState.PipelineStateUpdates  = 0;
-		m_DeviceState.ShaderUpdates         = 0;
+		m_DeviceState.m_stats.ConstantBufferUpdates = 0;
+		m_DeviceState.m_stats.SamplerStateUpdates   = 0;
+		m_DeviceState.m_stats.TextureUpdates        = 0;
+		m_DeviceState.m_stats.RenderTargetUpdates   = 0;
+		m_DeviceState.m_stats.DepthBufferUpdates    = 0;
+		m_DeviceState.m_stats.RootSignatureUpdates  = 0;
+		m_DeviceState.m_stats.PipelineStateUpdates  = 0;
+		m_DeviceState.m_stats.ShaderUpdates         = 0;
 
 		delete m_pActiveResourceHeap; // <DescriptorHeapDx12*>(m_pActiveResourceHeap)->~DescriptorHeapDx12();
 		m_pActiveResourceHeap = nullptr;
@@ -510,7 +501,7 @@ namespace Artemis::Renderer::Device::Dx12
 
 	bool DeviceDx12::FlushState()
 	{
-		const CommandListDx12*  pGfxCmdList = static_cast<CommandListDx12*>(GetImmediateContext());
+		const CommandListDx12* pGfxCmdList = static_cast<CommandListDx12*>(GetImmediateContext());
 
 		LOW_LEVEL_PROFILE_MARKER( pGfxCmdList, "FlushState" );
 
@@ -521,13 +512,13 @@ namespace Artemis::Renderer::Device::Dx12
 				return false;
 
 			pGfxCmdList->SetPipelineState( pPso );
-			m_DeviceState.PipelineStateUpdates++;
+			m_DeviceState.m_stats.PipelineStateUpdates++;
 		}
 
-		ID3D12DescriptorHeap* pDescHeapRtv = static_cast<ID3D12DescriptorHeap*>(m_pActiveResourceHeap->GetDeviceObject());
+		ID3D12DescriptorHeap* pDescHeapRtv      = static_cast<ID3D12DescriptorHeap*>(m_pActiveResourceHeap->GetDeviceObject());
 		ID3D12DescriptorHeap* pDescHeapSamplers = static_cast<ID3D12DescriptorHeap*>(m_pActiveSamplerHeap->GetDeviceObject());
 
-		ID3D12DescriptorHeap* pHeaps[] = {pDescHeapRtv, pDescHeapSamplers};
+		IDescriptorHeap* pHeaps[] = {m_pActiveResourceHeap, m_pActiveSamplerHeap};
 		pGfxCmdList->SetDescriptorHeaps( pHeaps, _countof( pHeaps ) );
 
 		const unsigned int uiResourceStartIndex = m_pActiveResourceHeap->GetFreeIndex();
@@ -536,10 +527,10 @@ namespace Artemis::Renderer::Device::Dx12
 		// Copy CBVs
 		//
 		GpuResourceDx12** ppCBs       = nullptr;
-		unsigned long        ulResources = m_DeviceState.GetConstantBuffers(&ppCBs);
+		unsigned long     ulResources = m_DeviceState.GetConstantBuffers( &ppCBs );
 		for ( unsigned int i = 0; i < ulResources; ++i )
 		{
-			CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource( pHeaps[0]->GetCPUDescriptorHandleForHeapStart(), m_pActiveResourceHeap->GetFreeIndexAndIncrement(), m_pActiveResourceHeap->GetIncrementSize() );
+			CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource( pDescHeapRtv->GetCPUDescriptorHandleForHeapStart(), m_pActiveResourceHeap->GetFreeIndexAndIncrement(), m_pActiveResourceHeap->GetIncrementSize() );
 
 			if ( !ppCBs[i] )
 			{
@@ -560,10 +551,10 @@ namespace Artemis::Renderer::Device::Dx12
 		// Copy SRVs
 		//
 		GpuResourceDx12** ppTextures = nullptr;;
-		ulResources = m_DeviceState.GetTextures(&ppTextures);
+		ulResources                  = m_DeviceState.GetTextures( &ppTextures );
 		for ( unsigned int i = 0; i < ulResources; ++i )
 		{
-			CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource( pHeaps[0]->GetCPUDescriptorHandleForHeapStart(), m_pActiveResourceHeap->GetFreeIndexAndIncrement(), m_pActiveResourceHeap->GetIncrementSize() );
+			CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuNewResource( pDescHeapRtv->GetCPUDescriptorHandleForHeapStart(), m_pActiveResourceHeap->GetFreeIndexAndIncrement(), m_pActiveResourceHeap->GetIncrementSize() );
 
 			if ( !ppTextures[i] )
 			{
@@ -593,17 +584,17 @@ namespace Artemis::Renderer::Device::Dx12
 		//
 		// Copy Sampler
 		//			
-		SamplerStateDx12** pSamplers = nullptr;
-		ulResources = m_DeviceState.GetSamplers(&pSamplers);
+		SamplerStateDx12** pSamplers           = nullptr;
+		ulResources                            = m_DeviceState.GetSamplers( &pSamplers );
 		const unsigned int uiSamplerStartIndex = m_pActiveSamplerHeap->GetFreeIndex();
 		for ( unsigned int i = 0; i < ulResources; ++i )
 		{
 			ID3D12DescriptorHeap* pSamplerHeap = static_cast<ID3D12DescriptorHeap*>(m_pDescHeapSampler->GetDeviceObject());
 
-			CD3DX12_CPU_DESCRIPTOR_HANDLE sampDescHandle(pSamplerHeap->GetCPUDescriptorHandleForHeapStart() );
+			CD3DX12_CPU_DESCRIPTOR_HANDLE sampDescHandle( pSamplerHeap->GetCPUDescriptorHandleForHeapStart() );
 			sampDescHandle.Offset( static_cast<SamplerStateDx12*>(pSamplers[i])->GetHeapIndex(), m_pDescHeapSampler->GetIncrementSize() );
 
-			CD3DX12_CPU_DESCRIPTOR_HANDLE tempHandleLoc(pHeaps[1]->GetCPUDescriptorHandleForHeapStart(), m_pActiveSamplerHeap->GetFreeIndexAndIncrement(), m_pActiveSamplerHeap->GetIncrementSize() );
+			CD3DX12_CPU_DESCRIPTOR_HANDLE tempHandleLoc( pDescHeapSamplers->GetCPUDescriptorHandleForHeapStart(), m_pActiveSamplerHeap->GetFreeIndexAndIncrement(), m_pActiveSamplerHeap->GetIncrementSize() );
 
 			UINT size1 = 1;
 			UINT size2 = 1;
@@ -612,20 +603,19 @@ namespace Artemis::Renderer::Device::Dx12
 			m_pDevice->CopyDescriptors( 1, &tempHandleLoc, &size1, 1, &sampDescHandle, &size2, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER );
 		}
 
-		pGfxCmdList->SetGraphicsRootDescriptorTable( 0, CD3DX12_GPU_DESCRIPTOR_HANDLE( pHeaps[0]->GetGPUDescriptorHandleForHeapStart(), uiResourceStartIndex, m_pActiveResourceHeap->GetIncrementSize() ) );
-		pGfxCmdList->SetGraphicsRootDescriptorTable( 1, CD3DX12_GPU_DESCRIPTOR_HANDLE( pHeaps[1]->GetGPUDescriptorHandleForHeapStart(), uiSamplerStartIndex, m_pActiveSamplerHeap->GetIncrementSize() ) );
+		pGfxCmdList->SetGraphicsRootDescriptorTable( 0, CD3DX12_GPU_DESCRIPTOR_HANDLE( pDescHeapRtv->GetGPUDescriptorHandleForHeapStart(), uiResourceStartIndex, m_pActiveResourceHeap->GetIncrementSize() ) );
+		pGfxCmdList->SetGraphicsRootDescriptorTable( 1, CD3DX12_GPU_DESCRIPTOR_HANDLE( pDescHeapSamplers->GetGPUDescriptorHandleForHeapStart(), uiSamplerStartIndex, m_pActiveSamplerHeap->GetIncrementSize() ) );
 
 		m_DeviceState.DirtyFlags = 0;
 
 		return true;
 	}
 
-	bool DeviceDx12::SetMaterial(Interfaces::IMaterial* _pMaterial)
-    {		
-		if(_pMaterial->m_pVertexShader != m_DeviceState.GetShader(Interfaces::IShaderStage::ShaderType::EVertexShader) ||
-			_pMaterial->m_pPixelShader != m_DeviceState.GetShader(Interfaces::IShaderStage::ShaderType::EPixelShader))
-        {
-			m_DeviceState.Reinitialise(_pMaterial->m_pVertexShader, _pMaterial->m_pPixelShader);
+	bool DeviceDx12::SetMaterial( Interfaces::IMaterial* _pMaterial )
+	{
+		if ( _pMaterial->m_pVertexShader != m_DeviceState.GetShader( Interfaces::IShaderStage::ShaderType::EVertexShader ) || _pMaterial->m_pPixelShader != m_DeviceState.GetShader( Interfaces::IShaderStage::ShaderType::EPixelShader ) )
+		{
+			m_DeviceState.Reinitialise( _pMaterial->m_pVertexShader, _pMaterial->m_pPixelShader );
 		}
 
 		return true;
@@ -672,20 +662,20 @@ namespace Artemis::Renderer::Device::Dx12
 	}
 
 	bool DeviceDx12::SetRasterizerState( const Interfaces::RasteriserStateDesc& _desc )
-    {
-        m_DeviceState.SetRasterizerState(_desc);
+	{
+		m_DeviceState.SetRasterizerState( _desc );
 		return true;
 	}
 
 	bool DeviceDx12::SetBlendState( const Interfaces::BlendDesc& _desc )
-    {
-        m_DeviceState.SetBlendState(_desc);
+	{
+		m_DeviceState.SetBlendState( _desc );
 		return true;
 	}
 
 	bool DeviceDx12::SetDepthStencilState( const Interfaces::DepthStencilDesc& _desc )
-    {
-        m_DeviceState.SetDepthStencilState(_desc);
+	{
+		m_DeviceState.SetDepthStencilState( _desc );
 		return true;
 	}
 }

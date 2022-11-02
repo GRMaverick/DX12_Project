@@ -8,9 +8,9 @@
 #include <cassert>
 #include <utility>
 
-//#include <ImGUI/imgui_impl_win32.h>
+#include <ImGUI/imgui_impl_win32.h>
 
-//extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 
 using namespace Artemis::Utilities;
 
@@ -20,8 +20,8 @@ namespace Artemis::Core
 
 	LRESULT CALLBACK WndProc( const HWND _hwnd, const UINT _umsg, const WPARAM _wparam, const LPARAM _lparam )
 	{
-		//if ( ImGui_ImplWin32_WndProcHandler( _hwnd, _umsg, _wparam, _lparam ) )
-		//	return true;
+		if ( ImGui_ImplWin32_WndProcHandler( _hwnd, _umsg, _wparam, _lparam ) )
+			return true;
 
 		if ( g_pWindow )
 			return g_pWindow->MessageHandler( _hwnd, _umsg, _wparam, _lparam );

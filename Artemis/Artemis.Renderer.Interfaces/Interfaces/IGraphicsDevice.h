@@ -157,8 +157,8 @@ namespace Artemis::Renderer::Interfaces
 
 	struct RenderTargetBlendDesc
 	{
-		int           BlendEnable;
-		int           LogicOpEnable;
+		int            BlendEnable;
+		int            LogicOpEnable;
 		EBlend         SrcBlend;
 		EBlend         DestBlend;
 		EBlendOp       BlendOp;
@@ -171,10 +171,10 @@ namespace Artemis::Renderer::Interfaces
 
 	struct DepthStencilDesc
 	{
-		int               DepthEnable;
+		int                DepthEnable;
 		EDepthWriteMask    DepthWriteMask;
 		EComparisonFunc    DepthFunc;
-		int               StencilEnable;
+		int                StencilEnable;
 		unsigned short     StencilReadMask;
 		unsigned short     StencilWriteMask;
 		DepthStencilOpDesc FrontFace;
@@ -185,22 +185,34 @@ namespace Artemis::Renderer::Interfaces
 	{
 		EFillMode                      FillMode;
 		ECullMode                      CullMode;
-		int                           FrontCounterClockwise;
+		int                            FrontCounterClockwise;
 		int                            DepthBias;
 		float                          DepthBiasClamp;
 		float                          SlopeScaledDepthBias;
-		int                           DepthClipEnable;
-		int                           MultisampleEnable;
-		int                           AntialiasedLineEnable;
+		int                            DepthClipEnable;
+		int                            MultisampleEnable;
+		int                            AntialiasedLineEnable;
 		unsigned int                   ForcedSampleCount;
 		EConservativeRasterisationMode ConservativeRaster;
 	};
 
 	struct BlendDesc
 	{
-		int                  AlphaToCoverageEnable;
-		int                  IndependentBlendEnable;
+		int                   AlphaToCoverageEnable;
+		int                   IndependentBlendEnable;
 		RenderTargetBlendDesc RenderTarget[8];
+	};
+
+	struct DeviceStateStats
+	{
+		unsigned int TextureUpdates        = 0;
+		unsigned int ShaderUpdates         = 0;
+		unsigned int RenderTargetUpdates   = 0;
+		unsigned int DepthBufferUpdates    = 0;
+		unsigned int ConstantBufferUpdates = 0;
+		unsigned int PipelineStateUpdates  = 0;
+		unsigned int RootSignatureUpdates  = 0;
+		unsigned int SamplerStateUpdates   = 0;
 	};
 
 	class IGraphicsDevice
@@ -210,6 +222,8 @@ namespace Artemis::Renderer::Interfaces
 		{
 		};
 
+		virtual bool InitialiseImGui( Artemis::Core::GameWindow* _pWindow, const IDescriptorHeap* _pHeap ) const = 0;
+
 		virtual const void* GetDeviceObject( void ) const = 0;
 		virtual bool        CreateSwapChain( ISwapChain** _ppSwapChain, ICommandQueue* _pCmdQueue, Artemis::Core::GameWindow* _pWindow, unsigned int _numBackBuffers, const wchar_t* _pDebugName = L"" ) = 0;
 		virtual bool        CreateCommandList( ECommandListType _type, ICommandList** _ppCommandList, const wchar_t* _pDebugName = L"" ) const = 0;
@@ -218,7 +232,7 @@ namespace Artemis::Renderer::Interfaces
 
 		virtual IGpuResource* CreateVertexBufferResource( ICommandList* _pCommandList, unsigned int _sizeInBytes, unsigned int _strideInBytes, ResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName = L"" ) const = 0;
 		virtual IGpuResource* CreateIndexBufferResource( ICommandList* _pCommandList, unsigned int _sizeInBytes, unsigned int _strideInBytes, ResourceFlags _flags, const void* _pData, const wchar_t* _pDebugName = L"" ) const = 0;
-		virtual IGpuResource* CreateConstantBufferResource(const IConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"") const = 0;
+		virtual IGpuResource* CreateConstantBufferResource( const IConstantBufferParameters::ConstantBuffer& _params, const wchar_t* _pDebugName = L"" ) const = 0;
 		virtual IGpuResource* CreateTexture2D( const wchar_t* _pWstrFilename, ICommandList* _pCommandList, const wchar_t* _pDebugName = L"" ) const = 0;
 		virtual IGpuResource* CreateWicTexture2D( const wchar_t* _pWstrFilename, ICommandList* _pCommandList, const wchar_t* _pDebugName = L"" ) const = 0;
 
@@ -226,7 +240,7 @@ namespace Artemis::Renderer::Interfaces
 		virtual void EndFrame( void ) = 0;
 		virtual bool FlushState( void ) = 0;
 
-		virtual bool SetMaterial(IMaterial* _pMaterial ) = 0;
+		virtual bool SetMaterial( IMaterial* _pMaterial ) = 0;
 		virtual bool SetRenderTarget( void ) = 0;
 		virtual bool SetDepthBuffer( void ) = 0;
 		virtual bool SetTexture( const char* _pName, IGpuResource* _pTexture ) = 0;
@@ -237,7 +251,8 @@ namespace Artemis::Renderer::Interfaces
 		virtual bool SetBlendState( const BlendDesc& _desc ) = 0;
 		virtual bool SetDepthStencilState( const DepthStencilDesc& _desc ) = 0;
 
-		virtual ICommandList*  GetImmediateContext( void ) const = 0;
-		virtual ISamplerState* GetDefaultSamplerState( void ) const = 0;
+		virtual ICommandList*    GetImmediateContext( void ) const = 0;
+		virtual ISamplerState*   GetDefaultSamplerState( void ) const = 0;
+		virtual DeviceStateStats GetDeviceStats( void ) const = 0;
 	};
 }

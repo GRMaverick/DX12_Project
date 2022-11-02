@@ -105,7 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)Artemis\Artemis.Utilities;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)Artemis\Artemis.Utilities;$(SolutionDir)_Dependencies\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,7 +121,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)Artemis\Artemis.Utilities;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)Artemis\Artemis.Utilities;$(SolutionDir)_Dependencies\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -139,6 +139,9 @@
     <ClInclude Include="Window\GameWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\_Toolkits\ImGUI\ImGUI.vcxproj">
+      <Project>{fdb5b585-6de9-4d33-bf38-b5126bf90e08}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Artemis.Utilities\Artemis.Utilities.vcxproj">
       <Project>{15f52f98-af29-44e9-9707-8d126651c3df}</Project>
     </ProjectReference>
