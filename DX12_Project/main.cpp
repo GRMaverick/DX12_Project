@@ -8,12 +8,12 @@
 
 #include "Defines.h"
 
-#include "SysCore\_Window\GameWindow.h"
-#include "SysUtilities\_Loaders\CLParser.h"
+#include "Window/GameWindow.h"
+#include "Loaders/CLParser.h"
+#include "Logging/Logger.h"
+#include "Factory/RendererFactory.h"
 
-#include "SysRenderer\_Platforms\D3D12\RendererD3D12.h"
-
-#include "InputManager.h"
+//#include "InputManager.h"
 
 PRAGMA_TODO( "Data Driven Pipelines" )
 PRAGMA_TODO( "\tSamplerState Table" )
@@ -27,12 +27,8 @@ PRAGMA_TODO( "\tResize Handling" )
 PRAGMA_TODO( "MT Command Buffers" )
 PRAGMA_TODO( "\t - Submission / Execution needs proper synchronisation" )
 
-using namespace SysCore;
-using namespace SysUtilities;
-using namespace SysRenderer::Interfaces;
-
-static GameWindow* g_pWindow   = nullptr;
-static IRenderer*  g_pRenderer = nullptr;
+static Artemis::Core::GameWindow* g_pWindow   = nullptr;
+static Artemis::Renderer::Interfaces::IRenderer*  g_pRenderer = nullptr;
 
 static std::wstring GetLatestWinPixGpuCapturerPathCpp17()
 {
@@ -87,7 +83,7 @@ bool GameLoop()
 		elapsedSeconds = 0.0;
 	}
 
-	InputManager::Instance()->Update();
+	//InputManager::Instance()->Update();
 
 	g_pRenderer->Update( deltaTime );
 	g_pRenderer->Render();
@@ -97,64 +93,66 @@ bool GameLoop()
 
 int __stdcall WinMain( const HINSTANCE _hInstance, const HINSTANCE _hPreviousInstance, const LPSTR _pCmds, INT _nCmdShow )
 {
-	Logger::SetSeverity( SEVERITY_INFO );
-	Logger::SetCategory( CATEGORY_UTILITIES );
+	Artemis::Utilities::Logger::SetSeverity(Artemis::Utilities::SEVERITY_INFO );
+	Artemis::Utilities::Logger::SetCategory(Artemis::Utilities::CATEGORY_UTILITIES );
 
-	CLParser::Instance()->Initialise( _pCmds );
+	Artemis::Utilities::CLParser::Instance()->Initialise( _pCmds );
 
-	unsigned int uiLogCategory = CATEGORY_NONE;
-	if ( CLParser::Instance()->HasArgument( "LogCat_App" ) )
+	unsigned int uiLogCategory = Artemis::Utilities::CATEGORY_NONE;
+	if (Artemis::Utilities::CLParser::Instance()->HasArgument( "LogCat_App" ) )
 	{
-		uiLogCategory |= CATEGORY_APP;
+		uiLogCategory |= Artemis::Utilities::CATEGORY_APP;
 	}
-	if ( CLParser::Instance()->HasArgument( "LogCat_Renderer" ) )
+	if (Artemis::Utilities::CLParser::Instance()->HasArgument( "LogCat_Renderer" ) )
 	{
-		uiLogCategory |= CATEGORY_RENDERER;
+		uiLogCategory |= Artemis::Utilities::CATEGORY_RENDERER;
 	}
-	if ( CLParser::Instance()->HasArgument( "LogCat_Utilities" ) )
+	if (Artemis::Utilities::CLParser::Instance()->HasArgument( "LogCat_Utilities" ) )
 	{
-		uiLogCategory |= CATEGORY_UTILITIES;
+		uiLogCategory |= Artemis::Utilities::CATEGORY_UTILITIES;
 	}
-
-	unsigned int uiLogSeverity = SEVERITY_NONE;
-	if ( CLParser::Instance()->HasArgument( "LogSev_Info" ) )
+	if (Artemis::Utilities::CLParser::Instance()->HasArgument( "LogCat_Shaders" ) )
 	{
-		uiLogSeverity |= SEVERITY_INFO;
-	}
-	if ( CLParser::Instance()->HasArgument( "LogSev_Warn" ) )
-	{
-		uiLogSeverity |= SEVERITY_WARN;
-	}
-	if ( CLParser::Instance()->HasArgument( "LogSev_Err" ) )
-	{
-		uiLogSeverity |= SEVERITY_ERR;
-	}
-	if ( CLParser::Instance()->HasArgument( "LogSev_Fatal" ) )
-	{
-		uiLogSeverity |= SEVERITY_FATAL;
+		uiLogCategory |= Artemis::Utilities::CATEGORY_SHADERS;
 	}
 
-	Logger::SetSeverity( uiLogSeverity );
-	Logger::SetCategory( uiLogCategory );
+	unsigned int uiLogSeverity = Artemis::Utilities::SEVERITY_NONE;
+	if (Artemis::Utilities::CLParser::Instance()->HasArgument( "LogSev_Info" ) )
+	{
+		uiLogSeverity |= Artemis::Utilities::SEVERITY_INFO;
+	}
+	if (Artemis::Utilities::CLParser::Instance()->HasArgument( "LogSev_Warn" ) )
+	{
+		uiLogSeverity |= Artemis::Utilities::SEVERITY_WARN;
+	}
+	if (Artemis::Utilities::CLParser::Instance()->HasArgument( "LogSev_Err" ) )
+	{
+		uiLogSeverity |= Artemis::Utilities::SEVERITY_ERR;
+	}
+	if (Artemis::Utilities::CLParser::Instance()->HasArgument( "LogSev_Fatal" ) )
+	{
+		uiLogSeverity |= Artemis::Utilities::SEVERITY_FATAL;
+	}
+
+	Artemis::Utilities::Logger::SetSeverity( uiLogSeverity );
+	Artemis::Utilities::Logger::SetCategory( uiLogCategory );
 
 #if defined(_DEBUG)
-	// Check to see if a copy of WinPixGpuCapturer.dll has already been injected into the application.
-	// This may happen if the application is launched through the PIX UI. 
 	if ( GetModuleHandle( L"WinPixGpuCapturer.dll" ) == nullptr )
 	{
 		LoadLibrary( GetLatestWinPixGpuCapturerPathCpp17().c_str() );
 	}
 #endif
 
-	g_pWindow   = new GameWindow( _hInstance, L"MainWindow", L"DX12 Project" );
-	g_pRenderer = new SysRenderer::Renderer();
+	g_pWindow = new Artemis::Core::GameWindow( _hInstance, L"MainWindow", L"DX12 Project" );
+	g_pRenderer = Artemis::Renderer::Techniques::RendererFactory::Construct(Artemis::Renderer::Techniques::RendererTechnique::ForwardRenderer);
 
 	if ( !g_pRenderer->Initialise( g_pWindow ) )
 	{
 		return false;
 	}
 
-	GameWindow::SetMessageHandlerInstance( g_pWindow );
+	Artemis::Core::GameWindow::SetMessageHandlerInstance( g_pWindow );
 
 	bool bClosing = false;
 

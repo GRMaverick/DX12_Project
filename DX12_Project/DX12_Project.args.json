@@ -1,0 +1,122 @@
+{
+  "FileVersion": 2,
+  "Id": "acfae0bc-b3b1-447b-9948-3044f2898eea",
+  "Items": [
+    {
+      "Id": "33e540fb-8d37-456e-a20c-050f35e3bdb5",
+      "Command": "/fullscreen"
+    },
+    {
+      "Id": "9690a896-83eb-41f8-b78c-f6ec0f6b09d7",
+      "Command": "Shaders",
+      "Items": [
+        {
+          "Id": "269b644a-a98a-46bc-bbc8-f5de49a0d85a",
+          "Command": "Debug",
+          "Items": [
+            {
+              "Id": "8ed35261-4ce7-4901-9832-6edfaa17cfa6",
+              "Command": "/Fd"
+            },
+            {
+              "Id": "4f4eaa45-bba2-4113-bd99-a2165af6e4b2",
+              "Command": "/pdbFat"
+            },
+            {
+              "Id": "3544d91d-8846-42a7-a8f8-e8508560c100",
+              "Command": "/Od"
+            },
+            {
+              "Id": "d2e6a0be-0800-4159-bd7c-6be8d145e697",
+              "Command": "/dxc"
+            },
+            {
+              "Id": "8591b816-ad95-47eb-b9db-1f846b8f0b92",
+              "Command": "/embed_symbols"
+            }
+          ]
+        },
+        {
+          "Id": "3a35b0c9-4221-49a1-b028-e0298c62deb9",
+          "Command": "Production",
+          "Items": [
+            {
+              "Id": "5523cfed-c039-4057-af78-f79bff27dc26",
+              "Command": "/pdbSlim"
+            },
+            {
+              "Id": "ec22f274-284e-4a97-8927-8c6e8424f681",
+              "Command": "/dxc"
+            },
+            {
+              "Id": "b53f6c46-0d6b-42ab-a34e-dfcc5ba91c8c",
+              "Command": "/O3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Id": "95ea2696-0120-47dc-8f51-ed106ed909cc",
+      "Command": "1080p",
+      "Items": [
+        {
+          "Id": "4ba9d87a-dd38-4891-aa4a-6f734d5857fb",
+          "Command": "Debug",
+          "Items": [
+            {
+              "Id": "d87f9b53-f39d-4684-9017-aa02bf641057",
+              "Command": "/d3ddebug"
+            }
+          ]
+        },
+        {
+          "Id": "28e666df-31b9-4423-b16c-75c97d615e21",
+          "Command": "/Width:1920"
+        },
+        {
+          "Id": "93582d88-40da-4f4a-b6fb-d6f7559e28b3",
+          "Command": "/Height:1080"
+        }
+      ]
+    },
+    {
+      "Id": "94d7dcc9-e4f7-40d7-bc48-636934a199b1",
+      "Command": "Logging",
+      "Items": [
+        {
+          "Id": "1098f2b8-ee35-4d95-b2e9-19c52e4b83cc",
+          "Command": "/LogSev_Fatal"
+        },
+        {
+          "Id": "4c587e48-df83-4af8-9788-5ad3f88cb535",
+          "Command": "/LogSev_Err"
+        },
+        {
+          "Id": "b089db38-330c-4e5a-a0c4-9ac8f35a5b50",
+          "Command": "/LogSev_Warn"
+        },
+        {
+          "Id": "c077a450-42dc-4e6d-8df6-96c740bb579e",
+          "Command": "/LogSev_Info"
+        },
+        {
+          "Id": "18600379-27af-4e58-9059-e4d954620cdc",
+          "Command": "/LogCat_Shaders"
+        },
+        {
+          "Id": "774c6569-9d94-449e-9481-406ad93b48f7",
+          "Command": "/LogCat_Utilities"
+        },
+        {
+          "Id": "19f91ad5-f50f-426a-963d-694083ca70a6",
+          "Command": "/LogCat_Renderer"
+        },
+        {
+          "Id": "5ccde067-9084-4269-aea2-dcd9536d1bdb",
+          "Command": "/LogCat_App"
+        }
+      ]
+    }
+  ]
+}

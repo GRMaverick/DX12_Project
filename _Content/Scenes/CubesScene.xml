@@ -1,0 +1,29 @@
+<Root>
+    <Cameras>
+        <Camera Name="Main">
+            <Position X="0.0" Y="5.0" Z="5.0" />
+            <Target X="0.0" Y="0.0" Z="0.0" />
+            <Up X="0.0" Y="1.0" Z="0.0" />
+            <FOV Value="45" />
+        </Camera>
+    </Camera>
+    <Lights>
+        <Light Name="Main">
+            <Diffuse R="1.0" G="1.0" B="1.0" A="1.0" />
+            <Ambient R="1.0" G="1.0" B="1.0" A="1.0"/>
+            <Specular R="1.0" G="1.0" B="1.0" A="1.0" Power="0.0"/>
+            <Position X="-0.265" Y="0.265" Z="-1.053" />
+        </Light>
+    </Lights>
+    <ModelInstances>
+        <Instance ModelPath="SciFiBox\Sci_Fi_Box.fbx" ModelName="Sci_Fi_Box_A" Material="Albedo">
+            <Transform PosX="" PosY="" PosZ="-1.25" Scale="1.0" />
+        </Instance>
+        <!-- <Instance ModelPath="StorageContainer\Cube.obj" ModelName="Storage_Phong" Material="AlbedoPhong">
+            <Transform PosX="1.25" PosY="" PosZ="" Scale="1.0" />
+        </Instance>
+        <Instance ModelPath="StorageContainer\Cube.obj" ModelName="Storage_Normal" Material="AlbedoNormal">
+            <Transform PosX="-1.25" PosY="" PosZ="" Scale="1.0" />
+        </Instance> -->
+    </ModelInstances>
+</Root>
