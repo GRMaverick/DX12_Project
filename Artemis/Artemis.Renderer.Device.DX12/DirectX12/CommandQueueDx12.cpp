@@ -126,7 +126,6 @@ namespace Artemis::Renderer::Device::Dx12
 
 		for ( unsigned int listIdx = 0; listIdx < m_pAwaitingExecution.size(); ++listIdx )
 		{
-			delete m_pAwaitingExecution[listIdx];
 			m_pAwaitingExecution.erase( m_pAwaitingExecution.begin() + listIdx );
 		}
 	}

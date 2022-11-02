@@ -27,6 +27,8 @@ namespace Artemis::Renderer::Device::Dx12
 		DescriptorHeapDx12( void );
 		~DescriptorHeapDx12( void ) override;
 
+		void Reset( void ) override;
+
 		bool Initialise( const Interfaces::IGraphicsDevice* _pDevice, Interfaces::DescriptorHeapType _type, unsigned int _numDescriptors, Interfaces::DescriptorHeapFlags _flags, const wchar_t* _pDebugName ) override;
 
 		void                        Increment( void );

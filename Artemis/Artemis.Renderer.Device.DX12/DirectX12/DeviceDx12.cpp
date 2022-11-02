@@ -243,6 +243,12 @@ namespace Artemis::Renderer::Device::Dx12
 		// Default Sampler
 		m_pDefaultSampler = CreateSamplerState( Renderer::Interfaces::SamplerStateFilter::ELinear, Renderer::Interfaces::SamplerStateWrapMode::EWrap, Renderer::Interfaces::SamplerStateComparisonFunction::EAlways );
 
+		m_pImmediateContext = new CommandListDx12();
+		if ( !CreateCommandList( CommandListType_Direct, &m_pImmediateContext, L"ImmediateContext" ) )
+		{
+			assert( "Command List Creation Failed" );
+		}
+
 		return true;
 	}
 
@@ -472,12 +478,6 @@ namespace Artemis::Renderer::Device::Dx12
 
 	void DeviceDx12::BeginFrame( void )
 	{
-		m_pImmediateContext = new CommandListDx12();
-		if ( !CreateCommandList( CommandListType_Direct, &m_pImmediateContext, L"ImmediateContext" ) )
-		{
-			assert( "Command List Creation Failed" );
-		}
-
 		m_pImmediateContext->Reset();
 
 		m_DeviceState.SetDirty( DeviceState::kDirtyPipelineState );
@@ -505,10 +505,8 @@ namespace Artemis::Renderer::Device::Dx12
 		m_DeviceState.m_stats.PipelineStateUpdates  = 0;
 		m_DeviceState.m_stats.ShaderUpdates         = 0;
 
-		delete m_pActiveResourceHeap; // <DescriptorHeapDx12*>(m_pActiveResourceHeap)->~DescriptorHeapDx12();
-		m_pActiveResourceHeap = nullptr;
-		delete m_pActiveSamplerHeap; // <DescriptorHeapDx12*>(m_pActiveSamplerHeap)->~DescriptorHeapDx12();
-		m_pActiveSamplerHeap = nullptr;
+		m_pActiveResourceHeap->Reset();
+		m_pActiveSamplerHeap->Reset();
 	}
 
 	bool DeviceDx12::FlushState()

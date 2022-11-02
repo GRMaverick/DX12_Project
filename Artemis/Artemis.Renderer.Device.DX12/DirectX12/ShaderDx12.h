@@ -2,7 +2,7 @@
 #define __ShaderD3D12_h__
 
 #include "Interfaces/IShader.h"
-//#include "Memory/MemoryGlobalTracking.h"
+#include "Memory/MemoryGlobalTracking.h"
 
 namespace Artemis::Renderer::Device::Dx12
 {
@@ -18,14 +18,14 @@ namespace Artemis::Renderer::Device::Dx12
 			memcpy_s( m_pShaderBytecode, m_ShaderBytecodeSize, _pBytecode, m_ShaderBytecodeSize );
 
 #if defined(_DEBUG)
-			//Memory::MemoryGlobalTracking::RecordExplicitAllocation( Memory::MemoryContextCategory::EShader, m_pShaderBytecode, m_ShaderBytecodeSize );
+			Memory::MemoryGlobalTracking::RecordExplicitAllocation( Memory::MemoryContextCategory::EShader, m_pShaderBytecode, m_ShaderBytecodeSize );
 #endif
 		}
 
 		~ShaderDx12( void ) override
 		{
 #if defined(_DEBUG)
-			//Memory::MemoryGlobalTracking::RecordExplicitDellocation( m_pShaderBytecode );
+			Memory::MemoryGlobalTracking::RecordExplicitDellocation( m_pShaderBytecode );
 #endif
 
 			if ( m_pShaderBytecode )

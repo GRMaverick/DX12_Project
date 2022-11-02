@@ -28,6 +28,16 @@ namespace Artemis::Renderer::Device::Dx12
 			m_pDescriptorHeap.Reset();
 	}
 
+	void DescriptorHeapDx12::Reset()
+	{
+		m_uiIncrementSize   = 0;
+		m_maxDescriptors    = 0;
+		m_actualDescriptors = 0;
+
+		if ( m_pDescriptorHeap )
+			m_pDescriptorHeap.Reset();
+	}
+
 	bool DescriptorHeapDx12::Initialise( const Interfaces::IGraphicsDevice* _pDevice, Interfaces::DescriptorHeapType _type, unsigned int _numDescriptors, Interfaces::DescriptorHeapFlags _flags, const wchar_t* _pDebugName )
 	{
 		D3D12_DESCRIPTOR_HEAP_DESC desc = {};

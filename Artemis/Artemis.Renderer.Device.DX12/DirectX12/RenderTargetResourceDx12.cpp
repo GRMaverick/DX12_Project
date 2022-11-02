@@ -25,7 +25,7 @@ namespace Artemis::Renderer::Device::Dx12
 		}
 
 		const D3D12_RESOURCE_DESC descCpu = m_cpuBuffer->GetDesc();
-		Artemis::Memory::MemoryGlobalTracking::RecordExplicitAllocation( Artemis::Memory::MemoryContextCategory::ETextureCpu, m_cpuBuffer, GetMemoryRequirement( _width, _height, 1, desc.Format ) );
+		Artemis::Memory::MemoryGlobalTracking::RecordExplicitAllocation( Artemis::Memory::MemoryContextCategory::ERenderTarget, m_cpuBuffer, GetMemoryRequirement( _width, _height, 1, desc.Format ) );
 
 		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc;
 		rtvDesc.Format              = static_cast<DXGI_FORMAT>(_format);

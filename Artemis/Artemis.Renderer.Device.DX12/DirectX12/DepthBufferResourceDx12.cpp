@@ -42,7 +42,7 @@ namespace Artemis::Renderer::Device::Dx12
 		}
 
 		const D3D12_RESOURCE_DESC descCpu = m_cpuBuffer->GetDesc();
-		Artemis::Memory::MemoryGlobalTracking::RecordExplicitAllocation( Artemis::Memory::MemoryContextCategory::ETextureCpu, m_cpuBuffer, GetMemoryRequirement( _width, _height, 1, texDesc.Format ) );
+		Artemis::Memory::MemoryGlobalTracking::RecordExplicitAllocation( Artemis::Memory::MemoryContextCategory::ERenderTarget, m_cpuBuffer, GetMemoryRequirement( _width, _height, 1, texDesc.Format ) );
 
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 		dsvDesc.Flags              = D3D12_DSV_FLAG_NONE;

@@ -9,11 +9,9 @@
 #include "TextureLoader.h"
 #include <WICTextureLoader.h>
 
-//#include "Memory/MemoryGlobalTracking.h"
+#include "Memory/MemoryGlobalTracking.h"
 
 using namespace DirectX;
-
-//using namespace Artemis::Memory;
 using namespace Artemis::Utilities;
 
 namespace Artemis::Renderer::Device::Dx12
@@ -64,14 +62,14 @@ namespace Artemis::Renderer::Device::Dx12
 	{
 		if ( m_cpuBuffer )
 		{
-			//MemoryGlobalTracking::RecordExplicitDellocation( m_cpuBuffer );
+			Memory::MemoryGlobalTracking::RecordExplicitDellocation( m_cpuBuffer );
 			m_cpuBuffer->Release();
 			delete m_cpuBuffer;
 		}
 
 		if ( m_gpuBuffer )
 		{
-			//MemoryGlobalTracking::RecordExplicitDellocation( m_gpuBuffer );
+			Memory::MemoryGlobalTracking::RecordExplicitDellocation( m_gpuBuffer );
 			m_gpuBuffer->Release();
 			delete m_gpuBuffer;
 		}
@@ -82,10 +80,10 @@ namespace Artemis::Renderer::Device::Dx12
 		VALIDATE_D3D( CreateDDSTextureFromFile12( _pDevice, _pCmdList, _pWstrFilename, m_gpuBuffer, m_cpuBuffer ) );
 
 		const D3D12_RESOURCE_DESC descCpu = m_cpuBuffer->GetDesc();
-		//MemoryGlobalTracking::RecordExplicitAllocation( MemoryContextCategory::ETextureCpu, m_cpuBuffer, descCpu.Width * descCpu.Height * descCpu.DepthOrArraySize );
+		Memory::MemoryGlobalTracking::RecordExplicitAllocation( Memory::MemoryContextCategory::ETextureCpu, m_cpuBuffer, descCpu.Width * descCpu.Height * descCpu.DepthOrArraySize );
 
 		const D3D12_RESOURCE_DESC descGpu = m_gpuBuffer->GetDesc();
-		//MemoryGlobalTracking::RecordExplicitAllocation( MemoryContextCategory::ETextureGpu, m_gpuBuffer, descGpu.Width * descGpu.Height * descGpu.DepthOrArraySize );
+		Memory::MemoryGlobalTracking::RecordExplicitAllocation( Memory::MemoryContextCategory::ETextureGpu, m_gpuBuffer, descGpu.Width * descGpu.Height * descGpu.DepthOrArraySize );
 
 		return true;
 	}
@@ -107,10 +105,10 @@ namespace Artemis::Renderer::Device::Dx12
 		_pCmdList->ResourceBarrier( 1, &tgtBarrier );
 
 		const D3D12_RESOURCE_DESC descCpu = m_cpuBuffer->GetDesc();
-		//MemoryGlobalTracking::RecordExplicitAllocation( MemoryContextCategory::ETextureCpu, m_cpuBuffer, descCpu.Width * descCpu.Height * descCpu.DepthOrArraySize );
+		Memory::MemoryGlobalTracking::RecordExplicitAllocation( Memory::MemoryContextCategory::ETextureCpu, m_cpuBuffer, descCpu.Width * descCpu.Height * descCpu.DepthOrArraySize );
 
 		const D3D12_RESOURCE_DESC descGpu = m_gpuBuffer->GetDesc();
-		//MemoryGlobalTracking::RecordExplicitAllocation( MemoryContextCategory::ETextureGpu, m_gpuBuffer, descGpu.Width * descGpu.Height * descGpu.DepthOrArraySize );
+		Memory::MemoryGlobalTracking::RecordExplicitAllocation( Memory::MemoryContextCategory::ETextureGpu, m_gpuBuffer, descGpu.Width * descGpu.Height * descGpu.DepthOrArraySize );
 
 		return true;
 	}

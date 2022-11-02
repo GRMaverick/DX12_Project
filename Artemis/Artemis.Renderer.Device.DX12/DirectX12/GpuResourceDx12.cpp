@@ -3,20 +3,22 @@
 
 #include <cassert>
 
+#include "Memory/MemoryGlobalTracking.h"
+
 namespace Artemis::Renderer::Device::Dx12
 {
 	GpuResourceDx12::~GpuResourceDx12( void )
 	{
 		if ( m_cpuBuffer )
 		{
-			//Artemis::Memory::MemoryGlobalTracking::RecordExplicitDellocation( m_cpuBuffer );
+			Artemis::Memory::MemoryGlobalTracking::RecordExplicitDellocation( m_cpuBuffer );
 			m_cpuBuffer->Release();
 			delete m_cpuBuffer;
 		}
 
 		if ( m_gpuBuffer )
 		{
-			//Artemis::Memory::MemoryGlobalTracking::RecordExplicitDellocation( m_gpuBuffer );
+			Artemis::Memory::MemoryGlobalTracking::RecordExplicitDellocation( m_gpuBuffer );
 			m_gpuBuffer->Release();
 			delete m_gpuBuffer;
 		}
@@ -41,7 +43,7 @@ namespace Artemis::Renderer::Device::Dx12
 			return false;
 		}
 
-		//Artemis::Memory::MemoryGlobalTracking::RecordExplicitAllocation( Artemis::Memory::MemoryContextCategory::EGeometryCpu, m_cpuBuffer, bufferSize );
+		Artemis::Memory::MemoryGlobalTracking::RecordExplicitAllocation( Artemis::Memory::MemoryContextCategory::EGeometryCpu, m_cpuBuffer, bufferSize );
 
 		if ( _pData )
 		{
@@ -57,7 +59,7 @@ namespace Artemis::Renderer::Device::Dx12
 				return false;
 			}
 
-			//Artemis::Memory::MemoryGlobalTracking::RecordExplicitAllocation( Artemis::Memory::MemoryContextCategory::EGeometryGpu, m_cpuBuffer, bufferSize );
+			Artemis::Memory::MemoryGlobalTracking::RecordExplicitAllocation( Artemis::Memory::MemoryContextCategory::EGeometryGpu, m_cpuBuffer, bufferSize );
 
 			D3D12_SUBRESOURCE_DATA srData = {};
 			ZeroMemory( &srData, sizeof(D3D12_SUBRESOURCE_DATA) );

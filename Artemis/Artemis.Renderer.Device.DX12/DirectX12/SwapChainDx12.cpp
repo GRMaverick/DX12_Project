@@ -15,15 +15,14 @@
 
 #include "Window/GameWindow.h"
 
-//#include "Memory/ScopedMemoryRecord.h"
-//#include "Memory/MemoryGlobalTracking.h"
+#include "Memory/ScopedMemoryRecord.h"
 
 #include "Helpers/PixScopedEvent.h"
+#include "Memory/MemoryGlobalTracking.h"
 
 using namespace Microsoft::WRL;
 
 using namespace Artemis::Core;
-//using namespace Artemis::Memory;
 
 namespace Artemis::Renderer::Device::Dx12
 {
@@ -40,13 +39,13 @@ namespace Artemis::Renderer::Device::Dx12
 	{
 		if ( m_pSwapChain )
 		{
-			//MemoryGlobalTracking::RecordExplicitDellocation( m_pSwapChainDx12.Get() );
+			Memory::MemoryGlobalTracking::RecordExplicitDellocation( m_pSwapChain.Get() );
 			m_pSwapChain.Reset();
 		}
 
 		if ( m_pDepthBuffer )
 		{
-			//MemoryGlobalTracking::RecordExplicitDellocation( m_pDepthBuffer.Get() );
+			Memory::MemoryGlobalTracking::RecordExplicitDellocation( m_pDepthBuffer.Get() );
 			m_pDepthBuffer.Reset();
 		}
 
@@ -68,7 +67,7 @@ namespace Artemis::Renderer::Device::Dx12
 	{
 		HRESULT hr = S_OK;
 
-		//ScopedMemoryRecord ctx( MemoryContextCategory::ERenderTarget );
+		Memory::ScopedMemoryRecord ctx( Memory::MemoryContextCategory::ERenderTarget );
 
 		// Check Feature Support
 		{
@@ -117,12 +116,12 @@ namespace Artemis::Renderer::Device::Dx12
 			hr = pSwapChain1.As( &m_pSwapChain );
 			if ( FAILED( hr ) )
 			{
-				assert( false && "SwapChainDx124 cast failed" );
+				assert( false && "SwapChain4 cast failed" );
 				return false;
 			}
 
 			constexpr unsigned int kFormatInBytes = 4; // DXGI_FORMAT_R8G8B8A8_UNORM
-			//MemoryGlobalTracking::RecordExplicitAllocation( MemoryContextCategory::ERenderTarget, m_pSwapChainDx12.Get(), SwapChainDx12Desc.Width * SwapChainDx12Desc.Height * BACK_BUFFERS * kFormatInBytes );
+			Memory::MemoryGlobalTracking::RecordExplicitAllocation( Memory::MemoryContextCategory::ERenderTarget, m_pSwapChain.Get(), SwapChainDx12Desc.Width * SwapChainDx12Desc.Height * BACK_BUFFERS * kFormatInBytes );
 		}
 
 		// Create RTVs
@@ -169,7 +168,7 @@ namespace Artemis::Renderer::Device::Dx12
 			m_pDepthBuffer->SetName( L"Depth Buffer" );
 
 			constexpr unsigned int kFormatInBytes = 4; // DXGI_FORMAT_D32_FLOAT
-			//MemoryGlobalTracking::RecordExplicitAllocation( MemoryContextCategory::ERenderTarget, m_pDepthBuffer.Get(), _pWindow->GetDimensions().WindowWidth * _pWindow->GetDimensions().WindowHeight * BACK_BUFFERS * kFormatInBytes );
+			Memory::MemoryGlobalTracking::RecordExplicitAllocation( Memory::MemoryContextCategory::ERenderTarget, m_pDepthBuffer.Get(), _pWindow->GetDimensions().WindowWidth * _pWindow->GetDimensions().WindowHeight * BACK_BUFFERS * kFormatInBytes );
 		}
 
 		// Crete Viewport 

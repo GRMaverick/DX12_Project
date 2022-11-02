@@ -599,6 +599,8 @@ namespace Artemis::Renderer::Techniques
 					_pGfxCmdList->DrawIndexedInstanced( rMesh.pVertexBuffer, rMesh.pIndexBuffer, rMesh.Indices );
 				}
 			}
+
+			delete mat;
 		}
 	}
 }
