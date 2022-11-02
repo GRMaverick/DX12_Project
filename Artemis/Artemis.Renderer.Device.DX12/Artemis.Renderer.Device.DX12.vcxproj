@@ -22,13 +22,19 @@
     <ClCompile Include="DirectX12\CommandListDx12.cpp" />
     <ClCompile Include="DirectX12\CommandQueueDx12.cpp" />
     <ClCompile Include="DirectX12\ConstantBufferResourceDx12.cpp" />
-    <ClCompile Include="DirectX12\DepthBufferResourceDx12.cpp" />
+    <ClCompile Include="DirectX12\DepthBufferResourceDx12.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="DirectX12\DescriptorHeapDx12.cpp" />
     <ClCompile Include="DirectX12\DeviceDx12.cpp" />
     <ClCompile Include="DirectX12\DeviceState.cpp" />
     <ClCompile Include="DirectX12\GpuResourceDx12.cpp" />
     <ClCompile Include="DirectX12\IndexBufferResourceDx12.cpp" />
-    <ClCompile Include="DirectX12\RenderTargetResourceDx12.cpp" />
+    <ClCompile Include="DirectX12\RenderTargetResourceDx12.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="DirectX12\SamplerStateDx12.cpp" />
     <ClCompile Include="DirectX12\ShaderCompilerDX.cpp" />
     <ClCompile Include="DirectX12\ShaderCompilerDXC.cpp" />

@@ -9,6 +9,7 @@ x64/**/*.obj
 DX12_Project/x64/**/*.obj
 _Modules/**/*.obj
 _Toolkits/**/*.obj
+Artemis/**/*.obj
 
 # Precompiled Headers
 *.gch
