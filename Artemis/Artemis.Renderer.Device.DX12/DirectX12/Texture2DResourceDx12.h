@@ -24,11 +24,7 @@ namespace Artemis::Renderer::Device::Dx12
 		Texture2DResourceDx12( const wchar_t* _pWstrFilename, const bool _bIsDds, const Interfaces::IGraphicsDevice* _pDevice, Interfaces::ICommandList* _pCmdList, Interfaces::IDescriptorHeap* _pTargetSrvHeap, const wchar_t* _pDebugName = nullptr );
 		~Texture2DResourceDx12( void ) override;
 
-		UINT32 GetHeapIndex( void ) const { return m_HeapIndex; }
-
 	private:
-		UINT m_HeapIndex = 0;
-
 		bool CreateFromDds( const wchar_t* _pWstrFilename, ID3D12Device* _pDevice, CommandListDx12* _pCmdList );
 		bool CreateFromWic( const wchar_t* _pWstrFilename, ID3D12Device* _pDevice, CommandListDx12* _pCmdList );
 	};

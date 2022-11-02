@@ -18,10 +18,10 @@ using namespace Artemis::Utilities;
 
 namespace Artemis::Renderer::Device::Dx12
 {
-	Texture2DResourceDx12::Texture2DResourceDx12(const wchar_t* _pWstrFilename, const bool _bIsDds, const Interfaces::IGraphicsDevice* _pDevice, Interfaces::ICommandList* _pCmdList, Interfaces::IDescriptorHeap* _pTargetSrvHeap, const wchar_t* _pDebugName )
+	Texture2DResourceDx12::Texture2DResourceDx12( const wchar_t* _pWstrFilename, const bool _bIsDds, const Interfaces::IGraphicsDevice* _pDevice, Interfaces::ICommandList* _pCmdList, Interfaces::IDescriptorHeap* _pTargetSrvHeap, const wchar_t* _pDebugName )
 	{
-        const ID3D12Device* pConstDevice = static_cast<const ID3D12Device*>(_pDevice->GetDeviceObject());
-        ID3D12Device* pDevice = const_cast<ID3D12Device*>(pConstDevice);
+		const ID3D12Device* pConstDevice = static_cast<const ID3D12Device*>(_pDevice->GetDeviceObject());
+		ID3D12Device*       pDevice      = const_cast<ID3D12Device*>(pConstDevice);
 
 		if ( _bIsDds )
 		{
@@ -32,7 +32,7 @@ namespace Artemis::Renderer::Device::Dx12
 			CreateFromWic( _pWstrFilename, pDevice, static_cast<CommandListDx12*>(_pCmdList) );
 		}
 
-        m_HeapIndex = _pTargetSrvHeap->GetFreeIndexAndIncrement();
+		m_SrvHeapIndex = _pTargetSrvHeap->GetFreeIndexAndIncrement();
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;
 		ZeroMemory( &srvDesc, sizeof(D3D12_SHADER_RESOURCE_VIEW_DESC) );
@@ -44,9 +44,9 @@ namespace Artemis::Renderer::Device::Dx12
 		srvDesc.Shader4ComponentMapping       = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 		ID3D12DescriptorHeap* pHeap = static_cast<ID3D12DescriptorHeap*>(_pTargetSrvHeap->GetDeviceObject());
-		m_hCpuHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(pHeap->GetCPUDescriptorHandleForHeapStart() );
-		m_hCpuHandle.Offset( m_HeapIndex, _pTargetSrvHeap->GetIncrementSize() );
-		pDevice->CreateShaderResourceView( m_gpuBuffer, &srvDesc, m_hCpuHandle );
+		m_hSrvCpuHandle             = CD3DX12_CPU_DESCRIPTOR_HANDLE( pHeap->GetCPUDescriptorHandleForHeapStart() );
+		m_hSrvCpuHandle.Offset( m_SrvHeapIndex, _pTargetSrvHeap->GetIncrementSize() );
+		pDevice->CreateShaderResourceView( m_gpuBuffer, &srvDesc, m_hSrvCpuHandle );
 
 		wchar_t pCpuDebugName[256];
 		wchar_t pGpuDebugName[256];
@@ -73,7 +73,7 @@ namespace Artemis::Renderer::Device::Dx12
 		{
 			//MemoryGlobalTracking::RecordExplicitDellocation( m_gpuBuffer );
 			m_gpuBuffer->Release();
-            delete m_gpuBuffer;
+			delete m_gpuBuffer;
 		}
 	}
 

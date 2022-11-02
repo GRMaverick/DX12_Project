@@ -12,6 +12,8 @@
 #include "VertexBufferResourceDx12.h"
 #include "IndexBufferResourceDx12.h"
 #include "ConstantBufferResourceDx12.h"
+#include "DepthBufferResourceDx12.h"
+#include "RenderTargetResourceDx12.h"
 
 #include "Interfaces/IShader.h"
 #include "Interfaces/IMaterial.h"
@@ -335,6 +337,16 @@ namespace Artemis::Renderer::Device::Dx12
 		return new ConstantBufferResourceDx12( this, m_pDescHeapSrvCbv, _params, _pDebugName );
 	}
 
+	IGpuResource* DeviceDx12::CreateRenderTargetResource( const Interfaces::IGraphicsDevice* _pDevice, const Interfaces::ICommandList* _pCmdList, const unsigned _width, const unsigned _height, const Interfaces::DxgiFormat _format, Interfaces::IDescriptorHeap* _pRtvHeap, Interfaces::IDescriptorHeap* _pSrvHeap ) const
+	{
+		return new RenderTargetResourceDx12( _pDevice, _pCmdList, _width, _height, _format, _pRtvHeap, m_pDescHeapSrvCbv );
+	}
+
+	IGpuResource* DeviceDx12::CreateDepthBufferResource( const Interfaces::IGraphicsDevice* _pDevice, const Interfaces::ICommandList* _pCmdList, const unsigned _width, const unsigned _height, const Interfaces::DxgiFormat _format, Interfaces::IDescriptorHeap* _pDsvHeap, Interfaces::IDescriptorHeap* _pSrvHeap ) const
+	{
+		return new DepthBufferResourceDx12( _pDevice, _pCmdList, _width, _height, _format, _pDsvHeap, m_pDescHeapSrvCbv );
+	}
+
 	bool DeviceDx12::GetRootSignature( IShaderStage* _pShader, ID3D12RootSignature** _ppRootSignature, const wchar_t* _pDebugName )
 	{
 		if ( const unsigned long ulHash = SimpleHash( static_cast<const char*>(m_DeviceState.GetShader( Interfaces::IShaderStage::ShaderType::EVertexShader )->GetShaderName()), strlen( m_DeviceState.GetShader( Interfaces::IShaderStage::ShaderType::EVertexShader )->GetShaderName() ) ); m_mapRootSignatures.contains( ulHash ) )
@@ -347,9 +359,9 @@ namespace Artemis::Renderer::Device::Dx12
 
 			ISamplerState**     pSamplers  = nullptr;
 			IGpuResource**      ppBuffers  = nullptr,**ppTextures = nullptr;
-			const unsigned long ulSamplers = m_DeviceState.m_uiNumberSamplers;        //resources.GetSamplers( &pSamplers );
-			const unsigned long ulTextures = m_DeviceState.m_uiNumberTextures;        //resources.GetTextures( &ppTextures );
-			const unsigned long ulCBuffers = m_DeviceState.m_uiNumberConstantBuffers; //resources.GetConstantBuffers( &ppBuffers );
+			const unsigned long ulSamplers = m_DeviceState.m_uiNumberSamplers;
+			const unsigned long ulTextures = m_DeviceState.m_uiNumberTextures;
+			const unsigned long ulCBuffers = m_DeviceState.m_uiNumberConstantBuffers;
 
 			CD3DX12_DESCRIPTOR_RANGE1 table1[2];
 			table1[0].Init( D3D12_DESCRIPTOR_RANGE_TYPE_CBV, ulCBuffers, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE );
@@ -538,7 +550,7 @@ namespace Artemis::Renderer::Device::Dx12
 				continue;
 			}
 
-			CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuActual = ppCBs[i]->GetCpuHandle();
+			CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuActual = ppCBs[i]->GetCbvCpuHandle();
 
 			UINT size1 = 1;
 			UINT size2 = 1;
@@ -572,7 +584,7 @@ namespace Artemis::Renderer::Device::Dx12
 				continue;
 			}
 
-			CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuActual = ppTextures[i]->GetCpuHandle();
+			CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuActual = ppTextures[i]->GetSrvCpuHandle();
 
 			UINT size1 = 1;
 			UINT size2 = 1;

@@ -88,10 +88,10 @@
       <Filter>Source Files\Device</Filter>
     </ClCompile>
     <ClCompile Include="DirectX12\DepthBufferResourceDx12.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Resources</Filter>
     </ClCompile>
     <ClCompile Include="DirectX12\RenderTargetResourceDx12.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Resources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -153,10 +153,10 @@
       <Filter>Header Files\Device</Filter>
     </ClInclude>
     <ClInclude Include="DirectX12\DepthBufferResourceDx12.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Resources</Filter>
     </ClInclude>
     <ClInclude Include="DirectX12\RenderTargetResourceDx12.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Resources</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

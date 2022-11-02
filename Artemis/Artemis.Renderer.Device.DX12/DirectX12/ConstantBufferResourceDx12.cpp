@@ -22,7 +22,7 @@ namespace Artemis::Renderer::Device::Dx12
 
 		m_cbpConstantParameters = _params;
 
-		m_uiHeapIndex = _pDescHeapCbv->GetFreeIndexAndIncrement();
+		m_CbvHeapIndex = _pDescHeapCbv->GetFreeIndexAndIncrement();
 
 		const unsigned int alignedSize = CONSTANT_BUFFER_SIZE( m_cbpConstantParameters.Size );
 
@@ -37,10 +37,10 @@ namespace Artemis::Renderer::Device::Dx12
 		cbvDesc.SizeInBytes                     = alignedSize;
 
 		ID3D12DescriptorHeap* pHeap = static_cast<ID3D12DescriptorHeap*>(_pDescHeapCbv->GetDeviceObject());
-		m_hCpuHandle                = CD3DX12_CPU_DESCRIPTOR_HANDLE( pHeap->GetCPUDescriptorHandleForHeapStart() );
-		m_hCpuHandle.Offset( m_uiHeapIndex, _pDescHeapCbv->GetIncrementSize() );
+		m_hCbvCpuHandle             = CD3DX12_CPU_DESCRIPTOR_HANDLE( pHeap->GetCPUDescriptorHandleForHeapStart() );
+		m_hCbvCpuHandle.Offset( m_CbvHeapIndex, _pDescHeapCbv->GetIncrementSize() );
 
-		pDevice->CreateConstantBufferView( &cbvDesc, m_hCpuHandle );
+		pDevice->CreateConstantBufferView( &cbvDesc, m_hCbvCpuHandle );
 
 		// We do not need to unmap until we are done with the resource.  However, we must not write to
 		// the resource while it is in use by the GPU (so we must use synchronization techniques).

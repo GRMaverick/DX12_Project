@@ -17,10 +17,8 @@ namespace Artemis::Renderer::Device::Dx12
 
 		virtual bool UpdateValue( const char* _pValueName, const void* _pValue, unsigned int _szValue ) const override final;
 
-		unsigned int GetHeapIndex( void ) const { return m_uiHeapIndex; }
 		unsigned int GetBindPoint( void ) const { return m_cbpConstantParameters.BindPoint; }
 	private:
-		unsigned int                                          m_uiHeapIndex;
 		char*                                                 m_pCpuMapped = nullptr;
 		Interfaces::IConstantBufferParameters::ConstantBuffer m_cbpConstantParameters;
 	};
