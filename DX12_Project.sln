@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32228.343
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.32804.182
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DX12_Project", "DX12_Project\DX12_Project.vcxproj", "{ACFAE0BC-B3B1-447B-9948-3044F2898EEA}"
 EndProject
@@ -30,6 +30,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Artemis.Renderer.Device.DX12", "Artemis\Artemis.Renderer.Device.DX12\Artemis.Renderer.Device.DX12.vcxproj", "{620248A0-08B6-45B2-83F1-BFE5AB797E8C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Artemis.Renderer.Device.Factories", "Artemis\Artemis.Renderer.Device.Factories\Artemis.Renderer.Device.Factories.vcxproj", "{252B954A-7F87-41AC-A534-11F1C8711094}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Artemis.Maths", "Artemis\Artemis.Maths\Artemis.Maths.vcxproj", "{1918827A-E53F-476F-81A0-6F61344395A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -225,6 +227,22 @@ Global
 		{252B954A-7F87-41AC-A534-11F1C8711094}.Release|x64.Build.0 = Release|x64
 		{252B954A-7F87-41AC-A534-11F1C8711094}.Release|x86.ActiveCfg = Release|Win32
 		{252B954A-7F87-41AC-A534-11F1C8711094}.Release|x86.Build.0 = Release|Win32
+		{1918827A-E53F-476F-81A0-6F61344395A8}.Debug|ARM.ActiveCfg = Debug|x64
+		{1918827A-E53F-476F-81A0-6F61344395A8}.Debug|ARM.Build.0 = Debug|x64
+		{1918827A-E53F-476F-81A0-6F61344395A8}.Debug|ARM64.ActiveCfg = Debug|x64
+		{1918827A-E53F-476F-81A0-6F61344395A8}.Debug|ARM64.Build.0 = Debug|x64
+		{1918827A-E53F-476F-81A0-6F61344395A8}.Debug|x64.ActiveCfg = Debug|x64
+		{1918827A-E53F-476F-81A0-6F61344395A8}.Debug|x64.Build.0 = Debug|x64
+		{1918827A-E53F-476F-81A0-6F61344395A8}.Debug|x86.ActiveCfg = Debug|Win32
+		{1918827A-E53F-476F-81A0-6F61344395A8}.Debug|x86.Build.0 = Debug|Win32
+		{1918827A-E53F-476F-81A0-6F61344395A8}.Release|ARM.ActiveCfg = Release|x64
+		{1918827A-E53F-476F-81A0-6F61344395A8}.Release|ARM.Build.0 = Release|x64
+		{1918827A-E53F-476F-81A0-6F61344395A8}.Release|ARM64.ActiveCfg = Release|x64
+		{1918827A-E53F-476F-81A0-6F61344395A8}.Release|ARM64.Build.0 = Release|x64
+		{1918827A-E53F-476F-81A0-6F61344395A8}.Release|x64.ActiveCfg = Release|x64
+		{1918827A-E53F-476F-81A0-6F61344395A8}.Release|x64.Build.0 = Release|x64
+		{1918827A-E53F-476F-81A0-6F61344395A8}.Release|x86.ActiveCfg = Release|Win32
+		{1918827A-E53F-476F-81A0-6F61344395A8}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -241,6 +259,7 @@ Global
 		{43714D08-38B8-4739-9224-3544F9BA01D5} = {9FB85379-FE65-489F-A0A0-BEBC8CD689AD}
 		{620248A0-08B6-45B2-83F1-BFE5AB797E8C} = {9FB85379-FE65-489F-A0A0-BEBC8CD689AD}
 		{252B954A-7F87-41AC-A534-11F1C8711094} = {9FB85379-FE65-489F-A0A0-BEBC8CD689AD}
+		{1918827A-E53F-476F-81A0-6F61344395A8} = {9FB85379-FE65-489F-A0A0-BEBC8CD689AD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {42F2AEDE-8D2F-4A38-9270-C1273B423FAB}
