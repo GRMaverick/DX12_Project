@@ -3,7 +3,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>/Fd /pdbFat /Od /dxc /embed_symbols /d3ddebug /Width:1920 /Height:1080 /LogSev_Fatal /LogSev_Err /LogSev_Warn /LogSev_Info /LogCat_Shaders /LogCat_Utilities /LogCat_Renderer /LogCat_App</LocalDebuggerCommandArguments>
-    <RemoteDebuggerCommandArguments>/Fd /pdbFat /Od /dxc /embed_symbols /d3ddebug /Width:1920 /Height:1080 /LogSev_Fatal /LogSev_Err /LogSev_Warn /LogSev_Info /LogCat_Shaders /LogCat_Utilities /LogCat_Renderer /LogCat_App</RemoteDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>/Fd /pdbFat /Od /dxc /embed_symbols /pdbSlim /dxc /O3 /d3ddebug /Width:1920 /Height:1080 /LogSev_Fatal /LogSev_Err /LogSev_Warn /LogSev_Info /LogCat_Shaders /LogCat_Utilities /LogCat_Renderer /LogCat_App</LocalDebuggerCommandArguments>
+    <RemoteDebuggerCommandArguments>/Fd /pdbFat /Od /dxc /embed_symbols /pdbSlim /dxc /O3 /d3ddebug /Width:1920 /Height:1080 /LogSev_Fatal /LogSev_Err /LogSev_Warn /LogSev_Info /LogCat_Shaders /LogCat_Utilities /LogCat_Renderer /LogCat_App</RemoteDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

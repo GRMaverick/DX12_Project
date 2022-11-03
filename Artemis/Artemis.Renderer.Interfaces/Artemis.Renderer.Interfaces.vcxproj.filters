@@ -54,9 +54,6 @@
     <ClInclude Include="Helpers\ProfileMarker.h">
       <Filter>Header Files\Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="Helpers\PixScopedEvent.h">
-      <Filter>Header Files\Helpers</Filter>
-    </ClInclude>
     <ClInclude Include="Interfaces\ICommandQueue.h">
       <Filter>Header Files\Device</Filter>
     </ClInclude>

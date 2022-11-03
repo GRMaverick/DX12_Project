@@ -5,9 +5,13 @@
 #include "VertexBufferResourceDx12.h"
 #include "IndexBufferResourceDx12.h"
 
+#include "pix3.h"
+
 #include <assert.h>
 
 #include <ImGUI\imgui_impl_dx12.h>
+
+#pragma comment(lib, "D:\\Training\\DX12_Project\\packages\\WinPixEventRuntime.1.0.220810001\\bin\\x64\\WinPixEventRuntime.lib")
 
 using namespace Microsoft::WRL;
 
@@ -104,6 +108,18 @@ namespace Artemis::Renderer::Device::Dx12
 		m_pList->Reset( m_pAllocator.Get(), nullptr );
 	}
 
+    void CommandListDx12::StartMarker(const char* _pFormatString) const
+    {
+        // CPU & GPU
+        PIXBeginEvent( m_pList.Get(), PIX_COLOR_INDEX( 0 ), _pFormatString );
+    }
+
+    void CommandListDx12::EndMarker(void) const
+    {
+        // CPU & GPU
+        PIXEndEvent( m_pList.Get() );
+    }
+
 	void CommandListDx12::WriteBreadcrumb( UINT32 _breadcrumb )
 	{
 #if defined(_DEBUG) && defined(BREADCRUMB)
@@ -129,91 +145,91 @@ namespace Artemis::Renderer::Device::Dx12
 
 	void CommandListDx12::ResourceBarrier( const UINT32 _numBarriers, const CD3DX12_RESOURCE_BARRIER* _pBarrier ) const
 	{
-		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_Type], "ResourceBarrier" );
+		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_clType], "ResourceBarrier" );
 		m_pList->ResourceBarrier( _numBarriers, _pBarrier );
 	}
 
 	void CommandListDx12::UpdateSubresource( ID3D12Resource* _pGpu, ID3D12Resource* _pCpu, const UINT _intermediateOffset, const UINT _firstSubresource, const UINT _numSubresources, D3D12_SUBRESOURCE_DATA* _pSubresourceData ) const
 	{
-		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_Type], "UpdateSubresource" );
+		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_clType], "UpdateSubresource" );
 		UpdateSubresources( m_pList.Get(), _pGpu, _pCpu, _intermediateOffset, _firstSubresource, _numSubresources, _pSubresourceData );
 	}
 
 	void CommandListDx12::ClearRenderTargetView( D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, FLOAT _pColor[4], const UINT _numRects, const D3D12_RECT* _pRects ) const
 	{
-		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_Type], "ClearRenderTargetView" );
+		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_clType], "ClearRenderTargetView" );
 		m_pList->ClearRenderTargetView( _cpuHandle, _pColor, _numRects, _pRects );
 	}
 
 	void CommandListDx12::ClearDepthStencilView( const D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle, const D3D12_CLEAR_FLAGS _clearFlags, const FLOAT _depth, const UINT8 _stencil, const UINT _numRects, const D3D12_RECT* _pRects ) const
 	{
-		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_Type], "ClearDepthStencilView" );
+		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_clType], "ClearDepthStencilView" );
 		m_pList->ClearDepthStencilView( _cpuHandle, _clearFlags, _depth, _stencil, _numRects, _pRects );
 	}
 
 	void CommandListDx12::SetPipelineState( ID3D12PipelineState* _pPipelineState ) const
 	{
-		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_Type], "SetPipelineState" );
+		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_clType], "SetPipelineState" );
 		m_pList->SetPipelineState( _pPipelineState );
 	}
 
 	void CommandListDx12::SetGraphicsRootSignature( ID3D12RootSignature* _pRootSignature ) const
 	{
-		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_Type], "SetGraphicsRootSignature" );
+		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_clType], "SetGraphicsRootSignature" );
 		m_pList->SetGraphicsRootSignature( _pRootSignature );
 	}
 
 	void CommandListDx12::SetGraphicsRootConstantBufferView( const UINT _rootParameterIndex, const D3D12_GPU_VIRTUAL_ADDRESS _gpuAddress ) const
 	{
-		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_Type], "SetGraphicsRootConstantBufferView" );
+		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_clType], "SetGraphicsRootConstantBufferView" );
 		m_pList->SetGraphicsRootConstantBufferView( _rootParameterIndex, _gpuAddress );
 	}
 
 	void CommandListDx12::SetGraphicsRootDescriptorTable( const UINT _rootParameterIndex, const D3D12_GPU_DESCRIPTOR_HANDLE _gpuHandle ) const
 	{
-		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_Type], "SetGraphicsRootDescriptorTable" );
+		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_clType], "SetGraphicsRootDescriptorTable" );
 		m_pList->SetGraphicsRootDescriptorTable( _rootParameterIndex, _gpuHandle );
 	}
 
 	void CommandListDx12::SetGraphicsRoot32BitConstants( const UINT _rootParameterIndex, const UINT _num32BitValuesToSet, const void* _pSrcData, const UINT _destOffsetIn32BitValues ) const
 	{
-		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_Type], "SetGraphicsRoot32BitConstants" );
+		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_clType], "SetGraphicsRoot32BitConstants" );
 		m_pList->SetGraphicsRoot32BitConstants( _rootParameterIndex, _num32BitValuesToSet, _pSrcData, _destOffsetIn32BitValues );
 	}
 
 	void CommandListDx12::SetRsViewports( UINT _numViewports, const D3D12_VIEWPORT* _pViewport ) const
 	{
-		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_Type], "SetRSViewports" );
+		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_clType], "SetRSViewports" );
 		m_pList->RSSetViewports( _numViewports, _pViewport );
 	}
 
 	void CommandListDx12::SetRsScissorRects( const UINT _numRects, const D3D12_RECT* _pScissorRects ) const
 	{
-		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_Type], "SetRSScissorRects" );
+		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_clType], "SetRSScissorRects" );
 		m_pList->RSSetScissorRects( _numRects, _pScissorRects );
 	}
 
 	void CommandListDx12::SetIaPrimitiveTopology( Interfaces::PrimitiveTopology _topology ) const
 	{
-		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_Type], "SetIAPrimitiveTopology" );
+		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_clType], "SetIAPrimitiveTopology" );
 		m_pList->IASetPrimitiveTopology( static_cast<D3D12_PRIMITIVE_TOPOLOGY>(_topology) );
 	}
 
 	void CommandListDx12::SetIaVertexBuffers( const unsigned int _startSlot, unsigned int _numViews, void* _pViews ) const
 	{
-		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_Type], "SetIAVertexBuffers" );
+		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_clType], "SetIAVertexBuffers" );
 		m_pList->IASetVertexBuffers( _startSlot, _numViews, static_cast<D3D12_VERTEX_BUFFER_VIEW*>(_pViews) );
 	}
 
 	void CommandListDx12::SetIaIndexBuffer( void* _pView ) const
 	{
-		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_Type], "SetIAIndexBuffer" );
+		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_clType], "SetIAIndexBuffer" );
 		m_pList->IASetIndexBuffer( static_cast<D3D12_INDEX_BUFFER_VIEW*>(_pView) );
 	}
 
 	void CommandListDx12::SetOmRenderTargets( const UINT _numRTs, const D3D12_CPU_DESCRIPTOR_HANDLE* _rtCpuDescHandle, const BOOL _bSingleHandleToDescriptor, const D3D12_CPU_DESCRIPTOR_HANDLE* _dsvCpuDescHandle ) const
 	{
-		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_Type], "SetOMRenderTargets" );
+		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_clType], "SetOMRenderTargets" );
 		m_pList->OMSetRenderTargets( _numRTs, _rtCpuDescHandle, _bSingleHandleToDescriptor, _dsvCpuDescHandle );
 	}
 
@@ -235,13 +251,13 @@ namespace Artemis::Renderer::Device::Dx12
 
 	void CommandListDx12::DrawIndexedInstanced( const unsigned int _indicesPerInstance, const unsigned int _instanceCount, const unsigned int _startIndexLocation, const unsigned int _baseVertexLocation, const unsigned int _startInstanceLocation ) const
 	{
-		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_Type], "DrawIndexedInstanced" );
+		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_clType], "DrawIndexedInstanced" );
 		m_pList->DrawIndexedInstanced( _indicesPerInstance, _instanceCount, _startIndexLocation, _baseVertexLocation, _startInstanceLocation );
 	}
 
 	void CommandListDx12::SetDescriptorHeaps( Interfaces::IDescriptorHeap** _ppHeaps, const unsigned int _uiHeaps ) const
 	{
-		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_Type], "SetDescriptorHeaps" );
+		LOW_LEVEL_PROFILE_MARKER( this, "%s: %s", g_TypeToString[m_clType], "SetDescriptorHeaps" );
 		std::vector<ID3D12DescriptorHeap*> vpHeaps;
 		vpHeaps.resize( _uiHeaps );
 

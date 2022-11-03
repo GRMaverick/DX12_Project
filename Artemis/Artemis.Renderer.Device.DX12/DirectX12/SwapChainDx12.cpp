@@ -17,7 +17,6 @@
 
 #include "Memory/ScopedMemoryRecord.h"
 
-#include "Helpers/PixScopedEvent.h"
 #include "Memory/MemoryGlobalTracking.h"
 
 using namespace Microsoft::WRL;

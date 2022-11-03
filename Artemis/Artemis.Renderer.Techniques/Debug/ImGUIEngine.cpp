@@ -62,7 +62,7 @@ void ImGUIEngine::DrawSlider3f( const char* _pLabel, float* _pX, float* _pY, flo
 	}
 }
 
-void ImGUIEngine::Draw( Artemis::Renderer::Interfaces::ICommandList* _pCommandList )
+void ImGUIEngine::Draw( const Artemis::Renderer::Interfaces::ICommandList* _pCommandList )
 {
 	_pCommandList->DrawImGui();
 }
