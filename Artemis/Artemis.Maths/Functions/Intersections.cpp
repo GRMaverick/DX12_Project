@@ -80,14 +80,14 @@ namespace Artemis::Maths
 
 		_intersectPoint = _line.GetPoint() + (lineVector * sI);
 
-		if ( _plane.GetExtents().m_x != -1.0f && _plane.GetExtents().m_y != -1.0f && _plane.GetExtents().m_z != -1.0f )
+		if ( _plane.GetExtents().x != -1.0f && _plane.GetExtents().y != -1.0f && _plane.GetExtents().z != -1.0f )
 		{
-			const float xMin = _plane.GetPoint().m_x - _plane.GetExtents().m_x;
-			const float xMax = _plane.GetPoint().m_x + _plane.GetExtents().m_x;
-			const float yMin = _plane.GetPoint().m_y - _plane.GetExtents().m_y;
-			const float yMax = _plane.GetPoint().m_y + _plane.GetExtents().m_y;
+			const float xMin = _plane.GetPoint().x - _plane.GetExtents().x;
+			const float xMax = _plane.GetPoint().x + _plane.GetExtents().x;
+			const float yMin = _plane.GetPoint().y - _plane.GetExtents().y;
+			const float yMax = _plane.GetPoint().y + _plane.GetExtents().y;
 
-			if ( xMin < _intersectPoint.m_x && _intersectPoint.m_x < xMax && yMin < _intersectPoint.m_y && _intersectPoint.m_y < yMax )
+			if ( xMin < _intersectPoint.x && _intersectPoint.x < xMax && yMin < _intersectPoint.y && _intersectPoint.y < yMax )
 			{
 				return true; // In area of collision
 			}

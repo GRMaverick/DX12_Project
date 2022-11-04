@@ -11,7 +11,8 @@
 
 #include <ImGUI\imgui_impl_dx12.h>
 
-#pragma comment(lib, "D:\\Training\\DX12_Project\\packages\\WinPixEventRuntime.1.0.220810001\\bin\\x64\\WinPixEventRuntime.lib")
+//#pragma comment(lib, "D:\\Training\\DX12_Project\\packages\\WinPixEventRuntime.1.0.220810001\\bin\\x64\\WinPixEventRuntime.lib")
+#pragma comment(lib, "C:\\Users\\grmav\\source\\repos\\DX12_Project\\packages\\WinPixEventRuntime.1.0.220810001\\bin\\x64\\WinPixEventRuntime.lib")
 
 using namespace Microsoft::WRL;
 
@@ -108,17 +109,17 @@ namespace Artemis::Renderer::Device::Dx12
 		m_pList->Reset( m_pAllocator.Get(), nullptr );
 	}
 
-    void CommandListDx12::StartMarker(const char* _pFormatString) const
-    {
-        // CPU & GPU
-        PIXBeginEvent( m_pList.Get(), PIX_COLOR_INDEX( 0 ), _pFormatString );
-    }
+	void CommandListDx12::StartMarker( const char* _pFormatString ) const
+	{
+		// CPU & GPU
+		PIXBeginEvent( m_pList.Get(), PIX_COLOR_INDEX( 0 ), _pFormatString );
+	}
 
-    void CommandListDx12::EndMarker(void) const
-    {
-        // CPU & GPU
-        PIXEndEvent( m_pList.Get() );
-    }
+	void CommandListDx12::EndMarker( void ) const
+	{
+		// CPU & GPU
+		PIXEndEvent( m_pList.Get() );
+	}
 
 	void CommandListDx12::WriteBreadcrumb( UINT32 _breadcrumb )
 	{

@@ -7,9 +7,9 @@ namespace Artemis::Maths
 	class Matrix3x3
 	{
 	public:
-		float m_row1[3];
-		float m_row2[3];
-		float m_row3[3];
+		float row1[3];
+		float row2[3];
+		float row3[3];
 
 		Matrix3x3( void );
 		Matrix3x3( float _e11, float _e12, float _e13, float _e21, float _e22, float _e23, float _e31, float _e32, float _e33 );

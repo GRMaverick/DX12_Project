@@ -5,33 +5,33 @@ namespace Artemis::Maths
 {
 	Vector3::Vector3( void )
 	{
-		this->m_x            = 0.0f;
-		this->m_y            = 0.0f;
-		this->m_z            = 0.0f;
+		this->x              = 0.0f;
+		this->y              = 0.0f;
+		this->z              = 0.0f;
 		this->m_IsNormalised = false;
 	}
 
 	Vector3::Vector3( const float& _xyz )
 	{
-		this->m_x            = _xyz;
-		this->m_y            = _xyz;
-		this->m_z            = _xyz;
+		this->x              = _xyz;
+		this->y              = _xyz;
+		this->z              = _xyz;
 		this->m_IsNormalised = false;
 	}
 
 	Vector3::Vector3( const Vector3& _rhs )
 	{
-		this->m_x            = _rhs.m_x;
-		this->m_y            = _rhs.m_y;
-		this->m_z            = _rhs.m_z;
+		this->x              = _rhs.x;
+		this->y              = _rhs.y;
+		this->z              = _rhs.z;
 		this->m_IsNormalised = _rhs.m_IsNormalised;
 	}
 
 	Vector3::Vector3( const float& _x, const float& _y, const float& _z )
 	{
-		this->m_x            = _x;
-		this->m_y            = _y;
-		this->m_z            = _z;
+		this->x              = _x;
+		this->y              = _y;
+		this->z              = _z;
 		this->m_IsNormalised = false;
 	}
 
@@ -46,55 +46,55 @@ namespace Artemis::Maths
 
 	Vector3 Vector3::operator+( const Vector3& _rhs ) const
 	{
-		return Vector3( this->m_x + _rhs.m_x, this->m_y + _rhs.m_y, this->m_z + _rhs.m_z );
+		return Vector3( this->x + _rhs.x, this->y + _rhs.y, this->z + _rhs.z );
 	}
 
 	Vector3 Vector3::operator-( const Vector3& _rhs ) const
 	{
-		return Vector3( this->m_x - _rhs.m_x, this->m_y - _rhs.m_y, this->m_z - _rhs.m_z );
+		return Vector3( this->x - _rhs.x, this->y - _rhs.y, this->z - _rhs.z );
 	}
 
 	Vector3 Vector3::operator*( const float& _scalar ) const
 	{
-		return Vector3( this->m_x * _scalar, this->m_y * _scalar, this->m_z * _scalar );
+		return Vector3( this->x * _scalar, this->y * _scalar, this->z * _scalar );
 	}
 
 	Vector3 Vector3::operator/( const float& _scalar ) const
 	{
-		return Vector3( this->m_x / _scalar, this->m_y / _scalar, this->m_z / _scalar );
+		return Vector3( this->x / _scalar, this->y / _scalar, this->z / _scalar );
 	}
 
 	void Vector3::operator+=( const Vector3& _rhs )
 	{
-		this->m_x += _rhs.m_x;
-		this->m_y += _rhs.m_y;
-		this->m_z += _rhs.m_z;
+		this->x += _rhs.x;
+		this->y += _rhs.y;
+		this->z += _rhs.z;
 	}
 
 	void Vector3::operator-=( const Vector3& _rhs )
 	{
-		this->m_x -= _rhs.m_x;
-		this->m_y -= _rhs.m_y;
-		this->m_z -= _rhs.m_z;
+		this->x -= _rhs.x;
+		this->y -= _rhs.y;
+		this->z -= _rhs.z;
 	}
 
 	void Vector3::operator*=( const Vector3& _rhs )
 	{
-		this->m_x *= _rhs.m_x;
-		this->m_y *= _rhs.m_y;
-		this->m_z *= _rhs.m_z;
+		this->x *= _rhs.x;
+		this->y *= _rhs.y;
+		this->z *= _rhs.z;
 	}
 
 	void Vector3::operator/=( const Vector3& _rhs )
 	{
-		this->m_x /= _rhs.m_x;
-		this->m_y /= _rhs.m_y;
-		this->m_z /= _rhs.m_z;
+		this->x /= _rhs.x;
+		this->y /= _rhs.y;
+		this->z /= _rhs.z;
 	}
 
 	float Vector3::Dot( const Vector3& _rhs ) const
 	{
-		return (float)(this->m_x * _rhs.m_x + this->m_y * _rhs.m_y + this->m_z * _rhs.m_z);
+		return (float)(this->x * _rhs.x + this->y * _rhs.y + this->z * _rhs.z);
 	}
 
 	float Vector3::AngleInRadians( const Vector3& _rhs ) const
@@ -109,22 +109,22 @@ namespace Artemis::Maths
 
 	float Vector3::Magnitude( void ) const
 	{
-		return floorf( sqrt( this->m_x * this->m_x + this->m_y * this->m_y + this->m_z * this->m_z ) * 100000 + 0.5 ) / 100000;
+		return floorf( sqrt( this->x * this->x + this->y * this->y + this->z * this->z ) * 100000 + 0.5 ) / 100000;
 	}
 
 	Vector3 Vector3::Negate( void ) const
 	{
-		return Vector3( -this->m_x, -this->m_y, -this->m_z );
+		return Vector3( -this->x, -this->y, -this->z );
 	}
 
 	Vector3 Vector3::Normalise( void )
 	{
 		this->m_IsNormalised = true;
-		return Vector3( this->m_x / Magnitude(), this->m_y / Magnitude(), this->m_z / Magnitude() );
+		return Vector3( this->x / Magnitude(), this->y / Magnitude(), this->z / Magnitude() );
 	}
 
 	Vector3 Vector3::Cross( const Vector3& _rhs ) const
 	{
-		return Vector3( this->m_y * _rhs.m_z - this->m_z * _rhs.m_y, this->m_z * _rhs.m_x - this->m_x * _rhs.m_z, this->m_x * _rhs.m_y - this->m_y * _rhs.m_x );
+		return Vector3( this->y * _rhs.z - this->z * _rhs.y, this->z * _rhs.x - this->x * _rhs.z, this->x * _rhs.y - this->y * _rhs.x );
 	}
 }

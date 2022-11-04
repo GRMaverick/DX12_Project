@@ -5,9 +5,9 @@ namespace Artemis::Maths
 	class Vector3
 	{
 	public:
-		float m_x;
-		float m_y;
-		float m_z;
+		float x;
+		float y;
+		float z;
 
 		Vector3( void );
 		Vector3( const float& _xyz );
