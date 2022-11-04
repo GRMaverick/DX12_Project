@@ -5,34 +5,30 @@ namespace Artemis::Maths
 {
 	Vector3::Vector3( void )
 	{
-		this->x              = 0.0f;
-		this->y              = 0.0f;
-		this->z              = 0.0f;
-		this->m_IsNormalised = false;
+		this->x = 0.0f;
+		this->y = 0.0f;
+		this->z = 0.0f;
 	}
 
 	Vector3::Vector3( const float& _xyz )
 	{
-		this->x              = _xyz;
-		this->y              = _xyz;
-		this->z              = _xyz;
-		this->m_IsNormalised = false;
+		this->x = _xyz;
+		this->y = _xyz;
+		this->z = _xyz;
 	}
 
 	Vector3::Vector3( const Vector3& _rhs )
 	{
-		this->x              = _rhs.x;
-		this->y              = _rhs.y;
-		this->z              = _rhs.z;
-		this->m_IsNormalised = _rhs.m_IsNormalised;
+		this->x = _rhs.x;
+		this->y = _rhs.y;
+		this->z = _rhs.z;
 	}
 
 	Vector3::Vector3( const float& _x, const float& _y, const float& _z )
 	{
-		this->x              = _x;
-		this->y              = _y;
-		this->z              = _z;
-		this->m_IsNormalised = false;
+		this->x = _x;
+		this->y = _y;
+		this->z = _z;
 	}
 
 	Vector3::~Vector3( void )
@@ -41,7 +37,7 @@ namespace Artemis::Maths
 
 	bool Vector3::IsNormalised( void ) const
 	{
-		return m_IsNormalised;
+		return Magnitude() == 1.0f;
 	}
 
 	Vector3 Vector3::operator+( const Vector3& _rhs ) const
@@ -72,6 +68,7 @@ namespace Artemis::Maths
 	}
 
 	void Vector3::operator-=( const Vector3& _rhs )
+#
 	{
 		this->x -= _rhs.x;
 		this->y -= _rhs.y;
@@ -117,9 +114,8 @@ namespace Artemis::Maths
 		return Vector3( -this->x, -this->y, -this->z );
 	}
 
-	Vector3 Vector3::Normalise( void )
+	Vector3 Vector3::Normalise( void ) const
 	{
-		this->m_IsNormalised = true;
 		return Vector3( this->x / Magnitude(), this->y / Magnitude(), this->z / Magnitude() );
 	}
 

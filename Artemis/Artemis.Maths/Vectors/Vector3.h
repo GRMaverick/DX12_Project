@@ -33,10 +33,7 @@ namespace Artemis::Maths
 		float AngleInDegrees( const Vector3& _rhs ) const;
 
 		Vector3 Negate( void ) const;
-		Vector3 Normalise( void );
+		Vector3 Normalise( void ) const;
 		Vector3 Cross( const Vector3& _rhs ) const;
-
-	private:
-		bool m_IsNormalised;
 	};
 }

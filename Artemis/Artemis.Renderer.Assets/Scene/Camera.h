@@ -3,6 +3,8 @@
 
 #include <DirectXMath.h>
 
+#include "Vectors/Vector3.h"
+
 namespace Artemis::Renderer::Assets
 {
 	class Camera
@@ -19,9 +21,9 @@ namespace Artemis::Renderer::Assets
 		void SetAspectRatio( float _aspectRatio );
 		void Update( void );
 
-		DirectX::XMFLOAT3 GetUp( void ) const;
-		DirectX::XMFLOAT3 GetTarget( void ) const;
-		DirectX::XMFLOAT3 GetPosition( void ) const;
+		Artemis::Maths::Vector3 GetUp( void ) const;
+		Artemis::Maths::Vector3 GetTarget( void ) const;
+		Artemis::Maths::Vector3 GetPosition( void ) const;
 
 		DirectX::XMMATRIX GetView( void ) const;
 		DirectX::XMMATRIX GetProjection( void ) const;
@@ -30,9 +32,9 @@ namespace Artemis::Renderer::Assets
 		float m_FieldOfView = 0.0f;
 		float m_AspectRatio = 0.0f;
 
-		DirectX::XMFLOAT3 m_xm3Up;
-		DirectX::XMFLOAT3 m_xm3Target;
-		DirectX::XMFLOAT3 m_xm3Position;
+		Artemis::Maths::Vector3 m_xm3Up;
+		Artemis::Maths::Vector3 m_xm3Target;
+		Artemis::Maths::Vector3 m_xm3Position;
 
 		DirectX::XMMATRIX m_matView;
 		DirectX::XMMATRIX m_matProjection;

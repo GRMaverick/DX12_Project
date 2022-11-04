@@ -2,18 +2,21 @@
 
 #include <DirectXMath.h>
 
+#include "Vectors/Vector3.h"
+#include "Vectors/Vector4.h"
+
 struct Pass
 {
 	DirectX::XMMATRIX ViewProjection;
-	DirectX::XMFLOAT3 EyePosition;
+	Artemis::Maths::Vector3 EyePosition;
 };
 
 struct Light
 {
-	DirectX::XMFLOAT4 Diffuse;
-	DirectX::XMFLOAT4 Ambient;
-	DirectX::XMFLOAT4 Specular;
-	DirectX::XMFLOAT3 Position;
+	Artemis::Maths::Vector4 Diffuse;
+	Artemis::Maths::Vector4 Ambient;
+	Artemis::Maths::Vector4 Specular;
+	Artemis::Maths::Vector3 Position;
 	float SpecularPower;
 };
 
@@ -28,9 +31,9 @@ struct Spotlight
 
 struct Material
 {
-	DirectX::XMFLOAT4 Diffuse = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-	DirectX::XMFLOAT4 Ambient = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	DirectX::XMFLOAT4 Specular = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+	Artemis::Maths::Vector4 Diffuse = Artemis::Maths::Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+	Artemis::Maths::Vector4 Ambient = Artemis::Maths::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	Artemis::Maths::Vector4 Specular = Artemis::Maths::Vector4(0.0f, 0.0f, 0.0f, 0.0f);
 };
 
 struct Object

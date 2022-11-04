@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)_Toolkits\DirectXTK12\inc;$(SolutionDir)Artemis\Artemis.Renderer.Assets;$(SolutionDir)Artemis\Artemis.Utilities;$(SolutionDir)Artemis\Artemis.Memory;$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)\_Dependencies\include;$(SolutionDir)Artemis\Artemis.Renderer.Techniques;$(SolutionDir)Artemis\Artemis.Renderer.Shaders;$(SolutionDir)Artemis\Artemis.Renderer.Device;$(SolutionDir)Artemis\Artemis.Renderer.Device.Factories;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)_Toolkits\DirectXTK12\inc;$(SolutionDir)Artemis\Artemis.Maths;$(SolutionDir)Artemis\Artemis.Renderer.Assets;$(SolutionDir)Artemis\Artemis.Utilities;$(SolutionDir)Artemis\Artemis.Memory;$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)\_Dependencies\include;$(SolutionDir)Artemis\Artemis.Renderer.Techniques;$(SolutionDir)Artemis\Artemis.Renderer.Shaders;$(SolutionDir)Artemis\Artemis.Renderer.Device;$(SolutionDir)Artemis\Artemis.Renderer.Device.Factories;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -120,7 +120,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)_Toolkits\DirectXTK12\inc;$(SolutionDir)Artemis\Artemis.Renderer.Assets;$(SolutionDir)Artemis\Artemis.Utilities;$(SolutionDir)Artemis\Artemis.Memory;$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)\_Dependencies\include;$(SolutionDir)Artemis\Artemis.Renderer.Techniques;$(SolutionDir)Artemis\Artemis.Renderer.Shaders;$(SolutionDir)Artemis\Artemis.Renderer.Device;$(SolutionDir)Artemis\Artemis.Renderer.Device.Factories;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)_Toolkits\DirectXTK12\inc;$(SolutionDir)Artemis\Artemis.Maths;$(SolutionDir)Artemis\Artemis.Renderer.Assets;$(SolutionDir)Artemis\Artemis.Utilities;$(SolutionDir)Artemis\Artemis.Memory;$(SolutionDir)Artemis\Artemis.Core;$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)\_Dependencies\include;$(SolutionDir)Artemis\Artemis.Renderer.Techniques;$(SolutionDir)Artemis\Artemis.Renderer.Shaders;$(SolutionDir)Artemis\Artemis.Renderer.Device;$(SolutionDir)Artemis\Artemis.Renderer.Device.Factories;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -151,6 +151,9 @@
     </ProjectReference>
     <ProjectReference Include="..\Artemis.Core\Artemis.Core.vcxproj">
       <Project>{ad5c575b-f7ed-48fc-8912-b0284cafebd3}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Artemis.Maths\Artemis.Maths.vcxproj">
+      <Project>{1918827a-e53f-476f-81a0-6f61344395a8}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Artemis.Memory\Artemis.Memory.vcxproj">
       <Project>{98c701b2-2dc5-448f-ab0a-f35f792acd3b}</Project>

@@ -19,8 +19,6 @@
 #include <rapidxml/rapidxml_print.hpp>
 #include <rapidxml/rapidxml_utils.hpp>
 
-//#include "Loaders/AssimpLoader.h"
-
 #include "Memory/MemoryGlobalTracking.h"
 
 #include "Loading/AssimpLoader.h"
@@ -41,6 +39,7 @@ using namespace DirectX;
 using namespace Microsoft::WRL;
 
 using namespace Artemis::Core;
+using namespace Artemis::Maths;
 using namespace Artemis::Memory;
 using namespace Artemis::Utilities;
 
@@ -52,9 +51,59 @@ using namespace Artemis::Utilities;
 
 namespace Artemis::Renderer::Techniques
 {
+	Interfaces::BlendDesc DefaultBlendDesc()
+	{
+		Interfaces::BlendDesc desc;
+		desc.AlphaToCoverageEnable  = false;
+		desc.IndependentBlendEnable = false;
+
+		constexpr Interfaces::RenderTargetBlendDesc rtbDesc = {false, false, Interfaces::Blend_One, Interfaces::Blend_Zero, Interfaces::BlendOp_Add, Interfaces::Blend_One, Interfaces::Blend_Zero, Interfaces::BlendOp_Add, Interfaces::LogicOp_NoOp, Interfaces::ColourWriteEnable_All};
+		for ( unsigned int i = 0; i < ARRAYSIZE( desc.RenderTarget ); ++i )
+		{
+			desc.RenderTarget[i] = rtbDesc;
+		}
+
+		return desc;
+	}
+
+	Interfaces::RasteriserStateDesc DefaultRasteriserStateDesc()
+	{
+		Interfaces::RasteriserStateDesc desc;
+		desc.FillMode              = Interfaces::FillMode_Solid;
+		desc.CullMode              = Interfaces::CullMode_Back;
+		desc.FrontCounterClockwise = false;
+		desc.DepthBias             = 0;
+		desc.DepthBiasClamp        = 0.0f;
+		desc.SlopeScaledDepthBias  = 0.0f;
+		desc.DepthClipEnable       = true;
+		desc.MultisampleEnable     = false;
+		desc.AntialiasedLineEnable = false;
+		desc.ForcedSampleCount     = 0;
+		desc.ConservativeRaster    = Interfaces::ConservativeRasterisationMode_On;
+		return desc;
+	}
+
+	Interfaces::DepthStencilDesc DefaultDepthStencilDesc()
+	{
+		Interfaces::DepthStencilDesc desc;
+		desc.DepthEnable                                          = true;
+		desc.DepthWriteMask                                       = Interfaces::DepthWriteMask_All;
+		desc.DepthFunc                                            = Interfaces::ComparisonFunc_Less;
+		desc.StencilEnable                                        = false;
+		desc.StencilReadMask                                      = 0xFF;
+		desc.StencilWriteMask                                     = 0xFF;
+		constexpr Interfaces::DepthStencilOpDesc defaultStencilOp = {Interfaces::StencilOp_Keep, Interfaces::StencilOp_Keep, Interfaces::StencilOp_Keep, Interfaces::ComparisonFunc_Always};
+		desc.FrontFace                                            = defaultStencilOp;
+		desc.BackFace                                             = defaultStencilOp;
+		return desc;
+	}
+
 	ForwardRenderer::ForwardRenderer( void ):
 		m_bNewModelsLoaded( false ),
-		m_pDevice( nullptr )
+		m_pImGuiSrvHeap( nullptr ),
+		m_pLightsCb( nullptr ),
+		m_pMainPassCb( nullptr ),
+		m_pSpotlightCb( nullptr )
 	{
 		m_pSwapChain = nullptr;
 	}
@@ -158,25 +207,25 @@ namespace Artemis::Renderer::Techniques
 			const float x    = static_cast<float>(atof( posNode->first_attribute( "X" )->value() ));
 			const float y    = static_cast<float>(atof( posNode->first_attribute( "Y" )->value() ));
 			const float z    = static_cast<float>(atof( posNode->first_attribute( "Z" )->value() ));
-			pLight->Position = XMFLOAT3( x, y, z );
+			pLight->Position = Vector3( x, y, z );
 
 			float r         = static_cast<float>(atof( diffuse->first_attribute( "R" )->value() ));
 			float g         = static_cast<float>(atof( diffuse->first_attribute( "G" )->value() ));
 			float b         = static_cast<float>(atof( diffuse->first_attribute( "B" )->value() ));
 			float a         = static_cast<float>(atof( diffuse->first_attribute( "A" )->value() ));
-			pLight->Diffuse = XMFLOAT4( r, g, b, a );
+			pLight->Diffuse = Artemis::Maths::Vector4( r, g, b, a );
 
 			r               = static_cast<float>(atof( ambient->first_attribute( "R" )->value() ));
 			g               = static_cast<float>(atof( ambient->first_attribute( "G" )->value() ));
 			b               = static_cast<float>(atof( ambient->first_attribute( "B" )->value() ));
 			a               = static_cast<float>(atof( ambient->first_attribute( "A" )->value() ));
-			pLight->Ambient = XMFLOAT4( r, g, b, a );
+			pLight->Ambient = Artemis::Maths::Vector4( r, g, b, a );
 
 			r                = static_cast<float>(atof( specular->first_attribute( "R" )->value() ));
 			g                = static_cast<float>(atof( specular->first_attribute( "G" )->value() ));
 			b                = static_cast<float>(atof( specular->first_attribute( "B" )->value() ));
 			a                = static_cast<float>(atof( specular->first_attribute( "A" )->value() ));
-			pLight->Specular = XMFLOAT4( r, g, b, a );
+			pLight->Specular = Artemis::Maths::Vector4( r, g, b, a );
 
 			const float power     = static_cast<float>(atof( specular->first_attribute( "Power" )->value() ));
 			pLight->SpecularPower = power;
@@ -229,11 +278,11 @@ namespace Artemis::Renderer::Techniques
 		m_pLightsCb    = Artemis::Renderer::Shaders::ConstantTable::Instance()->CreateConstantBuffer( "LightCB", m_pDevice );
 		m_pSpotlightCb = Artemis::Renderer::Shaders::ConstantTable::Instance()->CreateConstantBuffer( "SpotlightCB", m_pDevice );
 
-		//LogInfo( "Loading Models:" );
+		LogInfo( "Loading Models:" );
 
 		if ( !LoadScene( "SponzaScene.xml" ) )
 		{
-			//LogError( "Scene Loading Failed" );
+			LogError( "Scene Loading Failed" );
 			return false;
 		}
 
@@ -498,53 +547,6 @@ namespace Artemis::Renderer::Techniques
 #endif
 	}
 
-	Interfaces::BlendDesc DefaultBlendDesc()
-	{
-		Interfaces::BlendDesc desc;
-		desc.AlphaToCoverageEnable  = false;
-		desc.IndependentBlendEnable = false;
-
-		const Interfaces::RenderTargetBlendDesc rtbDesc = {false, false, Interfaces::Blend_One, Interfaces::Blend_Zero, Interfaces::BlendOp_Add, Interfaces::Blend_One, Interfaces::Blend_Zero, Interfaces::BlendOp_Add, Interfaces::LogicOp_NoOp, Interfaces::ColourWriteEnable_All};
-		for ( unsigned int i = 0; i < ARRAYSIZE( desc.RenderTarget ); ++i )
-		{
-			desc.RenderTarget[i] = rtbDesc;
-		}
-
-		return desc;
-	}
-
-	Interfaces::RasteriserStateDesc DefaultRasteriserStateDesc()
-	{
-		Interfaces::RasteriserStateDesc desc;
-		desc.FillMode              = Interfaces::FillMode_Solid;
-		desc.CullMode              = Interfaces::CullMode_Back;
-		desc.FrontCounterClockwise = false;
-		desc.DepthBias             = 0;
-		desc.DepthBiasClamp        = 0.0f;
-		desc.SlopeScaledDepthBias  = 0.0f;
-		desc.DepthClipEnable       = true;
-		desc.MultisampleEnable     = false;
-		desc.AntialiasedLineEnable = false;
-		desc.ForcedSampleCount     = 0;
-		desc.ConservativeRaster    = Interfaces::ConservativeRasterisationMode_On;
-		return desc;
-	}
-
-	Interfaces::DepthStencilDesc DefaultDepthStencilDesc()
-	{
-		Interfaces::DepthStencilDesc desc;
-		desc.DepthEnable                                          = true;
-		desc.DepthWriteMask                                       = Interfaces::DepthWriteMask_All;
-		desc.DepthFunc                                            = Interfaces::ComparisonFunc_Less;
-		desc.StencilEnable                                        = false;
-		desc.StencilReadMask                                      = 0xFF;
-		desc.StencilWriteMask                                     = 0xFF;
-		constexpr Interfaces::DepthStencilOpDesc defaultStencilOp = {Interfaces::StencilOp_Keep, Interfaces::StencilOp_Keep, Interfaces::StencilOp_Keep, Interfaces::ComparisonFunc_Always};
-		desc.FrontFace                                            = defaultStencilOp;
-		desc.BackFace                                             = defaultStencilOp;
-		return desc;
-	}
-
 	void ForwardRenderer::MainRenderPass( const Interfaces::ICommandList* _pGfxCmdList ) const
 	{
 		Artemis::Renderer::Helpers::RenderMarker profile( _pGfxCmdList, "MainRenderPass" );
@@ -561,6 +563,8 @@ namespace Artemis::Renderer::Techniques
 			{
 				continue;
 			}
+
+			Artemis::Renderer::Helpers::RenderMarker profile( _pGfxCmdList, "%s", pModel->GetModelName() );
 
 			Interfaces::IGpuResource* pModelCb = pModel->GetConstantBuffer();
 
@@ -586,6 +590,7 @@ namespace Artemis::Renderer::Techniques
 				m_pDevice->SetTexture( "Albedo", rMesh.pTexture[ALBEDO] );
 				m_pDevice->SetTexture( "Normal", rMesh.pTexture[NORMAL] );
 
+				Artemis::Renderer::Helpers::RenderMarker profile( _pGfxCmdList, "Mesh: %llu", j );
 				if ( m_pDevice->FlushState() )
 				{
 					_pGfxCmdList->DrawIndexedInstanced( rMesh.pVertexBuffer, rMesh.pIndexBuffer, rMesh.Indices );

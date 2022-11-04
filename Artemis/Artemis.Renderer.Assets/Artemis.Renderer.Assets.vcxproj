@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Artemis\Artemis.Renderer.Assets;$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)_Dependencies\include;$(SolutionDir)_Toolkits\DirectXTK12\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Artemis\Artemis.Maths;$(SolutionDir)Artemis\Artemis.Renderer.Assets;$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)_Dependencies\include;$(SolutionDir)_Toolkits\DirectXTK12\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -120,7 +120,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Artemis\Artemis.Renderer.Assets;$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)_Dependencies\include;$(SolutionDir)_Toolkits\DirectXTK12\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Artemis\Artemis.Maths;$(SolutionDir)Artemis\Artemis.Renderer.Assets;$(SolutionDir)Artemis\Artemis.Renderer.Interfaces;$(SolutionDir)_Dependencies\include;$(SolutionDir)_Toolkits\DirectXTK12\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -145,6 +145,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\_Toolkits\DirectXTK12\DirectXTK_Desktop_2019_Win10.vcxproj">
       <Project>{3e0e8608-cd9b-4c76-af33-29ca38f2c9f0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Artemis.Maths\Artemis.Maths.vcxproj">
+      <Project>{1918827a-e53f-476f-81a0-6f61344395a8}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Artemis.Renderer.Interfaces\Artemis.Renderer.Interfaces.vcxproj">
       <Project>{fee2b61d-f6a5-4532-ad38-93f278430bae}</Project>

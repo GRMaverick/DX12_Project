@@ -138,6 +138,7 @@
     <ClInclude Include="Matrices\Matrix3x3.h" />
     <ClInclude Include="Misc\Quaternion.h" />
     <ClInclude Include="Vectors\Vector3.h" />
+    <ClInclude Include="Vectors\Vector4.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Functions\CollisionDetection.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="Matrices\Matrix3x3.cpp" />
     <ClCompile Include="Misc\Quaternion.cpp" />
     <ClCompile Include="Vectors\Vector3.cpp" />
+    <ClCompile Include="Vectors\Vector4.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
