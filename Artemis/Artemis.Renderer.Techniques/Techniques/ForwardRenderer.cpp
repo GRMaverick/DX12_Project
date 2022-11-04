@@ -20,14 +20,8 @@
 #include <rapidxml/rapidxml_utils.hpp>
 
 //#include "Loaders/AssimpLoader.h"
-//#include <WICTextureLoader.h>
-
-//#include "Window/GameWindow.h"
 
 #include "Memory/MemoryGlobalTracking.h"
-
-//#include "Loaders/CLParser.h"
-//#include "Profiling/ProfileMarker.h"
 
 #include "Loading/AssimpLoader.h"
 #include "Scene/Camera.h"
@@ -37,6 +31,7 @@
 #include "Constants/ConstantTable.h"
 
 #include "Debug/ImGUIEngine.h"
+#include "Helpers/ProfileMarker.h"
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d12.lib")
@@ -292,7 +287,7 @@ namespace Artemis::Renderer::Techniques
 
 		// Rendering
 		{
-			//RenderMarker profile( pGfxCmdList, "Render" );
+			Artemis::Renderer::Helpers::RenderMarker profile( pGfxCmdList, "Render" );
 
 			m_pSwapChain->PrepareForRendering( pGfxCmdList );
 			m_pSwapChain->SetOmRenderTargets( pGfxCmdList );
@@ -318,13 +313,10 @@ namespace Artemis::Renderer::Techniques
 		return true;
 	}
 
-	void ForwardRenderer::ImGuiPass( Interfaces::ICommandList* _pGfxCmdList ) const
+	void ForwardRenderer::ImGuiPass( const Interfaces::ICommandList* _pGfxCmdList ) const
 	{
 #if defined(_DEBUG)
-		//RenderMarker profile( _pGfxCmdList, "%s", "ImGUI" );
-
-		//ID3D12DescriptorHeap* pHeaps[] = {m_pImGuiSrvHeap->GetHeap()};
-		//_pGfxCmdList->SetDescriptorHeaps( pHeaps, _countof( pHeaps ) );
+		Artemis::Renderer::Helpers::RenderMarker profile( _pGfxCmdList, "ImGUI" );
 
 		Artemis::Renderer::Interfaces::IDescriptorHeap* pHeaps[] = {m_pImGuiSrvHeap};
 		_pGfxCmdList->SetDescriptorHeaps( pHeaps, _countof( pHeaps ) );
@@ -555,7 +547,7 @@ namespace Artemis::Renderer::Techniques
 
 	void ForwardRenderer::MainRenderPass( const Interfaces::ICommandList* _pGfxCmdList ) const
 	{
-		//RenderMarker profile( _pGfxCmdList, "MainRenderPass" );
+		Artemis::Renderer::Helpers::RenderMarker profile( _pGfxCmdList, "MainRenderPass" );
 
 		m_pDevice->SetBlendState( DefaultBlendDesc() );
 		m_pDevice->SetRasterizerState( DefaultRasteriserStateDesc() );

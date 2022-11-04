@@ -10,8 +10,6 @@
 
 #include "DeviceDx12.h"
 
-//#include "pix3.h"
-
 //#define BREADCRUMB
 
 namespace Artemis::Renderer::Device::Dx12
@@ -27,14 +25,6 @@ namespace Artemis::Renderer::Device::Dx12
 		CommandListDx12( void );
 		~CommandListDx12( void ) override;
 
-		//static CommandListDx12* Build( Interfaces::IGraphicsDevice* _pDevice, Interfaces::ECommandListType _type, const wchar_t* _pDebugName = L"" )
-		//{
-		//	CommandListDx12* pCommandList = nullptr;
-		//	if ( !_pDevice->CreateCommandList( _type, &pCommandList, _pDebugName ) )
-		//		return nullptr;
-		//	return pCommandList;
-		//}
-
 #pragma region ICommandList Implementation
 		bool Initialise( const Interfaces::IGraphicsDevice* _pDevice, Interfaces::ECommandListType _type, const wchar_t* _pDebugName = L"" ) override;
 		void SetIaPrimitiveTopology( Interfaces::PrimitiveTopology _topology ) const override;
@@ -43,23 +33,8 @@ namespace Artemis::Renderer::Device::Dx12
 		void DrawIndexedInstanced( Interfaces::IGpuResource* _pVertexBuffer, Interfaces::IGpuResource* _pIndexBuffer, unsigned int _indices ) const override;
 		void DrawImGui() const override;
 
-		virtual void StartMarker( const char* _pFormatString ) const override
-		{
-			// CPU
-			//PIXBeginEvent( PIX_COLOR_DEFAULT, _pFormatString );
-
-			// GPU
-			//PIXBeginEvent( m_pList.Get(), PIX_COLOR_INDEX( 0 ), _pFormatString );
-		}
-
-		virtual void EndMarker( void ) const override
-		{
-			// CPU
-			//PIXEndEvent();
-
-			// GPU
-			//PIXEndEvent( m_pList.Get() );
-		}
+		virtual void StartMarker(const char* _pFormatString) const override;
+		virtual void EndMarker(void) const override;
 #pragma endregion
 
 		void Close( void ) const;

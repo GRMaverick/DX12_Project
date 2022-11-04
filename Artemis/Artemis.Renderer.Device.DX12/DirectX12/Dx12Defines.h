@@ -2,12 +2,17 @@
 #include <assert.h>
 
 #include "Logging/Logger.h"
+#include "Helpers/ProfileMarker.h"
 
 #define BACK_BUFFERS 2
 
 #define NOMINMAX
 
-//#define LOW_LEVEL_GPU_PROFILING
+#define LOW_LEVEL_GPU_PROFILING
+
+#if defined(_DEBUG)
+#define USE_PIX
+#endif
 
 #define PRAGMA_TODO(todo)	__pragma(message("[TODO]: "todo));
 #define CONSTANT_BUFFER_SIZE(byteSize) (byteSize + 255) & ~255;
@@ -44,8 +49,10 @@ using namespace Artemis::Utilities;
 #define LogFatal(pFormat, ...)		Logger::Log(SEVERITY_FATAL, CATEGORY_RENDERER, pFormat, __VA_ARGS__)
 
 #if defined(LOW_LEVEL_GPU_PROFILING)
-#define LOW_LEVEL_PROFILE_MARKER(pCmdList, pFormat, ...) RenderMarker mkr(pCmdList, pFormat, __VA_ARGS__);
+#define LOW_LEVEL_PROFILE_MARKET(pCmdList, pString) Artemis::Renderer::Helpers::RenderMarker(pCmdList, pString);
+#define LOW_LEVEL_PROFILE_MARKER(pCmdList, pFormat, ...) Artemis::Renderer::Helpers::RenderMarker mkr(pCmdList, pFormat, __VA_ARGS__);
 #else
+#define LOW_LEVEL_PROFILE_MARKET(pCmdList, pString)
 #define LOW_LEVEL_PROFILE_MARKER(pCmdList, pFormat, ...)
 #endif
 

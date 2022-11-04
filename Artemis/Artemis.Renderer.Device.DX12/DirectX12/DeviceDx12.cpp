@@ -28,7 +28,7 @@
 #include <ImGUI\imgui_impl_dx12.h>
 
 #include "Hashing/Hashing.h"
-//#include "Helpers/ProfileMarker.h"
+#include "Helpers/ProfileMarker.h"
 
 #include "Memory/ScopedMemoryRecord.h"
 
@@ -361,7 +361,7 @@ namespace Artemis::Renderer::Device::Dx12
 		}
 		else
 		{
-			//Helpers::RenderMarker profile( GetImmediateContext(), "ID3D12Device::CreateRootSignature" );
+			Helpers::RenderMarker profile( GetImmediateContext(), "ID3D12Device::CreateRootSignature" );
 
 			ISamplerState**     pSamplers  = nullptr;
 			IGpuResource**      ppBuffers  = nullptr,**ppTextures = nullptr;

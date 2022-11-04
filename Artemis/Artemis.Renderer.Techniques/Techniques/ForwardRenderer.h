@@ -82,7 +82,7 @@ namespace Artemis::Renderer::Techniques
 		void UpdatePassConstants() const;
 
 		void MainRenderPass( const Interfaces::ICommandList* _pGfxCmdList ) const;
-		void ImGuiPass( Interfaces::ICommandList* _pGfxCmdList ) const;
+		void ImGuiPass( const Interfaces::ICommandList* _pGfxCmdList ) const;
 	};
 }
 

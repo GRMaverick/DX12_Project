@@ -38,7 +38,7 @@ public:
 	//
 	// Call from CommandList
 	//
-	static void Draw( Artemis::Renderer::Interfaces::ICommandList* _pCommandList );
+	static void Draw( const Artemis::Renderer::Interfaces::ICommandList* _pCommandList );
 
 private:
 	static ImGuiIO* m_IO;

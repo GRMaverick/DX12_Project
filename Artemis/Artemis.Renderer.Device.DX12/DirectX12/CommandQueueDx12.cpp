@@ -4,7 +4,7 @@
 
 #include <assert.h>
 
-#include "Helpers\PixScopedEvent.h"
+#include "pix3.h"
 
 using namespace Microsoft::WRL;
 
@@ -75,31 +75,41 @@ namespace Artemis::Renderer::Device::Dx12
 
 	void CommandQueueDx12::Flush()
 	{
-		Helpers::PixScopedEvent rEvent( m_pQueue.Get(), "%s: %s", g_TypeToString[m_eType], "Flush" );
+		PIXBeginEvent( m_pQueue.Get(), PIX_COLOR_DEFAULT, "%s: %s", g_TypeToString[m_eType], "Flush" );
+
 		Signal();
 		Wait();
+
+		PIXEndEvent(m_pQueue.Get());
 	}
 
 	unsigned long CommandQueueDx12::Signal()
 	{
-		Helpers::PixScopedEvent rEvent( m_pQueue.Get(), "%s: %s", g_TypeToString[m_eType], "Signal" );
-		m_pQueue->Signal( m_pFence.Get(), ++m_uiFenceValue );
+		PIXBeginEvent(m_pQueue.Get(), PIX_COLOR_DEFAULT, "%s: %s", g_TypeToString[m_eType], "Signal" );
+
+        m_pQueue->Signal(m_pFence.Get(), ++m_uiFenceValue);
+
+        PIXEndEvent(m_pQueue.Get());
+
 		return m_uiFenceValue;
 	}
 
 	void CommandQueueDx12::Wait() const
 	{
-		Helpers::PixScopedEvent rEvent( m_pQueue.Get(), "%s: %s", g_TypeToString[m_eType], "Wait" );
+		PIXBeginEvent(m_pQueue.Get(), PIX_COLOR_DEFAULT, "%s: %s", g_TypeToString[m_eType], "Wait" );
+
 		if ( m_pFence->GetCompletedValue() < m_uiFenceValue )
 		{
 			m_pFence->SetEventOnCompletion( m_uiFenceValue, m_hFenceEvent );
 			::WaitForSingleObject( m_hFenceEvent, static_cast<DWORD>(INFINITE) );
-		}
+        }
+
+        PIXEndEvent(m_pQueue.Get());
 	}
 
 	void CommandQueueDx12::ExecuteCommandLists( void )
 	{
-		Helpers::PixScopedEvent rEvent( m_pQueue.Get(), "%s: %s", g_TypeToString[m_eType], "ExecuteCommandLists" );
+		PIXBeginEvent(m_pQueue.Get(), PIX_COLOR_DEFAULT, "%s: %s", g_TypeToString[m_eType], "ExecuteCommandLists" );
 
 		std::vector<ID3D12CommandList*> vpLists;
 		for ( UINT listIdx = 0; listIdx < m_pAwaitingExecution.size(); ++listIdx )
@@ -110,7 +120,9 @@ namespace Artemis::Renderer::Device::Dx12
 
 		if ( !vpLists.size() )
 		{
-			LogWarning( "Execute requested on empty queue" );
+            LogWarning("Execute requested on empty queue");
+
+            PIXEndEvent(m_pQueue.Get());
 			return;
 		}
 
@@ -120,13 +132,17 @@ namespace Artemis::Renderer::Device::Dx12
 
 		if ( !m_pAwaitingExecution.size() )
 		{
-			LogWarning( "Execute requested on empty queue" );
+            LogWarning("Execute requested on empty queue");
+
+            PIXEndEvent(m_pQueue.Get());
 			return;
 		}
 
 		for ( unsigned int listIdx = 0; listIdx < m_pAwaitingExecution.size(); ++listIdx )
 		{
 			m_pAwaitingExecution.erase( m_pAwaitingExecution.begin() + listIdx );
-		}
+        }
+
+        PIXEndEvent(m_pQueue.Get());
 	}
 }
