@@ -89,4 +89,9 @@ namespace Artemis::Maths
 		this->z /= _rhs.z;
 		this->w /= _rhs.w;
 	}
+
+	float Vector4::Dot( const Vector4& _rhs ) const
+	{
+		return (float)(this->x * _rhs.x + this->y * _rhs.y + this->z * _rhs.z + this->w * _rhs.w);
+	}
 }

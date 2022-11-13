@@ -25,5 +25,7 @@ namespace Artemis::Maths
 		void operator+=( const Vector4& _rhs );
 		void operator*=( const Vector4& _rhs );
 		void operator/=( const Vector4& _rhs );
+
+		float Dot( const Vector4& _rhs ) const;
 	};
 }

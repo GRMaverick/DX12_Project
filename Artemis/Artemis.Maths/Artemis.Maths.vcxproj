@@ -136,6 +136,7 @@
     <ClInclude Include="Geometry\Line.h" />
     <ClInclude Include="Geometry\Plane.h" />
     <ClInclude Include="Matrices\Matrix3x3.h" />
+    <ClInclude Include="Matrices\Matrix4x4.h" />
     <ClInclude Include="Misc\Quaternion.h" />
     <ClInclude Include="Vectors\Vector3.h" />
     <ClInclude Include="Vectors\Vector4.h" />
@@ -146,6 +147,7 @@
     <ClCompile Include="Geometry\Line.cpp" />
     <ClCompile Include="Geometry\Plane.cpp" />
     <ClCompile Include="Matrices\Matrix3x3.cpp" />
+    <ClCompile Include="Matrices\Matrix4x4.cpp" />
     <ClCompile Include="Misc\Quaternion.cpp" />
     <ClCompile Include="Vectors\Vector3.cpp" />
     <ClCompile Include="Vectors\Vector4.cpp" />

@@ -69,6 +69,9 @@
     <ClInclude Include="Vectors\Vector4.h">
       <Filter>Header Files\Vectors</Filter>
     </ClInclude>
+    <ClInclude Include="Matrices\Matrix4x4.h">
+      <Filter>Header Files\Matrices</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Vectors\Vector3.cpp">
@@ -94,6 +97,9 @@
     </ClCompile>
     <ClCompile Include="Vectors\Vector4.cpp">
       <Filter>Source Files\Vectors</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrices\Matrix4x4.cpp">
+      <Filter>Source Files\Matrices</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
