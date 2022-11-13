@@ -77,3 +77,4 @@ DX12_Project/DX12_Project.vcxproj.user
 /.vs/DX12_Project/FileContentIndex/36c64ee6-144d-4982-9d53-53b97eff9a42.vsidx
 /.vs/DX12_Project/v17/.suo
 *.testlog
+*.recipe
